@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base app colors -->
+    <color name="primary">#1976D2</color>
+    <color name="primary_dark">#1565C0</color>
+    <color name="primary_light">#BBDEFB</color>
+    <color name="accent">#FF4081</color>
+    <color name="accent_light">#FF80AB</color>
+
+    <!-- Gradient colors -->
+    <color name="gradient_start">#2196F3</color>
+    <color name="gradient_center">#0D47A1</color>
+    <color name="gradient_end">#0D2C54</color>
+
+    <!-- Text colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- UI element colors -->
+    <color name="divider_color">#EEEEEE</color>
+    <color name="rating_color">#FFC107</color>
+    <color name="blue_primary">#1976D2</color>
+
+    <!-- Standard colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="red">#F44336</color>
+    <color name="green">#4CAF50</color>
+
+    <!-- Bottom navigation colors -->
+    <color name="bottom_nav_background_start">#2196F3</color>
+    <color name="bottom_nav_background_end">#1565C0</color>
+    <color name="bottom_nav_selected">#FFFFFF</color>
+    <color name="bottom_nav_unselected">#BBDEFB</color>
+</resources>

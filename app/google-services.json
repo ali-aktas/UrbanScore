@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "93543473476",
+    "project_id": "urbanscore-87a7c",
+    "storage_bucket": "urbanscore-87a7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:93543473476:android:f5e322bfbedcdc872a3711",
+        "android_client_info": {
+          "package_name": "com.aliaktas.urbanscore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDl0XpqFuXK6gz58fFhIwrm_wLQeOLQdAk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

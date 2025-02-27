@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UrbanScore</string>
+
+    <!-- Home Screen -->
+    <string name="search_hint">Search cities…</string>
+    <string name="top_rated_cities">Top Rated Cities</string>
+    <string name="view_all_cities">View All Cities</string>
+    <string name="loading_cities">Loading cities…</string>
+    <string name="error_loading_data">Something went wrong. Please try again.</string>
+    <string name="retry">Retry</string>
+
+    <!-- Categories -->
+    <string name="category_safety">The Most Safe &amp; Peaceful Cities</string>
+    <string name="category_landscape">Most Beautiful Urban Landscapes</string>
+    <string name="category_cuisine">Best Cities for Food Lovers</string>
+    <string name="category_hospitality">Most Welcoming Cities</string>
+    <string name="category_nature">Best Climate &amp; Nature</string>
+    <string name="category_lifestyle">Best Cities for Lifestyle</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_explore">Explore</string>
+    <string name="nav_wishlist">Wishlist</string>
+    <string name="all_cities">AllCities</string>
+    <string name="rate_city">RateCity</string>
+    <string name="city_details">CityDetails</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Accessibility -->
+    <string name="app_logo">App Logo</string>
+    <string name="search">Search</string>
+    <string name="category_image">Category Image</string>
+    <string name="rating_star">Rating Star</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- City Detail Screen -->
+    <string name="city_image">City Image</string>
+    <string name="country_flag">Country Flag</string>
+    <string name="population_format">Population: %s</string>
+    <plurals name="based_on_ratings">
+        <item quantity="one">Based on %d rating</item>
+        <item quantity="other">Based on %d ratings</item>
+    </plurals>
+    <string name="overall_rating">Overall Rating</string>
+    <string name="category_ratings">Category Ratings</string>
+
+    <!-- Category names and descriptions -->
+    <string name="safety_and_serenity">Safety &amp; Serenity</string>
+    <string name="safety_serenity_desc">Crime rate, personal safety, and peaceful atmosphere</string>
+    <string name="landscape_and_vibe">Landscape &amp; Vibe</string>
+    <string name="landscape_vibe_desc">City architecture, urban planning, and general atmosphere</string>
+    <string name="nature_and_climate">Nature &amp; Climate</string>
+    <string name="nature_climate_desc">Green spaces, weather conditions, and natural surroundings</string>
+    <string name="lifestyle">Lifestyle</string>
+    <string name="lifestyle_desc">Quality of life, activities, entertainment, and nightlife</string>
+    <string name="cuisine">Cuisine</string>
+    <string name="cuisine_desc">Food quality, variety, and dining experiences</string>
+    <string name="hospitality">Hospitality</string>
+    <string name="hospitality_desc">Friendliness of locals and general welcome feeling</string>
+
+    <!-- Action buttons -->
+    <string name="add_to_wishlist">Add to Wishlist</string>
+    <string name="rate_this_city">Rate this City</string>
+    <string name="share">Share</string>
+    <string name="share_city_format">Check out %1$s, %2$s on UrbanScore! It has an average rating of %3$.1f/10. Download the app to explore more cities!</string>
+
+    <!-- Accessibility -->
+    <string name="safety">Safety</string>
+    <string name="landscape">Landscape</string>
+
+</resources>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <!-- Main Tabs for Bottom Navigation -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.aliaktas.urbanscore.ui.home.HomeFragment"
+        android:label="@string/nav_home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_cityDetail"
+            app:destination="@id/cityDetailFragment" />
+        <action
+            android:id="@+id/action_home_to_allCities"
+            app:destination="@id/allCitiesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/exploreFragment"
+        android:name="com.aliaktas.urbanscore.ui.search.ExploreFragment"
+        android:label="@string/nav_explore"
+        tools:layout="@layout/fragment_explore">
+        <action
+            android:id="@+id/action_explore_to_cityDetail"
+            app:destination="@id/cityDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.aliaktas.urbanscore.ui.profile.ProfileFragment"
+        android:label="@string/nav_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <!-- Non-tab Destinations -->
+    <fragment
+        android:id="@+id/cityDetailFragment"
+        android:name="com.aliaktas.urbanscore.ui.detail.CityDetailFragment"
+        android:label="@string/city_details"
+        tools:layout="@layout/fragment_city_detail">
+        <argument
+            android:name="cityId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_detail_to_rate"
+            app:destination="@id/rateCityFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/allCitiesFragment"
+        android:name="com.aliaktas.urbanscore.ui.allcities.AllCitiesFragment"
+        android:label="@string/all_cities"
+        tools:layout="@layout/fragment_all_cities">
+        <action
+            android:id="@+id/action_allCities_to_cityDetail"
+            app:destination="@id/cityDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/rateCityFragment"
+        android:name="com.aliaktas.urbanscore.ui.ratecity.RateCityFragment"
+        android:label="@string/rate_city"
+        tools:layout="@layout/fragment_rate_city">
+        <argument
+            android:name="cityId"
+            app:argType="string" />
+    </fragment>
+
+</navigation>
