@@ -48,8 +48,19 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:orientation="vertical"
+                android:layout_marginBottom="40dp"
                 android:padding="16dp"
                 app:layout_collapseMode="parallax">
+
+                <TextView
+                    android:id="@+id/textCityName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="24sp"
+                    tools:text="Based on 10 ratings" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/imgFlag"
@@ -85,7 +96,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                app:title="" />
+                />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -94,6 +105,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">

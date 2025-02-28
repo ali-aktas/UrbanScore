@@ -28,9 +28,20 @@
     <color name="red">#F44336</color>
     <color name="green">#4CAF50</color>
 
+    <!-- Auth Screens Colors -->
+    <color name="auth_primary">#2D6D62</color>
+    <color name="auth_secondary">#A3C9C1</color>
+    <color name="auth_light">#E0EBE9</color>
+    <color name="auth_accent">#F5BB2D</color>
+    <color name="auth_text_primary">#FFFFFF</color>
+    <color name="auth_text_secondary">#4A4A4A</color>
+    <color name="auth_input_background">#33FFFFFF</color>
+    <color name="auth_button_text">#FFFFFF</color>
+
     <!-- Bottom navigation colors -->
     <color name="bottom_nav_background_start">#2196F3</color>
     <color name="bottom_nav_background_end">#1565C0</color>
     <color name="bottom_nav_selected">#FFFFFF</color>
     <color name="bottom_nav_unselected">#BBDEFB</color>
+    <color name="bottom_nav_item_color">#F44336</color>
 </resources>

@@ -91,6 +91,9 @@ dependencies {
     //implementation(libs.firebase.analytics)
     //implementation(libs.firebase.messaging)
 
+    //Auth
+    implementation(libs.google.auth)
+
     //Lottie Animations
     implementation(libs.lottie)
 

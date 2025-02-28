@@ -12,7 +12,20 @@
           "package_name": "com.aliaktas.urbanscore"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "93543473476-kpreaqq0h2riiicj3gimciuo2312p6rt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aliaktas.urbanscore",
+            "certificate_hash": "0903b843769d7a83c079354960652bd1eeb080b7"
+          }
+        },
+        {
+          "client_id": "93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDl0XpqFuXK6gz58fFhIwrm_wLQeOLQdAk"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

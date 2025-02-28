@@ -99,7 +99,7 @@ class HomeFragment : Fragment() {
                 Log.d("HomeFragment", "City clicked: ${city.cityName}")
 
                 // Simple navigation without shared element for now
-                val action = HomeFragmentDirections.actionHomeToCityDetail(city.id)
+                val action = HomeFragmentDirections.actionHomeFragmentToCityDetailFragment(city.id)
                 findNavController().navigate(action)
 
                 /*
@@ -114,11 +114,11 @@ class HomeFragment : Fragment() {
 
                     // Navigate with shared element transition
                     val extras = FragmentNavigatorExtras(cityItem to "city_${city.id}")
-                    val direction = HomeFragmentDirections.actionHomeToCityDetail(city.id)
+                    val direction = HomeFragmentDirections.actionHomeFragmentToCityDetailFragment(city.id)
                     findNavController().navigate(direction, extras)
                 } else {
                     // Fallback if view holder is null
-                    val action = HomeFragmentDirections.actionHomeToCityDetail(city.id)
+                    val action = HomeFragmentDirections.actionHomeFragmentToCityDetailFragment(city.id)
                     findNavController().navigate(action)
                 }
                 */
@@ -200,6 +200,7 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

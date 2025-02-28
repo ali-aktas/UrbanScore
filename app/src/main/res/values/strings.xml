@@ -70,4 +70,41 @@
     <string name="safety">Safety</string>
     <string name="landscape">Landscape</string>
 
+    <!-- Profile -->
+    <string name="profile">Profile</string>
+    <string name="logout">Log out</string>
+    <string name="logout_confirmation">Are you sure to log out?</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="logout_success">Logged out successfully.</string>
+    <string name="web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
+
+    <!-- Auth Strings -->
+    <string name="email_or_phone">Email or Phone</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="login">Login</string>
+    <string name="or">or</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="google_icon">Google Icon</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="full_name">Full Name</string>
+    <string name="email_address">Email Address</string>
+    <string name="retype_password">Retype Password</string>
+    <string name="i_agree_to_the_terms_privacy">I agree to the Terms &amp; Privacy</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="have_an_account">Have an account?</string>
+    <string name="sign_in">Sign In</string>
+    <string name="back">Back</string>
+    <string name="let_s">Let\'s</string>
+    <string name="create_your_account">Create Your Account</string>
+    <string name="forgot_password_title">Forgot Password?</string>
+    <string name="forgot_password_description">No worries, we\'ll send you reset instructions</string>
+    <string name="email">Email</string>
+    <string name="enter_your_email">Enter your Email</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="back_to_login">Back to Login</string>
+    <string name="for_travellers">FOR TRAVELLERS</string>
+    <string name="default_web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
+
 </resources>

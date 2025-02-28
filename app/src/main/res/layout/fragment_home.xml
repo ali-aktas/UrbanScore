@@ -113,7 +113,7 @@
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
                 app:strokeWidth="0dp"
-                app:cardBackgroundColor="#AE1E6361"
+                app:cardBackgroundColor="#1E4D63"
                 app:cardCornerRadius="26dp"
                 app:cardElevation="2dp"
                 app:layout_constraintTop_toBottomOf="@id/recyclerViewCategories">
@@ -157,7 +157,7 @@
                         style="@style/Widget.Material3.Button.TextButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/view_all_cities"
+                        android:text=""
                         android:textAllCaps="false"
                         android:textColor="@color/white" />
                 </LinearLayout>

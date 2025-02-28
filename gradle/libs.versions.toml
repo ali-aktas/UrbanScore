@@ -21,6 +21,7 @@ cardview = "1.0.0"
 gson = "2.10.1"
 firebase-bom = "32.2.3"
 googleServices = "4.4.1"
+play-services-auth = "20.7.0"
 swiperefreshlayout = "1.1.0"
 lottie = "6.1.0"
 
@@ -56,6 +57,8 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
 lottie = { group = "com.airbnb.android", name = "lottie", version.ref = "lottie" }
+google-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
