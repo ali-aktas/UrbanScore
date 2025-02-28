@@ -94,8 +94,9 @@ dependencies {
     //Auth
     implementation(libs.google.auth)
 
-    //Lottie Animations
+    //Animations
     implementation(libs.lottie)
+    implementation(libs.splash.screen)
 
 
 }

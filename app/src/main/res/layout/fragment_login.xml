@@ -139,7 +139,7 @@
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
+            android:background="@drawable/bottom_nav_background"
             android:clickable="true"
             android:focusable="true">
 
@@ -199,10 +199,12 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/btnSignUp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:paddingVertical="16dp"
+            android:paddingHorizontal="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -222,7 +224,7 @@
     <!-- Google ile Giriş Yap -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardGoogleSignIn"
-        android:layout_width="100dp"
+        android:layout_width="0dp"
         android:layout_height="56dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"

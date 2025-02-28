@@ -16,11 +16,15 @@ class HomeViewModel @Inject constructor(
     private val cityRepository: CityRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<HomeState>(HomeState.Loading)
+    private val _state = MutableStateFlow<HomeState>(HomeState.Initial)
     val state = _state.asStateFlow()
 
     init {
-        getCities()
+        // Kısa bir gecikme ile yüklemeye başla
+        viewModelScope.launch {
+            delay(100) // Çok kısa bir gecikme
+            getCities()
+        }
     }
 
     private fun getCities() {

@@ -3,6 +3,9 @@
     <style name="Base.Theme.UrbanScore" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="Theme.UrbanScore" parent="Base.Theme.UrbanScore" />
@@ -14,5 +17,22 @@
         <item name="itemRippleColor">@color/gradient_end</item>
         <item name="labelVisibilityMode">labeled</item>
     </style>
+
+    <!-- Splash screen theme for Android 12+ -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Splash screen arkaplan rengi -->
+        <item name="windowSplashScreenBackground">@color/auth_primary</item>
+
+        <!-- Uygulamanın logosunu kullan -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/loginicon2</item>
+
+        <!-- Ana tema -->
+        <item name="postSplashScreenTheme">@style/Theme.UrbanScore</item>
+
+        <!-- Status bar rengini ayarla -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
 
 </resources>

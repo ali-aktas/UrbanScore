@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_explore"
         android:title="@string/nav_explore" />
     <item
+        android:id="@+id/allCitiesFragment"
+        android:icon="@drawable/ic_wishlist"
+        android:title="Categories" />
+    <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/ic_profile"
         android:title="@string/nav_profile" />

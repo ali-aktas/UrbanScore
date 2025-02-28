@@ -174,8 +174,14 @@ class HomeFragment : Fragment() {
 
     private fun updateUI(state: HomeState) {
         when (state) {
+            is HomeState.Initial -> {
+                // Hiçbir şey yapma, UI varsayılan durumda kalsın
+                binding.loadingContainer.isVisible = false
+                binding.errorContainer.isVisible = false
+                binding.cardCitiesList.isVisible = false
+            }
             is HomeState.Loading -> {
-                binding.loadingContainer.isVisible = true
+                binding.loadingContainer.isVisible = false
                 binding.errorContainer.isVisible = false
                 binding.cardCitiesList.isVisible = false
             }
