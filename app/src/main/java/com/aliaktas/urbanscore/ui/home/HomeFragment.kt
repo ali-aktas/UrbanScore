@@ -55,20 +55,11 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupSearchBar()
         setupCategoriesRecyclerView()
         setupCitiesRecyclerView()
         setupSwipeRefresh()
         setupLottieAnimations()
         observeViewModel()
-    }
-
-    private fun setupSearchBar() {
-        binding.cardSearch.setOnClickListener {
-            // Navigate to search fragment/activity
-            // You would implement actual navigation here
-            Log.d("HomeFragment", "Search clicked")
-        }
     }
 
     private fun setupCategoriesRecyclerView() {
@@ -128,12 +119,6 @@ class HomeFragment : Fragment() {
             }
         }
 
-        binding.btnViewAllCities.setOnClickListener {
-            // Navigate to all cities list
-            Log.d("HomeFragment", "View all cities clicked")
-            // Implement navigation to all cities screen
-            // findNavController().navigate(HomeFragmentDirections.actionHomeToAllCities())
-        }
     }
 
     private fun setupSwipeRefresh() {

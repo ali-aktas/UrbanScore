@@ -10,7 +10,7 @@
         android:title="@string/nav_explore" />
     <item
         android:id="@+id/allCitiesFragment"
-        android:icon="@drawable/ic_wishlist"
+        android:icon="@drawable/ic_categories"
         android:title="Categories" />
     <item
         android:id="@+id/profileFragment"

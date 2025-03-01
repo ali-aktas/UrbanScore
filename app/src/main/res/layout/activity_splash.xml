@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/auth_primary"
+    android:background="@drawable/bottom_nav_background"
     tools:context=".ui.splash.SplashActivity">
 
     <ImageView
@@ -27,7 +27,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="sans-serif-medium"
         android:text="@string/app_name"
-        android:textColor="@color/auth_accent"
+        android:textColor="#07F1C3"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif-light"
         android:text="@string/for_travellers"
-        android:textColor="@color/auth_text_primary"
+        android:textColor="#FF3030"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,89 +7,52 @@
     android:fitsSystemWindows="true"
     tools:context=".ui.home.HomeFragment">
 
-    <androidx.core.widget.NestedScrollView
+    <!-- App Bar with Title and Profile Picture -->
+    <LinearLayout
+        android:id="@+id/layoutAppBar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:padding="4dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/citypulseicon"
+            android:contentDescription="@string/app_logo" />
+
+        <TextView
+            android:id="@+id/txtAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="#FFFFFF"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:clipToPadding="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layoutAppBar"
         android:overScrollMode="never"
-        android:paddingBottom="80dp">
+        android:paddingBottom="20dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <!-- App Bar with Title and Profile Picture -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layoutAppBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="8dp"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/imgLogo"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_home"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:contentDescription="@string/app_logo" />
-
-                <TextView
-                    android:id="@+id/txtAppName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:text="@string/app_name"
-                    android:textColor="@color/white"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/imgLogo"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Search Bar -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSearch"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="@color/gradient_end"
-                app:cardCornerRadius="28dp"
-                app:cardElevation="4dp"
-                app:layout_constraintTop_toBottomOf="@id/layoutAppBar">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="20dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/search_hint"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="16sp" />
-
-                    <ImageView
-                        android:id="@+id/imgSearch"
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
-                        android:src="@drawable/ic_search"
-                        android:contentDescription="@string/search" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
             <!-- Categories Carousel -->
             <androidx.recyclerview.widget.RecyclerView
@@ -99,9 +62,9 @@
                 android:layout_marginTop="16dp"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
-                android:paddingHorizontal="8dp"
+                android:paddingHorizontal="18dp"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@id/cardSearch"
                 tools:listitem="@layout/item_category" />
 
             <!-- Cities List Section -->
@@ -109,15 +72,16 @@
                 android:id="@+id/cardCitiesList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginTop="24dp"
                 app:strokeWidth="0dp"
                 app:cardBackgroundColor="#1E4D63"
-                app:cardCornerRadius="26dp"
+                app:cardCornerRadius="36dp"
                 app:cardElevation="2dp"
                 app:layout_constraintTop_toBottomOf="@id/recyclerViewCategories">
 
                 <LinearLayout
+                    android:id="@+id/topCitiesListLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
@@ -129,13 +93,13 @@
                         android:padding="12dp"
                         android:gravity="center"
                         android:text="@string/top_rated_cities"
-                        android:textColor="@color/white"
+                        android:textColor="@color/auth_secondary"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="320dp"> <!-- Sabit yükseklik eklendi -->
+                        android:layout_height="220dp">
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerViewCities"
@@ -150,15 +114,6 @@
                             tools:itemCount="5"
                             tools:listitem="@layout/item_city" />
                     </FrameLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnViewAllCities"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text=""
-                        android:textAllCaps="false"
-                        android:textColor="@color/white" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -234,4 +189,4 @@
     </androidx.core.widget.NestedScrollView>
 
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
