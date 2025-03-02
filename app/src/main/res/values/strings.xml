@@ -9,6 +9,8 @@
     <string name="loading_cities">Loading cities…</string>
     <string name="error_loading_data">Something went wrong. Please try again.</string>
     <string name="retry">Retry</string>
+    <string name="home_text">If we can rate cafes, we can rate cities!</string>
+
 
     <!-- Categories -->
     <string name="category_safety">The Most Safe &amp; Peaceful Cities</string>
