@@ -152,8 +152,8 @@ class CityDetailFragment : Fragment() {
 
         // Set individual category ratings
         with(city.ratings) {
-            binding.txtSafetyRating.text = String.format("%.1f", safetySerenity)
-            binding.txtLandscapeRating.text = String.format("%.1f", landscapeVibe)
+            //binding.txtSafetyRating.text = String.format("%.1f", safetySerenity)
+            //binding.txtLandscapeRating.text = String.format("%.1f", landscapeVibe)
 
             // Set other category ratings similarly
             // Example: binding.txtCuisineRating.text = String.format("%.1f", cuisine)

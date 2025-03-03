@@ -94,32 +94,40 @@ class CityRepositoryImpl @Inject constructor(
             val city = cityDoc.toObject(CityModel::class.java)
                 ?: throw Exception("City not found")
 
-            // Save the new rating
-            val userRatingRef = firestore.collection(USER_RATINGS_COLLECTION).document()
+            // Create a unique ID for user rating
+            val userRatingId = "${userId}_${cityId}"
+            val userRatingRef = firestore.collection(USER_RATINGS_COLLECTION).document(userRatingId)
+
+            // Create user rating model
             val userRating = UserRatingModel(
-                id = userRatingRef.id,
+                id = userRatingId,
                 userId = userId,
                 cityId = cityId,
                 timestamp = System.currentTimeMillis(),
                 ratings = ratings
             )
+
+            // Set user rating (will update if already exists)
             transaction.set(userRatingRef, userRating)
 
             // Update the average ratings of cities
             val newRatingCount = city.ratingCount + 1
             val newRatings = CategoryRatings(
-                cuisine = updateAverage(city.ratings.cuisine, ratings.cuisine, city.ratingCount),
-                hospitality = updateAverage(city.ratings.hospitality, ratings.hospitality, city.ratingCount),
-                landscapeVibe = updateAverage(city.ratings.landscapeVibe, ratings.landscapeVibe, city.ratingCount),
-                natureClimate = updateAverage(city.ratings.natureClimate, ratings.natureClimate, city.ratingCount),
-                lifestyle = updateAverage(city.ratings.lifestyle, ratings.lifestyle, city.ratingCount),
-                safetySerenity = updateAverage(city.ratings.safetySerenity, ratings.safetySerenity, city.ratingCount)
+                environment = updateAverage(city.ratings.environment, ratings.environment, city.ratingCount),
+                safety = updateAverage(city.ratings.safety, ratings.safety, city.ratingCount),
+                livability = updateAverage(city.ratings.livability, ratings.livability, city.ratingCount),
+                cost = updateAverage(city.ratings.cost, ratings.cost, city.ratingCount),
+                social = updateAverage(city.ratings.social, ratings.social, city.ratingCount)
             )
 
-            // Calculate the new overall average
-            val newAverageRating = (newRatings.cuisine + newRatings.hospitality +
-                    newRatings.landscapeVibe + newRatings.natureClimate +
-                    newRatings.lifestyle + newRatings.safetySerenity) / 6
+            // Calculate the new overall average using our weighted formula
+            val newAverageRating = (
+                    (newRatings.environment * 1.3) +
+                            (newRatings.safety * 1.1) +
+                            (newRatings.livability * 1.0) +
+                            (newRatings.cost * 1.0) +
+                            (newRatings.social * 1.1)
+                    ) / 5.5
 
             // Update the city doc
             transaction.update(cityRef, mapOf(

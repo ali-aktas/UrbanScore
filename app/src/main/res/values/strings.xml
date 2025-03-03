@@ -12,13 +12,17 @@
     <string name="home_text">If we can rate cafes, we can rate cities!</string>
 
 
-    <!-- Categories -->
-    <string name="category_safety">The Most Safe &amp; Peaceful Cities</string>
-    <string name="category_landscape">Most Beautiful Urban Landscapes</string>
-    <string name="category_cuisine">Best Cities for Food Lovers</string>
-    <string name="category_hospitality">Most Welcoming Cities</string>
-    <string name="category_nature">Best Climate &amp; Nature</string>
-    <string name="category_lifestyle">Best Cities for Lifestyle</string>
+    <!-- Category names and descriptions -->
+    <string name="environment_title">Environment &amp; Aesthetics</string>
+    <string name="environment_desc">City architecture, green spaces, cleanliness, and overall beauty</string>
+    <string name="safety_title">Safety &amp; Tranquility</string>
+    <string name="safety_desc">Crime rates, security, traffic safety, and general feeling of peace</string>
+    <string name="livability_title">Livability</string>
+    <string name="livability_desc">Public transportation, walkability, infrastructure quality, and ease of daily life</string>
+    <string name="cost_title">Cost of Living</string>
+    <string name="cost_desc">Housing prices, food costs, transportation expenses, and overall affordability</string>
+    <string name="social_title">Social &amp; Cultural Life</string>
+    <string name="social_desc">Museums, galleries, nightlife, events, local hospitality, and social activities</string>
 
     <!-- Navigation -->
     <string name="nav_home">Home</string>
@@ -47,6 +51,8 @@
     </plurals>
     <string name="overall_rating">Overall Rating</string>
     <string name="category_ratings">Category Ratings</string>
+    <string name="view_images">View Images</string>
+    <string name="watch_video">Watch Video</string>
 
     <!-- Category names and descriptions -->
     <string name="safety_and_serenity">Safety &amp; Serenity</string>
