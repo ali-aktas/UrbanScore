@@ -9,7 +9,7 @@ data class CategoryModel(
     val title: String,
     val description: String = "",
     val imageUrl: String = "",
-    val ratingType: String
+    val ratingType: String = ""
 ) {
     companion object {
         // Yeni kategorilere göre listeyi güncelle

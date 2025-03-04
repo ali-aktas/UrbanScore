@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.aliaktas.urbanscore.data.model.CategoryModel
-import com.aliaktas.urbanscore.databinding.ItemCategoryBinding
+import com.aliaktas.urbanscore.databinding.ItemContinentBinding
 import com.bumptech.glide.Glide
 
 /**
@@ -17,7 +17,7 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
     var onItemClick: ((CategoryModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val binding = ItemCategoryBinding.inflate(
+        val binding = ItemContinentBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -30,7 +30,7 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
     }
 
     inner class CategoryViewHolder(
-        private val binding: ItemCategoryBinding
+        private val binding: ItemContinentBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -44,13 +44,13 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
 
         fun bind(category: CategoryModel) {
             with(binding) {
-                txtCategoryName.text = category.title
+                txtContinentName.text = category.title
 
                 // Load category background image
-                Glide.with(root.context)
-                    .load(category.imageUrl)
-                    .centerCrop()
-                    .into(imgCategoryBackground)
+//                Glide.with(root.context)
+//                    .load(category.imageUrl)
+//                    .centerCrop()
+//                    .into(imgCategoryBackground)
             }
         }
     }

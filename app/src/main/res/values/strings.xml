@@ -10,6 +10,8 @@
     <string name="error_loading_data">Something went wrong. Please try again.</string>
     <string name="retry">Retry</string>
     <string name="home_text">If we can rate cafes, we can rate cities!</string>
+    <string name="top_rated_cities_in">Top Rated Cities in %1$s</string>
+    <string name="continent_image">Continent image</string>
 
 
     <!-- Category names and descriptions -->
@@ -23,6 +25,14 @@
     <string name="cost_desc">Housing prices, food costs, transportation expenses, and overall affordability</string>
     <string name="social_title">Social &amp; Cultural Life</string>
     <string name="social_desc">Museums, galleries, nightlife, events, local hospitality, and social activities</string>
+
+    <!-- Category Fragment Strings for AllCitiesFragment -->
+    <string name="rate_cities_slogan">If we can rate restaurants, so we can rate cities!</string>
+    <string name="best_cities_environment">Best cities in Environment &amp; Aesthetics</string>
+    <string name="best_cities_safety">Best cities in Safety &amp; Tranquility</string>
+    <string name="best_cities_livability">Best cities in Livability</string>
+    <string name="best_cities_cost">Best cities in Cost of Living</string>
+    <string name="best_cities_social">Best cities in Social &amp; Cultural Life</string>
 
     <!-- Navigation -->
     <string name="nav_home">Home</string>
@@ -67,6 +77,15 @@
     <string name="cuisine_desc">Food quality, variety, and dining experiences</string>
     <string name="hospitality">Hospitality</string>
     <string name="hospitality_desc">Friendliness of locals and general welcome feeling</string>
+
+    <!-- Explore Screen -->
+    <string name="discover_new_cities">Discover new cities</string>
+    <string name="search_cities">Search cities</string>
+    <string name="for_you_text">For you, out of a thousand cities</string>
+    <string name="couldnt_find_city">Couldn\'t find the city you were looking for?</string>
+    <string name="let_us_know_city">Let us know the city</string>
+    <string name="search_icon">Search icon</string>
+    <string name="location_icon">Location icon</string>
 
     <!-- Action buttons -->
     <string name="add_to_wishlist">Add to Wishlist</string>
