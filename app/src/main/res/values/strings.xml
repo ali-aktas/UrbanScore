@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CityPulse</string>
+    <string name="app_name">UrbanRate</string>
 
     <!-- Home Screen -->
     <string name="search_hint">Search cities…</string>
@@ -15,7 +15,7 @@
 
 
     <!-- Category names and descriptions -->
-    <string name="environment_title">Environment &amp; Aesthetics</string>
+    <string name="environment_title">Landscape &amp; Vibe</string>
     <string name="environment_desc">City architecture, green spaces, cleanliness, and overall beauty</string>
     <string name="safety_title">Safety &amp; Tranquility</string>
     <string name="safety_desc">Crime rates, security, traffic safety, and general feeling of peace</string>

@@ -9,7 +9,7 @@
 
     <!-- Gradient colors -->
     <color name="gradient_start">#2196F3</color>
-    <color name="gradient_center">#0D47A1</color>
+    <color name="gradient_center">#135E71</color>
     <color name="gradient_end">#0D2C54</color>
 
     <!-- Text colors -->
@@ -19,8 +19,10 @@
 
     <!-- UI element colors -->
     <color name="divider_color">#EEEEEE</color>
-    <color name="rating_color">#FFC107</color>
+    <color name="rating_color">#209358</color>
     <color name="blue_primary">#1976D2</color>
+    <color name="rating_color_transparent">#33FF5722</color>
+
 
     <!-- Standard colors -->
     <color name="white">#FFFFFF</color>

@@ -1,6 +1,7 @@
 package com.aliaktas.urbanscore.ui.detail
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.LayoutInflater
@@ -19,11 +20,13 @@ import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
+import com.aliaktas.urbanscore.ui.ratecity.RateCityBottomSheet
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -60,15 +63,62 @@ class CityDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Set the transition name for shared element transition
-        ViewCompat.setTransitionName(binding.appBarLayout, "city_${args.cityId}")
+        ViewCompat.setTransitionName(binding.toolbar, "city_${args.cityId}")
 
         setupToolbar()
         setupActionButtons()
+        setupExploreButtons()
         observeViewModel()
     }
 
+    private fun setupExploreButtons() {
+        binding.btnExploreYouTube.setOnClickListener {
+            openYouTubeSearch()
+        }
+
+        binding.btnExploreGoogle.setOnClickListener {
+            openGoogleSearch()
+        }
+    }
+
+    private fun openYouTubeSearch() {
+        val state = viewModel.state.value
+        if (state is CityDetailState.Success) {
+            val cityName = state.city.cityName
+            val countryName = state.city.country
+
+            val searchQuery = "$cityName $countryName travel guide"
+            val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
+            val youtubeUrl = "https://www.youtube.com/results?search_query=$encodedQuery"
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(youtubeUrl)
+            }
+
+            startActivity(intent)
+        }
+    }
+
+    private fun openGoogleSearch() {
+        val state = viewModel.state.value
+        if (state is CityDetailState.Success) {
+            val cityName = state.city.cityName
+            val countryName = state.city.country
+
+            val searchQuery = "$cityName $countryName travel"
+            val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
+            val googleUrl = "https://www.google.com/search?q=$encodedQuery"
+
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse(googleUrl)
+            }
+
+            startActivity(intent)
+        }
+    }
+
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
+        binding.toolbar.setOnClickListener {
             findNavController().navigateUp()
         }
     }
@@ -81,14 +131,12 @@ class CityDetailFragment : Fragment() {
         }
 
         binding.btnRateCity.setOnClickListener {
-            // Navigate to rating screen
-            // findNavController().navigate(CityDetailFragmentDirections.actionDetailToRate(args.cityId))
-            Snackbar.make(binding.root, "Rate city functionality coming soon", Snackbar.LENGTH_SHORT).show()
+            // Show the rate city bottom sheet instead of navigating
+            val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
+            bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
         }
 
-        binding.fabShare.setOnClickListener {
-            shareCity()
-        }
+
     }
 
     private fun observeViewModel() {
@@ -114,49 +162,39 @@ class CityDetailFragment : Fragment() {
     private fun showLoading(isLoading: Boolean) {
         // If using loading animation, control it here
         // For now, just showing/hiding content
-        binding.appBarLayout.isVisible = !isLoading
-        binding.fabShare.isVisible = !isLoading
     }
 
     private fun updateUI(city: CityModel) {
-        // Set the collapsing toolbar title
-        binding.collapsingToolbar.title = "${city.cityName}, ${city.country}"
-
-        // Load the city background image (could be a map or skyline)
-        // Using a placeholder for now
-        Glide.with(this)
-            .load(R.drawable.default_city_background) // Later replace with city.imageUrl
-            .centerCrop()
-            .into(binding.imgCityBackground)
-
-        // Load the flag
-        Glide.with(this)
-            .load(city.flagUrl)
-            .centerCrop()
-            .into(binding.imgFlag)
-
-        // Format population with commas
-        val formattedPopulation = NumberFormat.getNumberInstance(Locale.getDefault())
-            .format(city.population)
-        binding.txtPopulation.text = getString(R.string.population_format, formattedPopulation)
-
-        // Set rating count
+        // Şehir adı ve bayrak
+        binding.textCityName.text = city.cityName
         binding.txtRatingCount.text = resources.getQuantityString(
             R.plurals.based_on_ratings,
             city.ratingCount,
             city.ratingCount
         )
 
-        // Set average rating
-        binding.txtAverageRating.text = String.format("%.1f", city.averageRating)
+        // Bayrak yükleme
+        Glide.with(this)
+            .load(city.flagUrl)
+            .centerCrop()
+            .into(binding.imgFlag)
 
-        // Set individual category ratings
+        // Şehir bilgileri
+        binding.txtCountry.text = city.country
+        binding.txtRegion.text = city.region
+        binding.txtPopulation.text = NumberFormat.getNumberInstance(Locale.getDefault())
+            .format(city.population)
+
+        // Ortalama puanlama
+        binding.txtAverageRating.text = String.format("%.2f", city.averageRating)
+
+        // Kategori puanlamaları
         with(city.ratings) {
-            //binding.txtSafetyRating.text = String.format("%.1f", safetySerenity)
-            //binding.txtLandscapeRating.text = String.format("%.1f", landscapeVibe)
-
-            // Set other category ratings similarly
-            // Example: binding.txtCuisineRating.text = String.format("%.1f", cuisine)
+            binding.txtEnvironmentRating.text = String.format("%.2f", environment)
+            binding.txtSafetyRating.text = String.format("%.2f", safety)
+            binding.txtLivabilityRating.text = String.format("%.2f", livability)
+            binding.txtCostRating.text = String.format("%.2f", cost)
+            binding.txtSocialRating.text = String.format("%.2f", social)
         }
     }
 

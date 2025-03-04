@@ -4,352 +4,476 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    android:background="@android:color/transparent">
 
-    <!-- Collapsing Toolbar for City Header -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <!-- Üst kısımdaki sabit görsel alanı (şimdilik siyah) -->
+    <View
+        android:layout_width="100dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center_horizontal|top"
+        android:background="@drawable/loginicon2" />
+
+    <ImageButton
+        android:id="@+id/toolbar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="-10dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back button"
+        android:src="@drawable/ic_back"
+        app:tint="@color/white"/>
+
+    <!-- Şehir Bilgileri - NestedScrollView dışında -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="140dp"
+        android:padding="22dp">
 
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsingToolbar"
+        <!-- Bayrak -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/imgFlag"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:contentDescription="@string/country_flag"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:src="@color/black" />
+
+        <!-- Şehir Adı -->
+        <TextView
+            android:id="@+id/textCityName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:textColor="@color/white"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/txtAverageRating"
+            app:layout_constraintStart_toEndOf="@id/imgFlag"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Istanbul" />
+
+        <!-- Değerlendirme Sayısı -->
+        <TextView
+            android:id="@+id/txtRatingCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="10sp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toStartOf="@id/txtAverageRating"
+            app:layout_constraintEnd_toEndOf="@id/txtAverageRating"
+            app:layout_constraintTop_toBottomOf="@id/txtAverageRating"
+            tools:text="1.2k rated" />
+
+        <!-- Ortalama Puan -->
+        <TextView
+            android:id="@+id/txtAverageRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/rating_color"
+            android:textSize="32sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="8.64" />
+
+        <!-- Ülke ve Bölge Bilgileri -->
+        <LinearLayout
+            android:id="@+id/layoutCountryRegion"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:contentScrim="@color/gradient_center"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/txtRatingCount">
 
-            <!-- City Image (could be a map or skyline) -->
-            <ImageView
-                android:id="@+id/imgCityBackground"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="@string/city_image"
-                android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                android:src="@drawable/default_city_background"
-                app:layout_collapseMode="parallax" />
-
-            <!-- Gradient Overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/detail_gradient_overlay"
-                app:layout_collapseMode="parallax" />
-
-            <!-- Flag + City Info Container -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:orientation="vertical"
-                android:layout_marginBottom="40dp"
-                android:padding="16dp"
-                app:layout_collapseMode="parallax">
+                android:text="Country: "
+                android:textStyle="bold"
+                android:textColor="@color/white" />
 
-                <TextView
-                    android:id="@+id/textCityName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
-                    android:textSize="24sp"
-                    tools:text="Based on 10 ratings" />
+            <TextView
+                android:id="@+id/txtCountry"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                tools:text="Türkiye" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/imgFlag"
-                    android:layout_width="60dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/country_flag"
-                    android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-                    tools:src="@color/black" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Region: "
+                android:textStyle="bold"
+                android:layout_marginStart="8dp"
+                android:textColor="@color/white" />
 
-                <TextView
-                    android:id="@+id/txtPopulation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    tools:text="Population: 15,636,243" />
+            <TextView
+                android:id="@+id/txtRegion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                tools:text="Europe &amp; Asia" />
+        </LinearLayout>
 
-                <TextView
-                    android:id="@+id/txtRatingCount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    tools:text="Based on 10 ratings" />
-            </LinearLayout>
+        <!-- Nüfus Bilgisi -->
+        <LinearLayout
+            android:id="@+id/layoutPopulation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/layoutCountryRegion">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Population: "
+                android:textStyle="bold"
+                android:textColor="@color/white" />
 
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
+            <TextView
+                android:id="@+id/txtPopulation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                tools:text="15.5M" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Main Content Area -->
+    <!-- Ana İçerik için NestedScrollView -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
+        android:overScrollMode="never"
+        android:layout_marginTop="310dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="22dp">
 
-            <!-- Average Rating Card -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/overall_rating"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="16sp" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/txtAverageRating"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/rating_color"
-                            android:textSize="48sp"
-                            android:textStyle="bold"
-                            tools:text="8.0" />
-
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="8dp"
-                            android:contentDescription="@string/rating_star"
-                            android:src="@drawable/baseline_star_purple500_24" />
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Category Ratings -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:text="@string/category_ratings"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <!-- Safety Category -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardSafety"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:id="@+id/imgSafety"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="@string/safety"
-                        android:src="@drawable/ic_profile"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="@color/blue_primary" />
-
-                    <TextView
-                        android:id="@+id/txtSafetyTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:text="@string/safety_and_serenity"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@id/txtSafetyRating"
-                        app:layout_constraintStart_toEndOf="@id/imgSafety"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/txtSafetyDesc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="@string/safety_serenity_desc"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toStartOf="@id/txtSafetyRating"
-                        app:layout_constraintStart_toStartOf="@id/txtSafetyTitle"
-                        app:layout_constraintTop_toBottomOf="@id/txtSafetyTitle" />
-
-                    <TextView
-                        android:id="@+id/txtSafetyRating"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/rating_color"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="7.8" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Other Categories Follow the Same Pattern - Add all 6 categories -->
-            <!-- For brevity, only one example is fully shown -->
-            <!-- Landscape Category -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardLandscape"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
-
-                <!-- Similar structure as Safety category -->
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp">
-
-                    <ImageView
-                        android:id="@+id/imgLandscape"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:contentDescription="@string/landscape"
-                        android:src="@drawable/ic_profile"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="@color/green" />
-
-                    <TextView
-                        android:id="@+id/txtLandscapeTitle"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:text="@string/landscape_and_vibe"
-                        android:textColor="@color/text_primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@id/txtLandscapeRating"
-                        app:layout_constraintStart_toEndOf="@id/imgLandscape"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/txtLandscapeDesc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="@string/landscape_vibe_desc"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toStartOf="@id/txtLandscapeRating"
-                        app:layout_constraintStart_toStartOf="@id/txtLandscapeTitle"
-                        app:layout_constraintTop_toBottomOf="@id/txtLandscapeTitle" />
-
-                    <TextView
-                        android:id="@+id/txtLandscapeRating"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/rating_color"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:text="8.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Continue with other categories (Nature, Cuisine, etc.) with similar structure -->
-            <!-- Add action buttons section -->
+            <!-- Butonlar: Rate City ve Add to Wishlist -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="24dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnAddToWishlist"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_weight="1"
-                    android:text="@string/add_to_wishlist"
-                    app:icon="@drawable/ic_wishlist" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRateCity"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
                     android:text="@string/rate_this_city"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:backgroundTint="#1F7B87"
+                    app:cornerRadius="24dp"
                     app:icon="@drawable/ic_rate" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddToWishlist"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/add_to_wishlist"
+                    android:textColor="@color/white"
+                    android:backgroundTint="#1F8360"
+                    android:textAllCaps="false"
+                    app:cornerRadius="24dp"
+                    app:icon="@drawable/ic_wishlist" />
             </LinearLayout>
+
+            <!-- Environment & Aesthetics - Modern, çerçevesiz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/environment_title"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/environment_desc"
+                        android:textSize="11sp"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtEnvironmentRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rating_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    tools:text="9.94" />
+            </LinearLayout>
+
+            <!-- Kategorileri ayırmak için hafif divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#20FFFFFF"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Safety & Tranquility - Modern, çerçevesiz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/safety_title"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/safety_desc"
+                        android:textSize="11sp"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtSafetyRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rating_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    tools:text="8.7" />
+            </LinearLayout>
+
+            <!-- Kategorileri ayırmak için hafif divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#20FFFFFF"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Livability - Modern, çerçevesiz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/livability_title"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/livability_desc"
+                        android:textSize="11sp"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtLivabilityRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rating_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    tools:text="8.9" />
+            </LinearLayout>
+
+            <!-- Kategorileri ayırmak için hafif divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#20FFFFFF"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Cost of Living - Modern, çerçevesiz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cost_title"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/cost_desc"
+                        android:textSize="11sp"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtCostRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rating_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    tools:text="7.5" />
+            </LinearLayout>
+
+            <!-- Kategorileri ayırmak için hafif divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#20FFFFFF"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Social & Cultural Life - Modern, çerçevesiz -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp"
+                android:background="@android:color/transparent"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_title"
+                        android:textStyle="bold"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/social_desc"
+                        android:textSize="11sp"
+                        android:alpha="0.7" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtSocialRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/rating_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="8dp"
+                    tools:text="9.1" />
+            </LinearLayout>
+
+            <!-- Explore Butonları - Şablona uygun bir şekilde tasarlandı -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExploreYouTube"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Explore on YouTube"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                app:cornerRadius="24dp"
+                android:layout_gravity="center"
+                android:fontFamily="@font/roboto_extralight"
+                android:gravity="center"
+                android:padding="10dp"
+                app:icon="@drawable/ic_youtube"
+                app:iconTint="@color/white"
+                android:backgroundTint="#ABB10000" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExploreGoogle"
+                android:layout_width="170dp"
+                android:layout_height="wrap_content"
+                android:text="Explore on Google"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                app:cornerRadius="24dp"
+                android:fontFamily="@font/roboto_extralight"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:padding="10dp"
+                app:icon="@drawable/ic_google"
+                app:iconTint="@color/white"
+                android:backgroundTint="#B0000000" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <!-- Floating Action Button for Sharing -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabShare"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/share"
-        android:src="@drawable/ic_share"
-        app:layout_anchor="@id/appBarLayout"
-        app:layout_anchorGravity="bottom|end" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,6 +16,7 @@
         android:textColor="@color/white"
         android:textSize="14sp"
         android:textStyle="bold"
+        android:fontFamily="@font/poppins_medium"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,6 +29,7 @@
         android:layout_height="16dp"
         android:layout_marginStart="12dp"
         android:scaleType="centerCrop"
+        android:gravity="center_vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/textRatingCount"
         app:layout_constraintTop_toTopOf="parent"
@@ -43,7 +45,9 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:fontFamily="@font/poppins_bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/ratingContainer"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
@@ -65,6 +69,7 @@
             android:id="@+id/imgStar"
             android:layout_width="12dp"
             android:layout_height="12dp"
+            android:gravity="center_vertical"
             android:src="@drawable/baseline_star_purple500_24"
             android:contentDescription="@string/rating_star" />
 
@@ -72,9 +77,11 @@
             android:id="@+id/textRating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
+            android:layout_marginStart="6dp"
             android:textColor="#1A9E92"
-            android:textSize="16sp"
+            android:gravity="center_vertical"
+            android:fontFamily="@font/roboto_semicondensed_medium"
+            android:textSize="17sp"
             android:textStyle="bold"
             tools:text="9.1" />
     </LinearLayout>

@@ -126,13 +126,6 @@
             android:name="cityId"
             app:argType="string" />
         <action
-            android:id="@+id/action_cityDetailFragment_to_rateCityFragment"
-            app:destination="@id/rateCityFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
             android:id="@+id/action_cityDetailFragment_to_loginFragment"
             app:destination="@id/loginFragment"
             app:popUpTo="@id/nav_graph"
@@ -158,18 +151,4 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <fragment
-        android:id="@+id/rateCityFragment"
-        android:name="com.aliaktas.urbanscore.ui.ratecity.RateCityFragment"
-        android:label="@string/rate_city"
-        tools:layout="@layout/fragment_rate_city">
-        <argument
-            android:name="cityId"
-            app:argType="string" />
-        <action
-            android:id="@+id/action_rateCityFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
-    </fragment>
 </navigation>
