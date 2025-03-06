@@ -1,15 +1,18 @@
 package com.aliaktas.urbanscore.ui.home
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -19,9 +22,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
+import com.google.android.material.transition.Hold
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -36,11 +41,22 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Setup shared element transition animation
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
+        // Çıkış animasyonu için özelleştirilmiş ayarlar (kart büyürken)
+        exitTransition = Hold().apply {
             duration = 300L
-            scrimColor = android.graphics.Color.TRANSPARENT
         }
+
+        sharedElementReturnTransition = MaterialContainerTransform().apply {
+            duration = 450L
+            interpolator = FastOutSlowInInterpolator()
+            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
+            fadeProgressThresholds = MaterialContainerTransform.ProgressThresholds(0.2f, 0.9f)
+            scrimColor = ColorUtils.setAlphaComponent(
+                requireContext().getColor(android.R.color.black), 60
+            )
+            setAllContainerColors(Color.TRANSPARENT) // Transparanlık için
+        }
+
     }
 
     override fun onCreateView(
@@ -58,8 +74,45 @@ class HomeFragment : Fragment() {
         setupCategoriesRecyclerView()
         setupCitiesRecyclerView()
         setupSwipeRefresh()
+        setupCitiesCardClick()
         setupLottieAnimations()
         observeViewModel()
+    }
+
+    private fun setupCitiesCardClick() {
+        // View All butonuna tıklama
+        binding.txtViewListFragment.setOnClickListener {
+            navigateToCategoryList()
+        }
+
+        // Başlık tıklaması (isteğe bağlı)
+        binding.txtTopRatedTitle.setOnClickListener {
+            navigateToCategoryList()
+        }
+    }
+
+    private fun navigateToCategoryList() {
+        try {
+            // Geçiş yaparken paylaşılacak view'i belirle
+            val citiesCard = binding.cardCitiesList
+
+            // Shared element transition için transition adını ayarla
+            ViewCompat.setTransitionName(citiesCard, "cities_list_transition")
+
+            // FragmentNavigatorExtras ile paylaşılan öğeyi tanımla
+            val extras = FragmentNavigatorExtras(citiesCard to "cities_list_transition")
+
+            // CategoryListFragment'a paylaşılan öğe geçişi ile yönlendir
+            findNavController().navigate(
+                R.id.action_homeFragment_to_categoryListFragment,
+                null,
+                null,
+                extras
+            )
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Navigation error: ${e.message}", e)
+            Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupCategoriesRecyclerView() {

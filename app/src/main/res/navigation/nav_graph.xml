@@ -77,12 +77,35 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
+            android:id="@+id/action_homeFragment_to_categoryListFragment"
+            app:destination="@id/categoryListFragment"
+            app:enterAnim="@animator/nav_default_enter_anim"
+            app:exitAnim="@animator/nav_default_exit_anim"
+            app:popEnterAnim="@animator/nav_default_pop_enter_anim"
+            app:popExitAnim="@animator/nav_default_pop_exit_anim">
+            <!-- Paylaşılan öğe geçişi sırasında diğer öğelerin geçişini de daha yumuşak yap -->
+            <argument
+                android:name="showSharedElementTransition"
+                app:argType="boolean"
+                android:defaultValue="true" />
+        </action>
+        <action
             android:id="@+id/action_homeFragment_to_allCitiesFragment"
             app:destination="@id/allCitiesFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/categoryListFragment"
+        android:name="com.aliaktas.urbanscore.ui.categories.CategoryListFragment"
+        android:label="Top Rated Cities"
+        tools:layout="@layout/fragment_category_list">
+        <action
+            android:id="@+id/action_categoryListFragment_to_cityDetailFragment"
+            app:destination="@id/cityDetailFragment" />
     </fragment>
 
     <fragment

@@ -187,7 +187,7 @@ class CityRepositoryImpl @Inject constructor(
                 (ratings.safety * 1.1) +
                 (ratings.livability * 1.0) +
                 (ratings.cost * 1.0) +
-                (ratings.social * 1.1)) / 5.5
+                (ratings.social * 1.2)) / 5.6
     }
 
     // Update average for a new rating

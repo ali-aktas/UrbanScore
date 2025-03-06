@@ -47,7 +47,7 @@
         android:textColor="#FFFFFF"
         android:textSize="15sp"
         android:gravity="center_vertical"
-        android:fontFamily="@font/poppins_bold"
+        android:fontFamily="@font/roboto_medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/ratingContainer"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
@@ -78,12 +78,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
-            android:textColor="#1A9E92"
-            android:gravity="center_vertical"
+            android:textColor="#F3A303"
+            android:gravity="end"
+            android:layout_gravity="center_vertical"
             android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textSize="17sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="9.1" />
+            tools:text="9.12" />
     </LinearLayout>
 
     <View
@@ -91,8 +92,8 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
-        android:background="@color/divider_color"
-        android:visibility="gone"
+        android:background="@color/auth_primary"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:visibility="visible" />
 

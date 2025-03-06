@@ -2,9 +2,11 @@ package com.aliaktas.urbanscore.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.databinding.ItemContinentBinding
 import com.bumptech.glide.Glide
@@ -16,6 +18,15 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
 
     var onItemClick: ((CategoryModel) -> Unit)? = null
 
+    // Kıtalar için farklı arka plan drawable listesi
+    private val backgroundDrawables = listOf(
+        R.drawable.category_landscape_bg,
+        R.drawable.category_safety_bg,
+        R.drawable.category_livability_bg,
+        R.drawable.category_cost_bg,
+        R.drawable.category_social_bg
+    )
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val binding = ItemContinentBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -26,7 +37,7 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
     }
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position)
     }
 
     inner class CategoryViewHolder(
@@ -42,15 +53,24 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
             }
         }
 
-        fun bind(category: CategoryModel) {
+        fun bind(category: CategoryModel, position: Int) {
             with(binding) {
                 txtContinentName.text = category.title
 
+                // Pozisyona göre farklı arka plan uygula
+                val backgroundDrawablePosition = position % backgroundDrawables.size
+
+                // MaterialCardView'in arka planını değiştir
+                root.background = ContextCompat.getDrawable(
+                    root.context,
+                    backgroundDrawables[backgroundDrawablePosition]
+                )
+
                 // Load category background image
-//                Glide.with(root.context)
-//                    .load(category.imageUrl)
-//                    .centerCrop()
-//                    .into(imgCategoryBackground)
+                // Glide.with(root.context)
+                //     .load(category.imageUrl)
+                //     .centerCrop()
+                //     .into(imgCategoryBackground)
             }
         }
     }

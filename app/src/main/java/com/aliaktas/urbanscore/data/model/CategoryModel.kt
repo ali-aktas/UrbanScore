@@ -16,7 +16,7 @@ data class CategoryModel(
         fun getDefaultCategories(): List<CategoryModel> = listOf(
             CategoryModel(
                 id = "environment",
-                title = "Environment & Aesthetics",
+                title = "Landscapes & City Vibe",
                 description = "City architecture, green spaces, cleanliness, and overall beauty",
                 imageUrl = "https://example.com/environment.jpg",
                 ratingType = "environment"

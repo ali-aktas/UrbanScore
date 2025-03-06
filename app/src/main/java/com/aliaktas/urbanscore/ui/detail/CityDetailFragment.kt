@@ -85,9 +85,9 @@ class CityDetailFragment : Fragment() {
         val state = viewModel.state.value
         if (state is CityDetailState.Success) {
             val cityName = state.city.cityName
-            val countryName = state.city.country
+            //val countryName = state.city.country
 
-            val searchQuery = "$cityName $countryName travel guide"
+            val searchQuery = "$cityName travel guide"
             val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
             val youtubeUrl = "https://www.youtube.com/results?search_query=$encodedQuery"
 
@@ -103,19 +103,20 @@ class CityDetailFragment : Fragment() {
         val state = viewModel.state.value
         if (state is CityDetailState.Success) {
             val cityName = state.city.cityName
-            val countryName = state.city.country
+            //val countryName = state.city.country
 
-            val searchQuery = "$cityName $countryName travel"
+            val searchQuery = "$cityName 4k views"
             val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
-            val googleUrl = "https://www.google.com/search?q=$encodedQuery"
+            val googleImagesUrl = "https://www.google.com/search?q=$encodedQuery&tbm=isch"
 
             val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(googleUrl)
+                data = Uri.parse(googleImagesUrl)
             }
 
             startActivity(intent)
         }
     }
+
 
     private fun setupToolbar() {
         binding.toolbar.setOnClickListener {

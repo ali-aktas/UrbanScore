@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Mevcut arka plan rengi -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#E2076355" />
+            <corners android:radius="26dp" />
+        </shape>
+    </item>
+
+    <!-- Gürültü dokusu -->
+    <item>
+        <bitmap
+            android:src="@drawable/noisetexture"
+            android:tileMode="repeat"
+            android:alpha="0.2" /> <!-- Gürültü şiddetini buradan ayarlayabilirsiniz (0.0-1.0) -->
+    </item>
+</layer-list>

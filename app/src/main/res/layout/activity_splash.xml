@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/appbackground2"
+    android:background="@drawable/appmainbg"
     tools:context=".ui.splash.SplashActivity">
 
     <ImageView
@@ -12,7 +12,7 @@
         android:layout_width="160dp"
         android:layout_height="180dp"
         android:contentDescription="@string/app_logo"
-        android:src="@drawable/loginicon2"
+        android:src="@drawable/travelergraphic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
