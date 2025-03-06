@@ -18,6 +18,10 @@
         <item name="labelVisibilityMode">labeled</item>
     </style>
 
+    <style name="circleImageView" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <!-- Splash screen theme for Android 12+ -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Splash screen arkaplan rengi -->

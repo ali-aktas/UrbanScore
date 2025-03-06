@@ -4,33 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp"
+    android:paddingEnd="18dp"
+    android:paddingStart="18dp"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- App Bar with Title and Profile Picture -->
-    <LinearLayout
-        android:id="@+id/layoutAppBar"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/txtAppName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:padding="8dp"
-        android:layout_marginBottom="24dp"
-        android:gravity="center"
-        android:orientation="horizontal"
+        android:text="@string/app_name"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/txtAppName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="#FFFFFF"
-            android:textSize="32sp" />
-
-    </LinearLayout>
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="#FFFFFF"
+        android:textSize="32sp" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedLayout"
@@ -40,7 +29,7 @@
         fillViewport="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layoutAppBar"
+        app:layout_constraintTop_toBottomOf="@+id/txtAppName"
         app:layout_constraintBottom_toBottomOf="parent"
         android:overScrollMode="never"
         android:paddingBottom="20dp">

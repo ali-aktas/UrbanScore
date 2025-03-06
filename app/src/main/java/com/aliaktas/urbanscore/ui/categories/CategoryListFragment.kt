@@ -1,28 +1,27 @@
 package com.aliaktas.urbanscore.ui.categories
 
-import android.graphics.Color
-import android.graphics.Color.*
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.graphics.ColorUtils
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCategoryListBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
 import com.aliaktas.urbanscore.ui.home.HomeState
 import com.aliaktas.urbanscore.ui.home.HomeViewModel
-import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/**
+ * Category List Fragment showing all cities in a category
+ * Uses simple navigation without complex transitions
+ */
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
 
@@ -31,50 +30,6 @@ class CategoryListFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private val citiesAdapter = CitiesAdapter()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        // Daha yumuşak bir paylaşılan öğe geçiş animasyonu - düzeltilmiş
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            // Daha uzun süre (milisaniye cinsinden)
-            duration = 500L
-
-            // Daha yumuşak geçiş eğrisi
-            interpolator = FastOutSlowInInterpolator()
-
-            // Sayfa arka planını karartan hafif transparant renk (scrim)
-            scrimColor = ColorUtils.setAlphaComponent(
-                requireContext().getColor(android.R.color.black), 60
-            )
-
-            // Daha yumuşak bir "fade through" efekti
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-            fadeProgressThresholds = MaterialContainerTransform.ProgressThresholds(0.2f, 0.9f)
-
-            // Arka plan rengi - ya activity'nin arka plan rengini alır ya da sabit bir değer kullanır
-            // Transparanlık için:
-            setAllContainerColors(TRANSPARENT)
-
-            // VEYA sabit bir renk için (örn. beyaz):
-            // setAllContainerColors(Color.WHITE)
-
-            // Fragment'ın çizileceği view ID'si
-            drawingViewId = R.id.nav_host_fragment
-        }
-
-        // ÇIKIŞ animasyonu da özelleştirelim
-        sharedElementReturnTransition = MaterialContainerTransform().apply {
-            duration = 450L
-            interpolator = FastOutSlowInInterpolator()
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-            fadeProgressThresholds = MaterialContainerTransform.ProgressThresholds(0.2f, 0.9f)
-            scrimColor = ColorUtils.setAlphaComponent(
-                requireContext().getColor(android.R.color.black), 60
-            )
-            setAllContainerColors(TRANSPARENT) // Transparanlık için
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -99,7 +54,7 @@ class CategoryListFragment : Fragment() {
         }
 
         citiesAdapter.onItemClick = { city ->
-            // Şehir detayına yönlendirme
+            // Navigate to city detail
             val action = CategoryListFragmentDirections.actionCategoryListFragmentToCityDetailFragment(city.id)
             findNavController().navigate(action)
         }
@@ -124,15 +79,15 @@ class CategoryListFragment : Fragment() {
     private fun updateUI(state: HomeState) {
         when (state) {
             is HomeState.Success -> {
-                binding.progressBar.visibility = View.GONE
+                binding.progressBar.isVisible = false
                 citiesAdapter.submitList(state.cities)
             }
             is HomeState.Loading -> {
-                binding.progressBar.visibility = View.VISIBLE
+                binding.progressBar.isVisible = true
             }
             is HomeState.Error -> {
-                binding.progressBar.visibility = View.GONE
-                // Hata durumunu göster
+                binding.progressBar.isVisible = false
+                // Show error state
             }
             else -> { /* Initial state - do nothing */ }
         }

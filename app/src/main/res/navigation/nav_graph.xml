@@ -5,7 +5,7 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/loginFragment">
 
-    <!-- Auth Destinations -->
+    <!-- ===================== Authentication Fragments ===================== -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.aliaktas.urbanscore.ui.auth.LoginFragment"
@@ -20,7 +20,11 @@
             app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_loginFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_loginFragment_to_forgotPasswordFragment"
             app:destination="@id/forgotPasswordFragment"
@@ -38,7 +42,9 @@
         <action
             android:id="@+id/action_registerFragment_to_homeFragment"
             app:destination="@id/homeFragment"
-            app:popUpTo="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
@@ -63,12 +69,20 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Main Tabs for Bottom Navigation -->
+    <!-- ===================== Bottom Navigation Tab Destinations ===================== -->
+    <!-- All of these are represented in the bottom navigation bar -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.aliaktas.urbanscore.ui.home.HomeFragment"
         android:label="@string/nav_home"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_categoryListFragment"
+            app:destination="@id/categoryListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_homeFragment_to_cityDetailFragment"
             app:destination="@id/cityDetailFragment"
@@ -76,36 +90,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_homeFragment_to_categoryListFragment"
-            app:destination="@id/categoryListFragment"
-            app:enterAnim="@animator/nav_default_enter_anim"
-            app:exitAnim="@animator/nav_default_exit_anim"
-            app:popEnterAnim="@animator/nav_default_pop_enter_anim"
-            app:popExitAnim="@animator/nav_default_pop_exit_anim">
-            <!-- Paylaşılan öğe geçişi sırasında diğer öğelerin geçişini de daha yumuşak yap -->
-            <argument
-                android:name="showSharedElementTransition"
-                app:argType="boolean"
-                android:defaultValue="true" />
-        </action>
-        <action
-            android:id="@+id/action_homeFragment_to_allCitiesFragment"
-            app:destination="@id/allCitiesFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/categoryListFragment"
-        android:name="com.aliaktas.urbanscore.ui.categories.CategoryListFragment"
-        android:label="Top Rated Cities"
-        tools:layout="@layout/fragment_category_list">
-        <action
-            android:id="@+id/action_categoryListFragment_to_cityDetailFragment"
-            app:destination="@id/cityDetailFragment" />
     </fragment>
 
     <fragment
@@ -123,6 +107,8 @@
         <action
             android:id="@+id/action_exploreFragment_to_loginFragment"
             app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
     </fragment>
@@ -135,22 +121,8 @@
         <action
             android:id="@+id/action_profileFragment_to_loginFragment"
             app:destination="@id/loginFragment"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <!-- Non-tab Destinations -->
-    <fragment
-        android:id="@+id/cityDetailFragment"
-        android:name="com.aliaktas.urbanscore.ui.detail.CityDetailFragment"
-        android:label="@string/city_details"
-        tools:layout="@layout/fragment_city_detail">
-        <argument
-            android:name="cityId"
-            app:argType="string" />
-        <action
-            android:id="@+id/action_cityDetailFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
     </fragment>
@@ -170,8 +142,35 @@
         <action
             android:id="@+id/action_allCitiesFragment_to_loginFragment"
             app:destination="@id/loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
     </fragment>
 
+    <!-- ===================== Content Fragments ===================== -->
+    <!-- These are NOT represented in the bottom navigation bar -->
+    <fragment
+        android:id="@+id/categoryListFragment"
+        android:name="com.aliaktas.urbanscore.ui.categories.CategoryListFragment"
+        android:label="Top Rated Cities"
+        tools:layout="@layout/fragment_category_list">
+        <action
+            android:id="@+id/action_categoryListFragment_to_cityDetailFragment"
+            app:destination="@id/cityDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cityDetailFragment"
+        android:name="com.aliaktas.urbanscore.ui.detail.CityDetailFragment"
+        android:label="@string/city_details"
+        tools:layout="@layout/fragment_city_detail">
+        <argument
+            android:name="cityId"
+            app:argType="string" />
+    </fragment>
 </navigation>
