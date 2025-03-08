@@ -1,10 +1,11 @@
-// CategoryListFragment.kt - bu sınıfı şu şekilde güncelleyelim:
 package com.aliaktas.urbanscore.ui.categories
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,8 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.databinding.FragmentCategoryListBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
-import com.aliaktas.urbanscore.ui.home.HomeState
-import com.aliaktas.urbanscore.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -26,17 +25,15 @@ class CategoryListFragment : Fragment() {
     private var _binding: FragmentCategoryListBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: HomeViewModel by viewModels()
+    private val viewModel: CategoryListViewModel by viewModels()
     private val citiesAdapter = CitiesAdapter()
-
-    // navArgs kullanarak kategori ID'sini alalım
     private val args: CategoryListFragmentArgs by navArgs()
     private lateinit var categoryId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Kategori ID'sini argümanlardan alalım
         categoryId = args.categoryId
+        Log.d("CategoryListFragment", "Created with category ID: $categoryId")
     }
 
     override fun onCreateView(
@@ -50,20 +47,15 @@ class CategoryListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("CategoryListFragment", "onViewCreated")
 
-        // Kategori başlığını ayarla
         setCategoryTitle()
-
         setupRecyclerView()
-        setupBackButton()
+        setupButtons()
         observeViewModel()
-
-        // Belirli kategoriye göre şehirleri yükle
-        viewModel.refreshCities(true, categoryId)
     }
 
     private fun setCategoryTitle() {
-        // Kategoriye göre başlığı ayarla
         val title = when (categoryId) {
             "environment" -> "Best Cities for Landscapes & Aesthetics"
             "safety" -> "Best Cities for Safety & Tranquility"
@@ -73,23 +65,29 @@ class CategoryListFragment : Fragment() {
             else -> "Top Rated Cities Overall"
         }
         binding.txtTitle.text = title
+        Log.d("CategoryListFragment", "Set title to: $title")
     }
 
     private fun setupRecyclerView() {
-        binding.recyclerViewCategoryList.apply {
-            adapter = citiesAdapter
-        }
+        binding.recyclerViewCategoryList.adapter = citiesAdapter
 
         citiesAdapter.onItemClick = { city ->
-            // Şehir detayına git
+            Log.d("CategoryListFragment", "City clicked: ${city.cityName}")
             val action = CategoryListFragmentDirections.actionCategoryListFragmentToCityDetailFragment(city.id)
             findNavController().navigate(action)
         }
     }
 
-    private fun setupBackButton() {
+    private fun setupButtons() {
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
+        }
+
+        binding.btnLoadMore.setOnClickListener {
+            Log.d("CategoryListFragment", "Load more button clicked")
+            binding.btnLoadMore.isEnabled = false
+            binding.loadingMore.visibility = View.VISIBLE
+            viewModel.loadMoreCities()
         }
     }
 
@@ -97,33 +95,70 @@ class CategoryListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.state.collect { state ->
+                    Log.d("CategoryListFragment", "State changed: ${state.javaClass.simpleName}")
                     updateUI(state)
                 }
             }
         }
     }
 
-    private fun updateUI(state: HomeState) {
+    private fun updateUI(state: CategoryListState) {
         when (state) {
-            is HomeState.Success -> {
+            is CategoryListState.Initial -> {
+                Log.d("CategoryListFragment", "UI State: Initial")
                 binding.progressBar.isVisible = false
+                binding.loadingMore.isVisible = false
+                binding.btnLoadMore.isVisible = false
+            }
+            is CategoryListState.Loading -> {
+                if (state.isLoadingMore) {
+                    Log.d("CategoryListFragment", "UI State: Loading More")
+                    binding.progressBar.isVisible = false
+                    binding.loadingMore.isVisible = true
+                    binding.btnLoadMore.isVisible = false
+                    state.oldData?.let { citiesAdapter.submitList(it) }
+                } else {
+                    Log.d("CategoryListFragment", "UI State: Initial Loading")
+                    binding.progressBar.isVisible = true
+                    binding.loadingMore.isVisible = false
+                    binding.btnLoadMore.isVisible = false
+                }
+            }
+            is CategoryListState.Success -> {
+                Log.d("CategoryListFragment", "UI State: Success - ${state.cities.size} cities, hasMore=${state.hasMoreItems}")
+                binding.progressBar.isVisible = false
+                binding.loadingMore.isVisible = false
+                binding.btnLoadMore.isEnabled = true
+                binding.btnLoadMore.isVisible = state.hasMoreItems
+
                 citiesAdapter.submitList(state.cities)
             }
-            is HomeState.Loading -> {
-                binding.progressBar.isVisible = true
-                // Eğer eski veriler varsa onları göstermeye devam et
-                state.oldData?.let { citiesAdapter.submitList(it) }
-            }
-            is HomeState.Error -> {
+            is CategoryListState.Error -> {
+                Log.e("CategoryListFragment", "UI State: Error - ${state.message}")
                 binding.progressBar.isVisible = false
-                // Hata durumunu göster
+                binding.loadingMore.isVisible = false
+                binding.btnLoadMore.isVisible = false
+
+                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
             }
-            else -> { /* Initial state - bir şey yapma */ }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("CategoryListFragment", "onResume")
+
+        // Force refresh list when returning to this fragment
+        val currentState = viewModel.state.value
+        if (currentState is CategoryListState.Success) {
+            citiesAdapter.submitList(null)
+            citiesAdapter.submitList(currentState.cities)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d("CategoryListFragment", "onDestroyView")
         _binding = null
     }
 }

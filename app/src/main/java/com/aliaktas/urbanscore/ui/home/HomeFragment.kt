@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.home
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,12 +14,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
+import com.aliaktas.urbanscore.utils.TestDataGenerator
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -51,6 +56,7 @@ class HomeFragment : Fragment() {
         observeViewModel()
     }
 
+
     override fun onResume() {
         super.onResume()
         isFragmentVisible = true
@@ -81,6 +87,7 @@ class HomeFragment : Fragment() {
             // Kategori listesine git
             navigateToCategoryList(category.ratingType)
         }
+
 
         // Cities RecyclerView (mevcut kodu koru)
         binding.recyclerViewCities.apply {

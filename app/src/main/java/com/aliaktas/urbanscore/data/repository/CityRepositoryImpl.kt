@@ -3,7 +3,9 @@ package com.aliaktas.urbanscore.data.repository
 import android.util.Log
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.PaginatedResult
 import com.aliaktas.urbanscore.data.model.UserRatingModel
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -33,6 +35,32 @@ class CityRepositoryImpl @Inject constructor(
                     try {
                         val model = doc.toObject(CityModel::class.java)
                         // Assign the document ID to the model ID
+                        model?.copy(id = doc.id)
+                    } catch (e: Exception) {
+                        Log.e("CityRepository", "Error converting document", e)
+                        null
+                    }
+                } ?: emptyList()
+
+                trySend(cities)
+            }
+
+        awaitClose { subscription.remove() }
+    }
+
+    suspend fun getTopCities(limit: Int): Flow<List<CityModel>> = callbackFlow {
+        val subscription = firestore.collection(CITIES_COLLECTION)
+            .orderBy("averageRating", Query.Direction.DESCENDING)
+            .limit(limit.toLong())
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val cities = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        val model = doc.toObject(CityModel::class.java)
                         model?.copy(id = doc.id)
                     } catch (e: Exception) {
                         Log.e("CityRepository", "Error converting document", e)
@@ -79,6 +107,62 @@ class CityRepositoryImpl @Inject constructor(
             }
 
         awaitClose { subscription.remove() }
+    }
+
+    // CityRepositoryImpl.kt içine yeni metot ekle
+    override suspend fun getCitiesByCategoryPaginated(
+        categoryName: String,
+        limit: Int,
+        lastVisible: DocumentSnapshot?
+    ): Flow<PaginatedResult<CityModel>> = callbackFlow {
+        // Kategori adını doğrulayalım
+        val validCategories = setOf("environment", "safety", "livability", "cost", "social")
+        val category = if (categoryName in validCategories) categoryName else "averageRating"
+
+        // Kategori puanlamasına göre alanı ayarlama
+        val fieldPath = if (category == "averageRating") "averageRating" else "ratings.$category"
+
+        // Sorgu oluştur
+        var query = firestore.collection(CITIES_COLLECTION)
+            .orderBy(fieldPath, Query.Direction.DESCENDING)
+
+        // Eğer son görünen belge varsa, ondan sonrasını al
+        if (lastVisible != null) {
+            query = query.startAfter(lastVisible)
+        }
+
+        // Limit uygula
+        query = query.limit(limit.toLong())
+
+        try {
+            // Verileri al
+            val querySnapshot = query.get().await()
+
+            // Şehir listesini dönüştür
+            val cities = querySnapshot.documents.mapNotNull { document ->
+                try {
+                    val city = document.toObject(CityModel::class.java)
+                    city?.copy(id = document.id)
+                } catch (e: Exception) {
+                    Log.e("CityRepository", "Error converting document: ${e.message}")
+                    null
+                }
+            }
+
+            // Son belgeyi al
+            val lastDoc = querySnapshot.documents.lastOrNull()
+
+            // Daha fazla öğe olup olmadığını kontrol et
+            val hasMore = cities.size == limit && cities.isNotEmpty()
+
+            // Sonucu gönder
+            trySend(PaginatedResult(cities, lastDoc, hasMore))
+        } catch (e: Exception) {
+            Log.e("CityRepository", "Error getting paginated cities: ${e.message}")
+            close(e)
+        }
+
+        awaitClose { }
     }
 
     override suspend fun getCitiesByCategoryRating(categoryName: String, limit: Int): Flow<List<CityModel>> = callbackFlow {

@@ -43,7 +43,7 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
         fun bind(city: CityModel) {
             with(binding) {
                 textCityName.text = "${city.cityName}, ${city.country}"
-                textRating.text = String.format("%.1f", city.averageRating)
+                textRating.text = String.format("%.2f", city.averageRating)
                 textRatingCount.text = (position + 1).toString()
 
                 // Loading Flag URL with Glide

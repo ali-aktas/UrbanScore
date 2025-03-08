@@ -5,70 +5,83 @@ import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the HomeFragment.
+ * Manages city data loading and filtering by categories.
+ */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val cityRepository: CityRepository
 ) : ViewModel() {
 
+    // State flow for UI state
     private val _state = MutableStateFlow<HomeState>(HomeState.Initial)
-    val state = _state.asStateFlow()
+    val state: StateFlow<HomeState> = _state.asStateFlow()
 
-    // Önbellek değişkeni
+    // Cache mechanism to avoid unnecessary reloads
     private var cachedCities: List<CityModel>? = null
 
-    // Veri yükleniyor mu kontrolü için flag
+    // Loading state tracking
     private var isDataLoading = false
 
+    // Current selected category
     private var currentCategory: String = "averageRating"
 
     init {
+        // Initial data load with a small delay to ensure smooth UI initialization
         viewModelScope.launch {
-            delay(100) // Önceki kodunuzdaki gecikmeyi koruyorum
-            refreshCities(false) // false = önbellek varsa kullan
+            kotlinx.coroutines.delay(100)
+            refreshCities(false) // Use cache if available
         }
     }
 
+    /**
+     * Refreshes city data based on current category.
+     *
+     * @param forceRefresh If true, ignores cache and forces new data load.
+     * @param category Optional category to filter cities. If provided, updates current category.
+     */
     fun refreshCities(forceRefresh: Boolean = true, category: String? = null) {
-        // Eğer kategori sağlanmışsa güncelle
+        // Update category if provided
         if (category != null) {
             currentCategory = category
         }
 
-        // Zaten yükleme yapılıyorsa, tekrar etme
+        // Prevent multiple simultaneous loads
         if (isDataLoading) {
             return
         }
 
-        // Önbellekte veri var ve zorla yenileme istenmiyorsa önbellekten al
+        // Use cache if available and not forcing refresh
         if (!forceRefresh && cachedCities != null) {
             _state.value = HomeState.Success(cachedCities!!)
             return
         }
 
-        // Mevcut verileri yükleme sırasında korumak için al
+        // Get current cities to keep during loading
         val currentCities = if (_state.value is HomeState.Success) {
             (_state.value as HomeState.Success).cities
         } else {
             cachedCities
         }
 
-        // Yükleme durumuna geç, eski verileri koruyarak
+        // Update state to loading, preserving old data
         _state.value = HomeState.Loading(oldData = currentCities)
 
-        // Veri yükleme bayrağını true yap
+        // Mark loading in progress
         isDataLoading = true
 
         viewModelScope.launch {
             try {
-                // Kategori spesifik sorgu kullan
-                val citiesFlow = cityRepository.getCitiesByCategoryRating(currentCategory)
+                // Use category-specific query for consistent behavior
+                val citiesFlow = cityRepository.getCitiesByCategoryRating(currentCategory, 20)
 
                 citiesFlow
                     .catch { e ->
@@ -76,7 +89,7 @@ class HomeViewModel @Inject constructor(
                         _state.value = HomeState.Error(e.message ?: "An error occurred")
                     }
                     .collect { cities ->
-                        // Burada sıralama yapmaya gerek yok, sorgu zaten seçilen kategoriye göre sıralanmış geliyor
+                        // Update cache and state
                         cachedCities = cities
                         _state.value = HomeState.Success(cities)
                         isDataLoading = false
@@ -88,13 +101,22 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    // Kategoriyi açıkça değiştirmek için yeni bir metot
+    /**
+     * Switches to a different category and loads data for that category.
+     *
+     * @param category The category to switch to.
+     */
     fun switchCategory(category: String) {
         if (category != currentCategory) {
             refreshCities(true, category)
         }
     }
 
+    /**
+     * Sort cities by their rating in ascending or descending order.
+     *
+     * @param ascending If true, sorts in ascending order, otherwise descending.
+     */
     fun sortByRating(ascending: Boolean = false) {
         val currentState = _state.value
         if (currentState is HomeState.Success) {
@@ -108,6 +130,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Sort cities by their population in ascending or descending order.
+     *
+     * @param ascending If true, sorts in ascending order, otherwise descending.
+     */
     fun sortByPopulation(ascending: Boolean = false) {
         val currentState = _state.value
         if (currentState is HomeState.Success) {
