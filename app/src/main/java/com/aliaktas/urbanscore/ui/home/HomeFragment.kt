@@ -69,13 +69,20 @@ class HomeFragment : Fragment() {
         binding.recyclerViewCategories.apply {
             adapter = categoriesAdapter
         }
+
+        // Kategorileri göster
         categoriesAdapter.submitList(CategoryModel.getDefaultCategories())
+
+        // Kategori tıklama işleyicisi
         categoriesAdapter.onItemClick = { category ->
             Log.d("HomeFragment", "Category clicked: ${category.title}")
-            // Implementation for category navigation
+            // Seçilen kategoriye göre viewModel'i güncelle
+            viewModel.switchCategory(category.ratingType)
+            // Kategori listesine git
+            navigateToCategoryList(category.ratingType)
         }
 
-        // Cities RecyclerView
+        // Cities RecyclerView (mevcut kodu koru)
         binding.recyclerViewCities.apply {
             adapter = citiesAdapter
         }
@@ -88,6 +95,16 @@ class HomeFragment : Fragment() {
                 Log.e("HomeFragment", "Navigation error: ${e.message}", e)
                 Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun navigateToCategoryList(categoryId: String) {
+        try {
+            val action = HomeFragmentDirections.actionHomeFragmentToCategoryListFragment(categoryId)
+            findNavController().navigate(action)
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Navigation error: ${e.message}", e)
+            Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 

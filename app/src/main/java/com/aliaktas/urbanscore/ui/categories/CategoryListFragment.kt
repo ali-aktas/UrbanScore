@@ -1,3 +1,4 @@
+// CategoryListFragment.kt - bu sınıfı şu şekilde güncelleyelim:
 package com.aliaktas.urbanscore.ui.categories
 
 import android.os.Bundle
@@ -11,6 +12,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.databinding.FragmentCategoryListBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
 import com.aliaktas.urbanscore.ui.home.HomeState
@@ -18,10 +20,6 @@ import com.aliaktas.urbanscore.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-/**
- * Category List Fragment showing all cities in a category
- * Uses simple navigation without complex transitions
- */
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
 
@@ -30,6 +28,16 @@ class CategoryListFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private val citiesAdapter = CitiesAdapter()
+
+    // navArgs kullanarak kategori ID'sini alalım
+    private val args: CategoryListFragmentArgs by navArgs()
+    private lateinit var categoryId: String
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Kategori ID'sini argümanlardan alalım
+        categoryId = args.categoryId
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,9 +51,28 @@ class CategoryListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Kategori başlığını ayarla
+        setCategoryTitle()
+
         setupRecyclerView()
         setupBackButton()
         observeViewModel()
+
+        // Belirli kategoriye göre şehirleri yükle
+        viewModel.refreshCities(true, categoryId)
+    }
+
+    private fun setCategoryTitle() {
+        // Kategoriye göre başlığı ayarla
+        val title = when (categoryId) {
+            "environment" -> "Best Cities for Landscapes & Aesthetics"
+            "safety" -> "Best Cities for Safety & Tranquility"
+            "livability" -> "Best Cities for Livability"
+            "cost" -> "Best Cities for Cost of Living"
+            "social" -> "Best Cities for Social & Cultural Life"
+            else -> "Top Rated Cities Overall"
+        }
+        binding.txtTitle.text = title
     }
 
     private fun setupRecyclerView() {
@@ -54,7 +81,7 @@ class CategoryListFragment : Fragment() {
         }
 
         citiesAdapter.onItemClick = { city ->
-            // Navigate to city detail
+            // Şehir detayına git
             val action = CategoryListFragmentDirections.actionCategoryListFragmentToCityDetailFragment(city.id)
             findNavController().navigate(action)
         }
@@ -84,12 +111,14 @@ class CategoryListFragment : Fragment() {
             }
             is HomeState.Loading -> {
                 binding.progressBar.isVisible = true
+                // Eğer eski veriler varsa onları göstermeye devam et
+                state.oldData?.let { citiesAdapter.submitList(it) }
             }
             is HomeState.Error -> {
                 binding.progressBar.isVisible = false
-                // Show error state
+                // Hata durumunu göster
             }
-            else -> { /* Initial state - do nothing */ }
+            else -> { /* Initial state - bir şey yapma */ }
         }
     }
 

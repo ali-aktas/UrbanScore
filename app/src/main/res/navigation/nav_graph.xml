@@ -140,21 +140,27 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_allCitiesFragment_to_loginFragment"
-            app:destination="@id/loginFragment"
+            android:id="@+id/action_allCitiesFragment_to_categoryListFragment"
+            app:destination="@id/categoryListFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
-            app:popUpTo="@id/nav_graph"
-            app:popUpToInclusive="true" />
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <!-- ===================== Content Fragments ===================== -->
     <!-- These are NOT represented in the bottom navigation bar -->
+    <!-- nav_graph.xml içerisindeki categoryListFragment kısmını şu şekilde güncelleyelim: -->
     <fragment
         android:id="@+id/categoryListFragment"
         android:name="com.aliaktas.urbanscore.ui.categories.CategoryListFragment"
         android:label="Top Rated Cities"
         tools:layout="@layout/fragment_category_list">
+        <!-- Kategori parametresi ekleyelim -->
+        <argument
+            android:name="categoryId"
+            app:argType="string"
+            android:defaultValue="averageRating" />
         <action
             android:id="@+id/action_categoryListFragment_to_cityDetailFragment"
             app:destination="@id/cityDetailFragment"

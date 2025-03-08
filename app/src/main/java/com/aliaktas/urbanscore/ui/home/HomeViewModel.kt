@@ -26,6 +26,8 @@ class HomeViewModel @Inject constructor(
     // Veri yükleniyor mu kontrolü için flag
     private var isDataLoading = false
 
+    private var currentCategory: String = "averageRating"
+
     init {
         viewModelScope.launch {
             delay(100) // Önceki kodunuzdaki gecikmeyi koruyorum
@@ -33,8 +35,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun refreshCities(forceRefresh: Boolean = true) {
-        // Eğer zaten yükleme yapılıyorsa tekrar yükleme yapma
+    fun refreshCities(forceRefresh: Boolean = true, category: String? = null) {
+        // Eğer kategori sağlanmışsa güncelle
+        if (category != null) {
+            currentCategory = category
+        }
+
+        // Zaten yükleme yapılıyorsa, tekrar etme
         if (isDataLoading) {
             return
         }
@@ -45,7 +52,7 @@ class HomeViewModel @Inject constructor(
             return
         }
 
-        // Mevcut veriler varsa onları Loading state'inde tut
+        // Mevcut verileri yükleme sırasında korumak için al
         val currentCities = if (_state.value is HomeState.Success) {
             (_state.value as HomeState.Success).cities
         } else {
@@ -60,22 +67,31 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                cityRepository.getAllCities()
+                // Kategori spesifik sorgu kullan
+                val citiesFlow = cityRepository.getCitiesByCategoryRating(currentCategory)
+
+                citiesFlow
                     .catch { e ->
-                        isDataLoading = false // Hata durumunda bayrağı false yap
+                        isDataLoading = false
                         _state.value = HomeState.Error(e.message ?: "An error occurred")
                     }
                     .collect { cities ->
-                        val sortedCities = cities.sortedByDescending { it.averageRating }
-                        // Önbelleğe kaydet
-                        cachedCities = sortedCities
-                        _state.value = HomeState.Success(sortedCities)
-                        isDataLoading = false // Yükleme tamamlandığında bayrağı false yap
+                        // Burada sıralama yapmaya gerek yok, sorgu zaten seçilen kategoriye göre sıralanmış geliyor
+                        cachedCities = cities
+                        _state.value = HomeState.Success(cities)
+                        isDataLoading = false
                     }
             } catch (e: Exception) {
-                isDataLoading = false // Hata durumunda bayrağı false yap
+                isDataLoading = false
                 _state.value = HomeState.Error(e.message ?: "An error occurred")
             }
+        }
+    }
+
+    // Kategoriyi açıkça değiştirmek için yeni bir metot
+    fun switchCategory(category: String) {
+        if (category != currentCategory) {
+            refreshCities(true, category)
         }
     }
 

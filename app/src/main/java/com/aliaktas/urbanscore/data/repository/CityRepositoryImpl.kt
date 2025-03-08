@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import com.google.firebase.firestore.Query
 
 class CityRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
@@ -80,6 +81,39 @@ class CityRepositoryImpl @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    override suspend fun getCitiesByCategoryRating(categoryName: String, limit: Int): Flow<List<CityModel>> = callbackFlow {
+        // Kategori adını doğrulayalım
+        val validCategories = setOf("environment", "safety", "livability", "cost", "social")
+        val category = if (categoryName in validCategories) categoryName else "averageRating"
+
+        // Kategori puanlamasına göre alanı ayarlama
+        val fieldPath = if (category == "averageRating") "averageRating" else "ratings.$category"
+
+        val subscription = firestore.collection(CITIES_COLLECTION)
+            .orderBy(fieldPath, Query.Direction.DESCENDING)
+            .limit(limit.toLong())
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val cities = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        val model = doc.toObject(CityModel::class.java)
+                        // Döküman ID'sini modele atayalım
+                        model?.copy(id = doc.id)
+                    } catch (e: Exception) {
+                        Log.e("CityRepository", "Error converting document", e)
+                        null
+                    }
+                } ?: emptyList()
+
+                trySend(cities)
+            }
+
+        awaitClose { subscription.remove() }
+    }
 
     override suspend fun rateCity(
         cityId: String,

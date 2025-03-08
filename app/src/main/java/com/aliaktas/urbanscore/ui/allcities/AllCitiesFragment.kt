@@ -1,9 +1,11 @@
 package com.aliaktas.urbanscore.ui.allcities
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.aliaktas.urbanscore.databinding.FragmentAllCitiesBinding
@@ -29,6 +31,7 @@ class AllCitiesFragment : Fragment() {
         setupCategoryCards()
     }
 
+    // AllCitiesFragment.kt içerisindeki setupCategoryCards metodunu güncelleyelim
     private fun setupCategoryCards() {
         // Environment & Aesthetics
         binding.cardEnvironment.setOnClickListener {
@@ -57,18 +60,15 @@ class AllCitiesFragment : Fragment() {
     }
 
     private fun navigateToCategoryList(categoryId: String) {
-        // Bu kısmı ileride kategori listesi sayfasına gitmek için kullanacağız
-        // Örneğin:
-        // val action = AllCitiesFragmentDirections.actionAllCitiesFragmentToCategoryListFragment(categoryId)
-        // findNavController().navigate(action)
-
-        // Şimdilik sadece bir mesaj gösterelim
-        /* Toast.makeText(
-            requireContext(),
-            "Category $categoryId selected. Navigation will be implemented later.",
-            Toast.LENGTH_SHORT
-        ).show() */
+        try {
+            val action = AllCitiesFragmentDirections.actionAllCitiesFragmentToCategoryListFragment(categoryId)
+            findNavController().navigate(action)
+        } catch (e: Exception) {
+            Log.e("AllCitiesFragment", "Navigation error: ${e.message}", e)
+            Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
