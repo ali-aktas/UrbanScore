@@ -20,11 +20,11 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
 
     // Kıtalar için farklı arka plan drawable listesi
     private val backgroundDrawables = listOf(
-        R.drawable.category_landscape_bg,
-        R.drawable.category_safety_bg,
-        R.drawable.category_livability_bg,
-        R.drawable.category_cost_bg,
-        R.drawable.category_social_bg
+        R.drawable.little_category_button_bg,
+        R.drawable.little_category_button_bg,
+        R.drawable.little_category_button_bg,
+        R.drawable.little_category_button_bg,
+        R.drawable.little_category_button_bg
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {

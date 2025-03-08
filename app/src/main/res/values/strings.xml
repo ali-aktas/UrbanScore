@@ -85,8 +85,8 @@
     <string name="discover_new_cities">Discover new cities</string>
     <string name="search_cities">Search cities</string>
     <string name="for_you_text">For you, out of a thousand cities</string>
-    <string name="couldnt_find_city">Couldn\'t find the city you were looking for?</string>
-    <string name="let_us_know_city">Let us know the city</string>
+    <string name="couldnt_find_city">Couldn\'t find any city?</string>
+    <string name="let_us_know_city">Let us add the city</string>
     <string name="search_icon">Search icon</string>
     <string name="location_icon">Location icon</string>
 
