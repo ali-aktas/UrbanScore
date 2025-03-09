@@ -10,6 +10,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
+import android.content.res.ColorStateList
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -140,25 +143,73 @@ class CityDetailFragment : Fragment() {
 
     }
 
+
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state ->
-                    when (state) {
-                        is CityDetailState.Loading -> showLoading(true)
-                        is CityDetailState.Success -> {
-                            showLoading(false)
-                            updateUI(state.city)
+                // Şehir detaylarını gözlemle
+                launch {
+                    viewModel.state.collect { state ->
+                        when (state) {
+                            is CityDetailState.Loading -> showLoading(true)
+                            is CityDetailState.Success -> {
+                                showLoading(false)
+                                updateUI(state.city)
+                            }
+                            is CityDetailState.Error -> {
+                                showLoading(false)
+                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                            }
                         }
-                        is CityDetailState.Error -> {
-                            showLoading(false)
-                            Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
-                        }
+                    }
+                }
+
+                // Puanlama durumunu gözlemle
+                launch {
+                    viewModel.hasRated.collect { hasRated ->
+                        updateRateButton(hasRated)
                     }
                 }
             }
         }
     }
+
+    // Buton görünümünü güncelleyen yeni metot
+    private fun updateRateButton(hasRated: Boolean) {
+        if (hasRated) {
+            binding.btnRateCity.apply {
+                text = "Rated"
+                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.rating_color)
+                // Seçenek 1: Butonu devre dışı bırak (tekrar puanlama yapılamaz)
+                // isEnabled = false
+
+                // Seçenek 2: Butonu aktif bırak (tekrar puanlama yapılabilir)
+                setOnClickListener {
+                    Snackbar.make(binding.root, "You've already rated this city. Would you like to update your rating?", Snackbar.LENGTH_LONG)
+                        .setAction("Update") {
+                            // Puanlama bottom sheet'i göster
+                            val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
+                            bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
+                        }
+                        .show()
+                }
+            }
+        } else {
+            binding.btnRateCity.apply {
+                text = getString(R.string.rate_this_city)
+                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.gradient_center)
+                isEnabled = true
+
+                // Normal puanlama işlevini geri yükle
+                setOnClickListener {
+                    val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
+                    bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
+                }
+            }
+        }
+    }
+
 
     private fun showLoading(isLoading: Boolean) {
         // If using loading animation, control it here

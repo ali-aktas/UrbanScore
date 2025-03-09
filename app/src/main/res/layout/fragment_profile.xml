@@ -141,15 +141,25 @@
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvVisitedCities"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="100dp"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_visited_city" />
+
                     <TextView
+                        android:id="@+id/tvNoVisitedCities"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="16dp"
-                        android:text="bu liste tıpkı homefragmenttaki cardview gibi olacak. kendi içinde kayan liste"
+                        android:text="You haven't rated any cities yet"
                         android:textAlignment="center"
                         android:textColor="#BEFFFFFF"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -161,7 +171,7 @@
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/gradient_center"
                 android:padding="12dp"
-                android:text="paylaş"
+                android:text="Share your ratings"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
                 android:textAllCaps="false"
@@ -198,15 +208,25 @@
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvWishlistCities"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="100dp"
+                        tools:itemCount="3"
+                        tools:listitem="@layout/item_wishlist_city" />
+
                     <TextView
+                        android:id="@+id/tvNoWishlistCities"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="16dp"
-                        android:text="aynı mantıkta liste"
+                        android:text="Your bucket list is empty"
                         android:textAlignment="center"
                         android:textColor="#BEFFFFFF"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:visibility="gone" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -221,7 +241,7 @@
                 android:padding="12dp"
                 android:gravity="center"
                 android:layout_gravity="center_horizontal"
-                android:text="paylaş"
+                android:text="Share your bucket list"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 app:cornerRadius="20dp" />

@@ -2,6 +2,7 @@ package com.aliaktas.urbanscore.data.repository
 
 import android.util.Log
 import com.aliaktas.urbanscore.data.model.UserModel
+import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -261,11 +262,12 @@ class UserRepositoryImpl @Inject constructor(
         Result.failure(e)
     }
 
-    override suspend fun addToVisitedCities(cityId: String): Result<Unit> = try {
+    override suspend fun addToVisitedCities(cityId: String, rating: Double): Result<Unit> = try {
         val currentUser = auth.currentUser ?: throw Exception("No user logged in")
 
+        // Instead of array update, we're setting a map field
         firestore.collection(USERS_COLLECTION).document(currentUser.uid)
-            .update("visited_cities", FieldValue.arrayUnion(cityId)).await()
+            .update("visitedCities.$cityId", rating).await()
 
         Result.success(Unit)
     } catch (e: Exception) {
@@ -276,8 +278,9 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun removeFromVisitedCities(cityId: String): Result<Unit> = try {
         val currentUser = auth.currentUser ?: throw Exception("No user logged in")
 
+        // Remove the specific field from the map
         firestore.collection(USERS_COLLECTION).document(currentUser.uid)
-            .update("visited_cities", FieldValue.arrayRemove(cityId)).await()
+            .update("visitedCities.$cityId", FieldValue.delete()).await()
 
         Result.success(Unit)
     } catch (e: Exception) {
@@ -308,11 +311,11 @@ class UserRepositoryImpl @Inject constructor(
         awaitClose { listener.remove() }
     }
 
-    override suspend fun getUserVisitedCities(): Flow<List<String>> = callbackFlow {
+    override suspend fun getUserVisitedCities(): Flow<Map<String, Double>> = callbackFlow {
         val currentUser = auth.currentUser
 
         if (currentUser == null) {
-            trySend(emptyList())
+            trySend(emptyMap())
             close()
             return@callbackFlow
         }
@@ -324,10 +327,85 @@ class UserRepositoryImpl @Inject constructor(
                     return@addSnapshotListener
                 }
 
-                val visitedCities = snapshot?.get("visited_cities") as? List<String> ?: emptyList()
+                // Get the map from Firestore
+                @Suppress("UNCHECKED_CAST")
+                val visitedCities = snapshot?.get("visitedCities") as? Map<String, Double> ?: emptyMap()
                 trySend(visitedCities)
             }
 
         awaitClose { listener.remove() }
     }
+
+    override suspend fun getUserRatingsForCity(cityId: String): Flow<UserRatingModel?> = callbackFlow {
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            trySend(null)
+            close()
+            return@callbackFlow
+        }
+
+        val listener = firestore.collection(USERS_COLLECTION)
+            .document(currentUser.uid)
+            .collection("ratings")
+            .document(cityId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val rating = if (snapshot != null && snapshot.exists()) {
+                    try {
+                        snapshot.toObject(UserRatingModel::class.java)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error converting rating document", e)
+                        null
+                    }
+                } else null
+
+                trySend(rating)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
+    override fun hasUserRatedCity(cityId: String): Flow<Boolean> = callbackFlow {
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            trySend(false)
+            close()
+            return@callbackFlow
+        }
+
+        // Kullanıcının visitedCities haritasını kontrol et
+        val listener = firestore.collection(USERS_COLLECTION)
+            .document(currentUser.uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e(TAG, "Error checking if user rated city", error)
+                    trySend(false)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot == null || !snapshot.exists()) {
+                    trySend(false)
+                    return@addSnapshotListener
+                }
+
+                val data = snapshot.data
+                if (data != null) {
+                    @Suppress("UNCHECKED_CAST")
+                    val visitedCities = data["visitedCities"] as? Map<String, Any> ?: emptyMap()
+                    val hasRated = visitedCities.containsKey(cityId)
+                    trySend(hasRated)
+                } else {
+                    trySend(false)
+                }
+            }
+
+        awaitClose { listener.remove() }
+    }
+
 }

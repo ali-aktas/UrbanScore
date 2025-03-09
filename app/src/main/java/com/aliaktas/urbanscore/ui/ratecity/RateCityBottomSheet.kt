@@ -6,13 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.databinding.BottomSheetRateCityBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import android.os.Handler
+import android.os.Looper
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.delay
 
 @AndroidEntryPoint
 class RateCityBottomSheet : BottomSheetDialogFragment() {
@@ -95,7 +101,22 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
                     cost = binding.sliderCost.value.toDouble(),
                     social = binding.sliderSocial.value.toDouble()
                 )
-                viewModel.submitRating(id, ratings)
+
+                // Önce buton durumunu güncelle
+                binding.btnSubmitRating.isEnabled = false
+                binding.btnSubmitRating.text = "Submitting..."
+
+                // Başarı mesajını göster
+                Toast.makeText(requireContext(), "Rating submitted successfully!", Toast.LENGTH_SHORT).show()
+
+                // Küçük bir gecikme ekle - kullanıcının değişiklikleri görmesi için
+                Handler(Looper.getMainLooper()).postDelayed({
+                    // Puanlama işlemini başlat
+                    viewModel.submitRating(id, ratings)
+
+                    // BottomSheet'i kapat
+                    dismiss()
+                }, 1000) // 300ms gecikme - kullanıcının buton değişimini görmesi için
             } ?: run {
                 Toast.makeText(context, "City ID not found", Toast.LENGTH_SHORT).show()
                 dismiss()
@@ -104,24 +125,44 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun observeViewModel() {
+        // Daha basit bir yaklaşım - ViewModel'den state değişimlerini takip et
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.ratingState.collect { state ->
                 when (state) {
                     is RateCityState.Initial -> {
-                        // Do nothing
+                        // Hiçbir şey yapma
                     }
                     is RateCityState.Loading -> {
                         binding.btnSubmitRating.isEnabled = false
                         binding.btnSubmitRating.text = "Submitting..."
                     }
                     is RateCityState.Success -> {
-                        Toast.makeText(context, "Rating submitted successfully!", Toast.LENGTH_SHORT).show()
-                        dismiss()
+                        // Önce başarılı mesajını göster
+                        Toast.makeText(requireContext(),
+                            "Rating submitted successfully!",
+                            Toast.LENGTH_SHORT).show()
+
+                        try {
+                            // BottomSheet'i manuel olarak kapat
+                            val behavior = BottomSheetBehavior.from(requireView().parent as View)
+                            behavior.state = BottomSheetBehavior.STATE_HIDDEN
+
+                            // Kısa bir gecikme ile dismiss() çağır
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                if (isAdded) { // Fragment hala bağlı mı kontrol et
+                                    dismiss()
+                                }
+                            }, 100)
+                        } catch (e: Exception) {
+                            // Eğer behavior ile kapatma başarısız olursa, direkt dismiss dene
+                            dismiss()
+                        }
                     }
                     is RateCityState.Error -> {
+                        // Hata durumunda UI'ı güncelle
                         binding.btnSubmitRating.isEnabled = true
                         binding.btnSubmitRating.text = "Submit Rating"
-                        Toast.makeText(context, state.message, Toast.LENGTH_LONG).show()
+                        Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                     }
                 }
             }
