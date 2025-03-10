@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.detail
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -128,21 +129,60 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun setupActionButtons() {
-        binding.btnAddToWishlist.setOnClickListener {
-            // Implement wishlist logic
-            Snackbar.make(binding.root, "Added to wishlist", Snackbar.LENGTH_SHORT).show()
-            viewModel.addToWishlist()
-        }
-
+        // btnRateCity için mevcut kodu koruyoruz
         binding.btnRateCity.setOnClickListener {
             // Show the rate city bottom sheet instead of navigating
             val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
             bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
         }
 
-
+        // Wishlist butonunu duruma göre dinlemek için observer ekliyoruz
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isInWishlist.collect { isInWishlist ->
+                    updateWishlistButton(isInWishlist)
+                }
+            }
+        }
     }
 
+
+
+    private fun updateWishlistButton(isInWishlist: Boolean) {
+        if (isInWishlist) {
+            // Zaten wishlist'te
+            binding.btnAddToWishlist.apply {
+                text = "Remove from Bucket List"
+                backgroundTintList = ContextCompat.getColorStateList(requireContext(), android.R.color.holo_red_light)
+                setOnClickListener {
+                    showRemoveFromWishlistDialog()
+                }
+            }
+        } else {
+            // Wishlist'te değil
+            binding.btnAddToWishlist.apply {
+                text = getString(R.string.add_to_wishlist)
+                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.white)
+                setOnClickListener {
+                    viewModel.addToWishlist()
+                    Snackbar.make(binding.root, "Added to bucket list", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    // Yeni metod ekleyin
+    private fun showRemoveFromWishlistDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Remove from Bucket List")
+            .setMessage("Are you sure you want to remove this city from your bucket list?")
+            .setPositiveButton("Yes") { _, _ ->
+                viewModel.removeFromWishlist()
+                Snackbar.make(binding.root, "Removed from bucket list", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
 
 
     private fun observeViewModel() {
@@ -270,6 +310,7 @@ class CityDetailFragment : Fragment() {
             startActivity(Intent.createChooser(intent, "Share via"))
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

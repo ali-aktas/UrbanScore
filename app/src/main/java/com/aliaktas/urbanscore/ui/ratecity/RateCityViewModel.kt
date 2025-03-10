@@ -13,8 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,87 +37,62 @@ class RateCityViewModel @Inject constructor(
 
         _ratingState.value = RateCityState.Loading
 
+        // TEST için log
+        Log.d("RateCityViewModel", "Starting rating for cityId: $cityId, userId: ${currentUser.uid}")
+
         viewModelScope.launch {
             try {
-                // Calculate the average rating from all categories
+                // 1. Ortalama puanı hesapla
                 val averageRating = calculateAverageRating(ratings)
+                Log.d("RateCityViewModel", "Calculated average rating: $averageRating")
 
-                // 1. Submit rating to city (this will update the city's average rating)
+                // 2. Şehre puanlamayı gönder
                 val result = cityRepository.rateCity(cityId, currentUser.uid, ratings)
 
                 result.fold(
                     onSuccess = {
-                        viewModelScope.launch { // 🔥 İşlemleri bu scope içinde tamamla
-                            saveUserRating(cityId, ratings, averageRating)
-                            addCityToVisitedWithRating(cityId, averageRating)
-                            _ratingState.value = RateCityState.Success // ✅ Sonra state'i güncelle
+                        Log.d("RateCityViewModel", "CityRepository.rateCity successful")
+                        viewModelScope.launch {
+                            try {
+                                // 3. Kullanıcının ziyaret ettiği şehirler listesine ekle
+                                val visitedResult = userRepository.addToVisitedCities(cityId, averageRating)
+
+                                visitedResult.fold(
+                                    onSuccess = {
+                                        Log.d("RateCityViewModel", "SUCCESSFULLY added to visited_cities")
+                                    },
+                                    onFailure = { e ->
+                                        Log.e("RateCityViewModel", "FAILED to add to visited_cities: ${e.message}", e)
+                                    }
+                                )
+
+                                // 4. Başarılı state'i ayarla
+                                _ratingState.value = RateCityState.Success
+                            } catch (e: Exception) {
+                                Log.e("RateCityViewModel", "Error in adding to visited cities: ${e.message}", e)
+                                _ratingState.value = RateCityState.Error("Error updating profile: ${e.message}")
+                            }
                         }
                     },
                     onFailure = { exception ->
+                        Log.e("RateCityViewModel", "CityRepository.rateCity failed: ${exception.message}", exception)
                         _ratingState.value = RateCityState.Error(exception.message ?: "Failed to submit rating")
                     }
                 )
             } catch (e: Exception) {
+                Log.e("RateCityViewModel", "Unexpected error in submitRating: ${e.message}", e)
                 _ratingState.value = RateCityState.Error(e.message ?: "An unexpected error occurred")
             }
         }
     }
 
     private fun calculateAverageRating(ratings: CategoryRatings): Double {
-        return ((ratings.environment + ratings.safety + ratings.livability +
-                ratings.cost + ratings.social) / 5.0)
-    }
-
-    private suspend fun saveUserRating(cityId: String, ratings: CategoryRatings, averageRating: Double) {
-        val currentUser = auth.currentUser ?: return
-
-        try {
-            // Get city name for better display in user's profile
-            var cityName = ""
-            cityRepository.getCityById(cityId).collect { city ->
-                cityName = city?.cityName ?: cityId
-            }
-
-            // Create rating model for the user's ratings collection
-            val userRating = UserRatingModel(
-                userId = currentUser.uid,
-                cityId = cityId,
-                cityName = cityName,
-                timestamp = System.currentTimeMillis(),
-                userAverageRating = averageRating,
-                ratings = ratings
-            )
-
-            // Save to the nested collection
-            firestore.collection("users")
-                .document(currentUser.uid)
-                .collection("ratings")
-                .document(cityId)
-                .set(userRating)
-                .await()
-
-            Log.d("RateCityViewModel", "User rating saved successfully to nested collection")
-        } catch (e: Exception) {
-            Log.e("RateCityViewModel", "Error saving user rating: ${e.message}")
-            // Don't fail the entire operation if this specific part fails
-        }
-    }
-
-    private suspend fun addCityToVisitedWithRating(cityId: String, rating: Double) {
-        try {
-            val result = userRepository.addToVisitedCities(cityId, rating)
-
-            result.fold(
-                onSuccess = {
-                    Log.d("RateCityViewModel", "City added to visited list with rating: $rating")
-                },
-                onFailure = { e ->
-                    Log.e("RateCityViewModel", "Failed to add city to visited list: ${e.message}")
-                }
-            )
-        } catch (e: Exception) {
-            Log.e("RateCityViewModel", "Error adding city to visited list: ${e.message}")
-        }
+        // Weighted average calculation
+        val sum = (ratings.environment * 1.3 +
+                ratings.safety * 1.1 +
+                ratings.livability * 1.0 +
+                ratings.cost * 1.0 +
+                ratings.social * 1.2)
+        return (sum / 5.6).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
     }
 }
-

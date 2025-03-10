@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.data.repository
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
@@ -20,7 +21,7 @@ class CityRepositoryImpl @Inject constructor(
 
     companion object {
         private const val CITIES_COLLECTION = "cities"
-        private const val USER_RATINGS_COLLECTION = "user_ratings"
+        //private const val USER_RATINGS_COLLECTION = "user_ratings"
     }
 
     override suspend fun getAllCities(): Flow<List<CityModel>> = callbackFlow {
@@ -74,39 +75,43 @@ class CityRepositoryImpl @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
+    // CityRepositoryImpl.kt içinde
     override suspend fun getCityById(cityId: String): Flow<CityModel?> = callbackFlow {
-        val subscription = firestore.collection(CITIES_COLLECTION)
-            .document(cityId)
-            .addSnapshotListener { snapshot, error ->
+        try {
+            // ÖNEMLİ: Doğru şekilde belge referansı oluştur
+            val documentRef = firestore.collection(CITIES_COLLECTION).document(cityId)
+
+            val subscription = documentRef.addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
                 }
 
-                val city = snapshot?.toObject(CityModel::class.java)?.copy(id = snapshot.id)
-                trySend(city)
+                if (snapshot != null && snapshot.exists()) {
+                    try {
+                        val city = snapshot.toObject(CityModel::class.java)?.copy(id = snapshot.id)
+                        trySend(city)
+                    } catch (e: Exception) {
+                        Log.e("CityRepository", "Error converting document", e)
+                        trySend(null)
+                    }
+                } else {
+                    trySend(null)
+                }
             }
 
-        awaitClose { subscription.remove() }
+            awaitClose { subscription.remove() }
+        } catch (e: Exception) {
+            Log.e("CityRepository", "Error in getCityById", e)
+            close(e)
+        }
     }
 
     override suspend fun getUserRatings(userId: String): Flow<List<UserRatingModel>> = callbackFlow {
-        val subscription = firestore.collection(USER_RATINGS_COLLECTION)
-            .whereEqualTo("userId", userId)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    close(error)
-                    return@addSnapshotListener
-                }
-
-                val ratings = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(UserRatingModel::class.java)?.copy(id = doc.id)
-                } ?: emptyList()
-
-                trySend(ratings)
-            }
-
-        awaitClose { subscription.remove() }
+        // Artık user_ratings koleksiyonu kullanmadığımız için,
+        // boş liste döndürebiliriz veya alternatif bir implementasyon yapabiliriz
+        trySend(emptyList())
+        awaitClose { }
     }
 
     // CityRepositoryImpl.kt içine yeni metot ekle
@@ -199,12 +204,8 @@ class CityRepositoryImpl @Inject constructor(
         awaitClose { subscription.remove() }
     }
 
-    override suspend fun rateCity(
-        cityId: String,
-        userId: String,
-        ratings: CategoryRatings
-    ): Result<Unit> = try {
-        // Önce ondalık basamakları düzenle
+    override suspend fun rateCity(cityId: String, userId: String, ratings: CategoryRatings): Result<Unit> = try {
+        // Öndalık basamakları düzenle
         val formattedRatings = CategoryRatings(
             environment = (ratings.environment * 100).toInt() / 100.0,
             safety = (ratings.safety * 100).toInt() / 100.0,
@@ -213,63 +214,53 @@ class CityRepositoryImpl @Inject constructor(
             social = (ratings.social * 100).toInt() / 100.0
         )
 
-        // Perform atomic update operation using Transaction
+        // İşlemi bir transaction içinde gerçekleştir
         firestore.runTransaction { transaction ->
             val cityRef = firestore.collection(CITIES_COLLECTION).document(cityId)
             val cityDoc = transaction.get(cityRef)
 
-            // Get available city data
+            // Şehir verilerini al
             val city = cityDoc.toObject(CityModel::class.java)
                 ?: throw Exception("City not found")
 
-            // Create a unique ID for user rating
-            val userRatingId = "${userId}_${cityId}"
-            val userRatingRef = firestore.collection(USER_RATINGS_COLLECTION).document(userRatingId)
+            // Kullanıcının önceki puanını users koleksiyonundan al
+            val userRef = firestore.collection("users").document(userId)
+            val userDoc = transaction.get(userRef)
 
-            // Check if the user has already rated this city
-            val userRatingDoc = transaction.get(userRatingRef)
-            val oldRating = userRatingDoc.toObject(UserRatingModel::class.java)
+            @Suppress("UNCHECKED_CAST")
+            val visitedCities = userDoc.get("visited_cities") as? Map<String, Double> ?: emptyMap()
+            val oldRating = visitedCities[cityId]
+            val wasRatedBefore = oldRating != null
 
-            // Create user rating model
-            val userRating = UserRatingModel(
-                userId = userId,
-                cityId = cityId,
-                timestamp = System.currentTimeMillis(),
-                ratings = formattedRatings
-            )
-
-            // Set user rating (will update if already exists)
-            transaction.set(userRatingRef, userRating)
-
-            // Update the average ratings of city based on whether this is a new rating or an update
-            if (oldRating != null) {
-                // This is an update - need to remove old rating impact
+            // Şehrin ortalama puanını güncelle
+            if (wasRatedBefore) {
+                // Bu bir güncelleme - eski puanlama etkisini kaldır
                 val newRatings = CategoryRatings(
-                    environment = updateRatingForEdit(city.ratings.environment, oldRating.ratings.environment,
+                    environment = updateRatingForEdit(city.ratings.environment, oldRating!!,
                         formattedRatings.environment, city.ratingCount),
-                    safety = updateRatingForEdit(city.ratings.safety, oldRating.ratings.safety,
+                    safety = updateRatingForEdit(city.ratings.safety, oldRating,
                         formattedRatings.safety, city.ratingCount),
-                    livability = updateRatingForEdit(city.ratings.livability, oldRating.ratings.livability,
+                    livability = updateRatingForEdit(city.ratings.livability, oldRating,
                         formattedRatings.livability, city.ratingCount),
-                    cost = updateRatingForEdit(city.ratings.cost, oldRating.ratings.cost,
+                    cost = updateRatingForEdit(city.ratings.cost, oldRating,
                         formattedRatings.cost, city.ratingCount),
-                    social = updateRatingForEdit(city.ratings.social, oldRating.ratings.social,
+                    social = updateRatingForEdit(city.ratings.social, oldRating,
                         formattedRatings.social, city.ratingCount)
                 )
 
-                // Recalculate the new overall average using weighted formula
+                // Yeni genel ortalamayı ağırlıklı formül kullanarak hesapla
                 val newAverageRating = calculateWeightedAverage(newRatings)
 
-                // Format to 2 decimal places
+                // 2 ondalık basamağa yuvarla
                 val formattedAverage = (newAverageRating * 100).toInt() / 100.0
 
-                // Update the city doc - without incrementing rating count since it's an update
+                // Şehir belgesini güncelle - puanlama sayısını artırmadan
                 transaction.update(cityRef, mapOf(
                     "ratings" to newRatings,
                     "averageRating" to formattedAverage
                 ))
             } else {
-                // This is a new rating
+                // Bu yeni bir puanlama
                 val newRatingCount = city.ratingCount + 1
                 val newRatings = CategoryRatings(
                     environment = updateAverage(city.ratings.environment, formattedRatings.environment, city.ratingCount),
@@ -279,13 +270,13 @@ class CityRepositoryImpl @Inject constructor(
                     social = updateAverage(city.ratings.social, formattedRatings.social, city.ratingCount)
                 )
 
-                // Calculate the new overall average using weighted formula
+                // Yeni genel ortalamayı ağırlıklı formül kullanarak hesapla
                 val newAverageRating = calculateWeightedAverage(newRatings)
 
-                // Format to 2 decimal places
+                // 2 ondalık basamağa yuvarla
                 val formattedAverage = (newAverageRating * 100).toInt() / 100.0
 
-                // Update the city doc and increment rating count
+                // Şehir belgesini güncelle ve puanlama sayısını artır
                 transaction.update(cityRef, mapOf(
                     "ratings" to newRatings,
                     "averageRating" to formattedAverage,
@@ -296,6 +287,7 @@ class CityRepositoryImpl @Inject constructor(
 
         Result.success(Unit)
     } catch (e: Exception) {
+        Log.e(TAG, "rateCity failed", e)
         Result.failure(e)
     }
 

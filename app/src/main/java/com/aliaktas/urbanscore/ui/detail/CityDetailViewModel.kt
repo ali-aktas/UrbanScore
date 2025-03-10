@@ -22,6 +22,9 @@ class CityDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private val _isInWishlist = MutableStateFlow<Boolean>(false)
+    val isInWishlist: StateFlow<Boolean> = _isInWishlist.asStateFlow()
+
     private val cityId: String = checkNotNull(savedStateHandle["cityId"])
 
     private val _state = MutableStateFlow<CityDetailState>(CityDetailState.Loading)
@@ -34,6 +37,31 @@ class CityDetailViewModel @Inject constructor(
     init {
         loadCityDetails()
         checkIfRated()
+        checkIfInWishlist()
+    }
+
+    private fun checkIfInWishlist() {
+        viewModelScope.launch {
+            userRepository.getUserWishlist()
+                .catch { e ->
+                    Log.e("CityDetailViewModel", "Error checking if in wishlist: ${e.message}")
+                }
+                .collect { wishlist ->
+                    _isInWishlist.value = wishlist.contains(cityId)
+                    Log.d("CityDetailViewModel", "City $cityId in wishlist: ${_isInWishlist.value}")
+                }
+        }
+    }
+
+    fun removeFromWishlist() {
+        viewModelScope.launch {
+            try {
+                userRepository.removeFromWishlist(cityId)
+                Log.d("CityDetailViewModel", "Removed city $cityId from wishlist")
+            } catch (e: Exception) {
+                Log.e("CityDetailViewModel", "Error removing from wishlist: ${e.message}")
+            }
+        }
     }
 
     private fun checkIfRated() {
@@ -44,6 +72,7 @@ class CityDetailViewModel @Inject constructor(
                 }
                 .collect { rated ->
                     _hasRated.value = rated
+                    Log.d("CityDetailViewModel", "City $cityId rated status: $rated")
                 }
         }
     }
@@ -74,6 +103,7 @@ class CityDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 userRepository.addToWishlist(cityId)
+                Log.d("CityDetailViewModel", "Added city $cityId to wishlist")
             } catch (e: Exception) {
                 Log.e("CityDetailViewModel", "Error adding to wishlist: ${e.message}")
             }
@@ -82,6 +112,6 @@ class CityDetailViewModel @Inject constructor(
 
     fun refreshCityDetails() {
         loadCityDetails()
-        checkIfRated() // Ayrıca puanlama durumunu da yenile
+        checkIfRated()
     }
 }

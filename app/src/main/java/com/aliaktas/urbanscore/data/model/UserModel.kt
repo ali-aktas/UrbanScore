@@ -5,6 +5,6 @@ data class UserModel(
     val email: String = "",
     val displayName: String = "",
     val photoUrl: String = "",
-    val visitedCities: List<String> = emptyList(),
-    val wishlistCities: List<String> = emptyList()
+    val visited_cities: Map<String, Double> = emptyMap(),
+    val wishlist_cities: List<String> = emptyList()
 )

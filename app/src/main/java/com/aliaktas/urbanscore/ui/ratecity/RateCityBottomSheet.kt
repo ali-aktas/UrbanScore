@@ -17,6 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.coroutines.delay
 
@@ -102,24 +103,30 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
                     social = binding.sliderSocial.value.toDouble()
                 )
 
-                // Önce buton durumunu güncelle
+                // Buton durumunu güncelle
                 binding.btnSubmitRating.isEnabled = false
                 binding.btnSubmitRating.text = "Submitting..."
 
-                // Başarı mesajını göster
-                Toast.makeText(requireContext(), "Rating submitted successfully!", Toast.LENGTH_SHORT).show()
-
-                // Küçük bir gecikme ekle - kullanıcının değişiklikleri görmesi için
-                Handler(Looper.getMainLooper()).postDelayed({
-                    // Puanlama işlemini başlat
+                // ÖNEMLİ: BottomSheet'i kapatmadan önce işlemin tamamlanmasını izle
+                lifecycleScope.launch {
                     viewModel.submitRating(id, ratings)
 
-                    // BottomSheet'i kapat
-                    dismiss()
-                }, 1000) // 300ms gecikme - kullanıcının buton değişimini görmesi için
-            } ?: run {
-                Toast.makeText(context, "City ID not found", Toast.LENGTH_SHORT).show()
-                dismiss()
+                    // State'i gözlemle ve başarılı olduğunda kapat
+                    viewModel.ratingState.collect { state ->
+                        when (state) {
+                            is RateCityState.Success -> {
+                                Toast.makeText(requireContext(), "Rating submitted successfully!", Toast.LENGTH_SHORT).show()
+                                dismiss()
+                            }
+                            is RateCityState.Error -> {
+                                Toast.makeText(requireContext(), "Error: ${state.message}", Toast.LENGTH_SHORT).show()
+                                binding.btnSubmitRating.isEnabled = true
+                                binding.btnSubmitRating.text = "Submit Rating"
+                            }
+                            else -> {} // Diğer durumlar için bir şey yapma
+                        }
+                    }
+                }
             }
         }
     }

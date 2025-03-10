@@ -65,7 +65,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        // Setup Visited Cities Adapter
+        // Setup Visited Cities RecyclerView
         visitedCitiesAdapter = VisitedCitiesAdapter(
             onItemClick = { cityId ->
                 navigateToCityDetail(cityId)
@@ -74,9 +74,13 @@ class ProfileFragment : Fragment() {
         binding.rvVisitedCities.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = visitedCitiesAdapter
+            // Önemli: İç içe kaydırmayı etkinleştir
+            isNestedScrollingEnabled = true
+            // Sabit boyut ayarını kapat (dinamik içerik için)
+            setHasFixedSize(false)
         }
 
-        // Setup Wishlist Cities Adapter
+        // Setup Wishlist Cities RecyclerView
         wishlistCitiesAdapter = WishlistCitiesAdapter(
             onItemClick = { cityId ->
                 navigateToCityDetail(cityId)
@@ -88,6 +92,10 @@ class ProfileFragment : Fragment() {
         binding.rvWishlistCities.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = wishlistCitiesAdapter
+            // Önemli: İç içe kaydırmayı etkinleştir
+            isNestedScrollingEnabled = true
+            // Sabit boyut ayarını kapat (dinamik içerik için)
+            setHasFixedSize(false)
         }
     }
 

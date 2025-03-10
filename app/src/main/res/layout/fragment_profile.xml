@@ -116,7 +116,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardVisitedCities"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="350dp"
                 android:clickable="true"
                 android:focusable="true"
                 app:cardCornerRadius="26dp"
@@ -126,7 +126,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="350dp"
                     android:background="@drawable/noise_background"
                     android:orientation="vertical"
                     android:padding="16dp">
@@ -144,10 +144,10 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvVisitedCities"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="100dp"
-                        tools:itemCount="3"
-                        tools:listitem="@layout/item_visited_city" />
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="true"
+                        tools:listitem="@layout/item_city" />
 
                     <TextView
                         android:id="@+id/tvNoVisitedCities"
@@ -182,7 +182,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardBucketList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="350dp"
                 android:layout_marginTop="24dp"
                 android:clickable="true"
                 android:focusable="true"
@@ -193,7 +193,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="350dp"
                     android:background="@drawable/noise_background"
                     android:orientation="vertical"
                     android:padding="16dp">
@@ -211,8 +211,9 @@
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvWishlistCities"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:minHeight="100dp"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:nestedScrollingEnabled="true"
                         tools:itemCount="3"
                         tools:listitem="@layout/item_wishlist_city" />
 
