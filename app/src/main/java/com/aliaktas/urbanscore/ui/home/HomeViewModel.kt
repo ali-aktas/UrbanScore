@@ -18,7 +18,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val cityRepository: CityRepository
+    val cityRepository: CityRepository
 ) : ViewModel() {
 
     // State flow for UI state

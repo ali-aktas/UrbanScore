@@ -6,18 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentExploreBinding
 import com.aliaktas.urbanscore.databinding.ItemFeaturedCityBinding
 import com.bumptech.glide.Glide
+import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
+import android.util.Log
+import androidx.navigation.fragment.findNavController
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ExploreFragment : Fragment() {
 
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
     private lateinit var cityAdapter: FeaturedCityAdapter
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,20 +50,13 @@ class ExploreFragment : Fragment() {
         binding.cityViewPager.layoutParams = layoutParams
 
         setupCityCarousel()
+        loadPopularCities()
         setupClickListeners()
     }
 
     private fun setupCityCarousel() {
-        // Mock veriler
-        val cities = listOf(
-            FeaturedCity("1", "Istanbul", "https://example.com/olsztyn.jpg"),
-            FeaturedCity("2", "Barcelona", "https://example.com/barcelona.jpg"),
-            FeaturedCity("3", "Paris", "https://example.com/paris.jpg"),
-            FeaturedCity("4", "Tokyo", "https://example.com/tokyo.jpg"),
-            FeaturedCity("5", "Olsztyn", "https://example.com/istanbul.jpg")
-        )
-
-        cityAdapter = FeaturedCityAdapter(cities)
+        // Boş liste ile adaptörü başlat, veriler gelince güncellenecek
+        cityAdapter = FeaturedCityAdapter(emptyList())
 
         binding.cityViewPager.apply {
             adapter = cityAdapter
@@ -86,6 +92,70 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    private fun loadPopularCities() {
+        // Firebase'den "popular_cities" verilerini yükle
+        lifecycleScope.launch {
+            try {
+                Log.d("ExploreFragment", "Loading popular cities")
+
+                // "curated_lists" koleksiyonundan "popular_cities" tipindeki verileri al
+                firestore.collection("curated_lists")
+                    .whereEqualTo("listType", "popular_cities")
+                    // position'a göre sıralayalım, ama sorgu hatası alırsak manual sıralama yaparız
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        Log.d("ExploreFragment", "Found ${snapshot.size()} popular cities")
+
+                        val cities = snapshot.documents.mapNotNull { doc ->
+                            try {
+                                val model = doc.toObject(CuratedCityItem::class.java)
+                                model?.copy(id = doc.id)
+                            } catch (e: Exception) {
+                                Log.e("ExploreFragment", "Error converting document", e)
+                                null
+                            }
+                        }
+
+                        // position'a göre sırala
+                        val sortedCities = cities.sortedBy { it.position }
+
+                        // Şehirleri adaptöre aktar
+                        updateCities(sortedCities)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ExploreFragment", "Error loading popular cities", e)
+                        Toast.makeText(context, "Şehirleri yüklerken hata oluştu", Toast.LENGTH_SHORT).show()
+                    }
+            } catch (e: Exception) {
+                Log.e("ExploreFragment", "Exception in loadPopularCities", e)
+            }
+        }
+    }
+
+    private fun updateCities(cities: List<CuratedCityItem>) {
+        if (cities.isNotEmpty()) {
+            Log.d("ExploreFragment", "Updating UI with ${cities.size} cities")
+            cityAdapter = FeaturedCityAdapter(cities)
+            binding.cityViewPager.adapter = cityAdapter
+        } else {
+            Log.d("ExploreFragment", "No popular cities found, showing mock data")
+            // Veri yoksa mock verilerle test et
+            val mockCities = listOf(
+                MockCity("1", "Istanbul", "https://example.com/istanbul.jpg"),
+                MockCity("2", "Barcelona", "https://example.com/barcelona.jpg"),
+                MockCity("3", "Paris", "https://example.com/paris.jpg")
+            )
+            cityAdapter = FeaturedCityAdapter(mockCities.map {
+                CuratedCityItem(
+                    id = it.id,
+                    cityId = "${it.name.lowercase()}-country",
+                    imageUrl = it.imageUrl
+                )
+            })
+            binding.cityViewPager.adapter = cityAdapter
+        }
+    }
+
     private fun setupClickListeners() {
         binding.cardSearch.setOnClickListener {
             // Arama işlevini başlat
@@ -102,48 +172,65 @@ class ExploreFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-}
 
-// Veri modeli sınıfı
-data class FeaturedCity(
-    val id: String,
-    val name: String,
-    val imageUrl: String
-)
+    // Yardımcı Mock sınıfı (eski yapıyı desteklemek için)
+    data class MockCity(
+        val id: String,
+        val name: String,
+        val imageUrl: String
+    )
 
-// Adapter
-class FeaturedCityAdapter(private val cities: List<FeaturedCity>) :
-    RecyclerView.Adapter<FeaturedCityAdapter.CityViewHolder>() {
+    // Adapter sınıfını FeaturedCityAdapter adı altında tutup içeriğini güncelliyoruz
+    inner class FeaturedCityAdapter(private val cities: List<CuratedCityItem>) :
+        RecyclerView.Adapter<FeaturedCityAdapter.CityViewHolder>() {
 
-    class CityViewHolder(val binding: ItemFeaturedCityBinding) :
-        RecyclerView.ViewHolder(binding.root)
+        inner class CityViewHolder(val binding: ItemFeaturedCityBinding) :
+            RecyclerView.ViewHolder(binding.root)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
-        val binding = ItemFeaturedCityBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false)
-        return CityViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
-        val city = cities[position]
-        with(holder.binding) {
-            txtCityName.text = city.name
-
-            // Gerçek uygulamada Glide ile resim yükleme
-            // Glide.with(root).load(city.imageUrl).into(imgCity)
-            // PNG dosyasını yükle
-            Glide.with(root.context)
-                .load(R.drawable.istanbulphoto) // Attığın PNG dosyasının adı
-                .centerCrop()
-                .into(imgCity)
-
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
+            val binding = ItemFeaturedCityBinding.inflate(
+                LayoutInflater.from(parent.context), parent, false)
+            return CityViewHolder(binding)
         }
 
-        holder.itemView.setOnClickListener {
-            // Şehir detay sayfasına git
-            // Navigation ile yönlendirme yaparız
-        }
-    }
+        override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
+            val city = cities[position]
 
-    override fun getItemCount() = cities.size
+            // cityId'den şehir adını çıkar (örneğin "istanbul-turkey" -> "Istanbul")
+            val cityName = city.cityId.split("-").firstOrNull()?.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase() else it.toString()
+            } ?: "Unknown City"
+
+            with(holder.binding) {
+                txtCityName.text = cityName
+
+                // Resim yükleme - önce custom URL, yoksa varsayılan resim
+                if (city.imageUrl.isNotEmpty()) {
+                    Glide.with(root.context)
+                        .load(city.imageUrl)
+                        .centerCrop()
+                        .into(imgCity)
+                } else {
+                    // Varsayılan PNG dosyasını yükle
+                    Glide.with(root.context)
+                        .load(R.drawable.istanbulphoto)
+                        .centerCrop()
+                        .into(imgCity)
+                }
+            }
+
+            holder.itemView.setOnClickListener {
+                try {
+                    // Şehir detay sayfasına git
+                    val action = ExploreFragmentDirections.actionExploreFragmentToCityDetailFragment(city.cityId)
+                    findNavController().navigate(action)
+                } catch (e: Exception) {
+                    Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
+                    Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        override fun getItemCount() = cities.size
+    }
 }

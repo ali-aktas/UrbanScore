@@ -2,6 +2,7 @@ package com.aliaktas.urbanscore.data.repository
 
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.model.PaginatedResult
 import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.google.firebase.firestore.DocumentSnapshot
@@ -20,4 +21,7 @@ interface CityRepository {
         limit: Int = 20,
         lastVisible: DocumentSnapshot? = null
     ): Flow<PaginatedResult<CityModel>>
+
+    suspend fun getCuratedCities(listType: String): Flow<List<CuratedCityItem>>
+
 }

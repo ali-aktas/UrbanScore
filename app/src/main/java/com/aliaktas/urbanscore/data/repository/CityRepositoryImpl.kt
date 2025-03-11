@@ -4,6 +4,7 @@ import android.content.ContentValues.TAG
 import android.util.Log
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.model.PaginatedResult
 import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.google.firebase.firestore.DocumentSnapshot
@@ -313,6 +314,41 @@ class CityRepositoryImpl @Inject constructor(
         val newAvg = ((currentAvg * totalCount) - oldValue + newValue) / totalCount
         // Format to 2 decimal places
         return (newAvg * 100).toInt() / 100.0
+    }
+
+    // CityRepositoryImpl.kt içindeki getCuratedCities metodunu değiştir
+    override suspend fun getCuratedCities(listType: String): Flow<List<CuratedCityItem>> = callbackFlow {
+        Log.d("CityRepository", "Loading curated cities for type: $listType")
+
+        val subscription = firestore.collection("curated_lists")
+            .whereEqualTo("listType", listType)
+            // position'a göre sıralamayı kaldır
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("CityRepository", "Error getting curated cities", error)
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
+
+                val cities = snapshot?.documents?.mapNotNull { doc ->
+                    try {
+                        Log.d("CityRepository", "Found curated document: ${doc.id}")
+                        val model = doc.toObject(CuratedCityItem::class.java)
+                        model?.copy(id = doc.id)
+                    } catch (e: Exception) {
+                        Log.e("CityRepository", "Error converting document", e)
+                        null
+                    }
+                } ?: emptyList()
+
+                // Burada manüel sıralama yap
+                val sortedCities = cities.sortedBy { it.position }
+
+                Log.d("CityRepository", "Loaded ${sortedCities.size} curated cities")
+                trySend(sortedCities)
+            }
+
+        awaitClose { subscription.remove() }
     }
 
 }

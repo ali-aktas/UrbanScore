@@ -6,7 +6,11 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,12 +22,15 @@ import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
 import com.aliaktas.urbanscore.utils.TestDataGenerator
+import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -54,6 +61,154 @@ class HomeFragment : Fragment() {
         setupClickListeners()
         setupAnimations()
         observeViewModel()
+
+        // HomeFragment.kt içine ekle - onViewCreated metodunda
+        lifecycleScope.launch {
+            Log.d("HomeFragment", "Loading editors choice cities for UI")
+            try {
+                viewModel.cityRepository.getCuratedCities("editors_choice")
+                    .collect { cities ->
+                        Log.d("HomeFragment", "Updating UI with ${cities.size} cities")
+                        updateEditorsChoiceUI(cities)
+                    }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error showing curated cities", e)
+            }
+        }
+
+    }
+
+
+
+
+    // HomeFragment.kt'de updateEditorsChoiceUI metodunu güncelle
+    private fun updateEditorsChoiceUI(cities: List<CuratedCityItem>) {
+        try {
+            Log.d("HomeFragment", "Updating UI with ${cities.size} cities")
+
+            // GridLayout'ı düzgün yapılandır
+            binding.editorsChoices.removeAllViews()
+            binding.editorsChoices.columnCount = 2 // İki sütunlu GridLayout
+            binding.editorsChoices.useDefaultMargins = true
+
+            // Reklam kartını oluştur
+            val adCard = createAdCard()
+
+            // Şehirleri ekle
+            cities.forEachIndexed { index, city ->
+                // 3. pozisyonda (index=2) reklam göster
+                if (index == 2) {
+                    binding.editorsChoices.addView(adCard)
+                }
+
+                // Bu şehir için kartı oluştur ve ekle (index numarasını gönder)
+                val cityCard = createCityCard(city, index)
+                binding.editorsChoices.addView(cityCard)
+            }
+
+            // Eğer 3 şehirden az varsa, reklam kartını yine de ekle
+            if (cities.size < 3) {
+                binding.editorsChoices.addView(adCard)
+            }
+
+            Log.d("HomeFragment", "Editors choice UI updated with ${cities.size} cities and 1 ad")
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error updating editors choice UI", e)
+        }
+    }
+
+    private fun createCityCard(city: CuratedCityItem, index: Int): View {
+        // Mevcut XML layout'u kullan
+        val inflater = LayoutInflater.from(requireContext())
+        val card = inflater.inflate(R.layout.item_editors_choice_city, null, false)
+
+        // GridLayout için parametreler ayarla
+        val params = GridLayout.LayoutParams()
+        params.width = 0  // 0 genişlik = parent genişliğinin 1 column weight kadar kısmı
+        params.height = GridLayout.LayoutParams.WRAP_CONTENT
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)  // column weight = 1
+        params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED)
+        params.setMargins(4, 4, 4, 4)
+        card.layoutParams = params
+
+        // Şehir adını al (örn. "istanbul-turkey" -> "Istanbul")
+        val cityName = city.cityId.split("-").firstOrNull()?.capitalize() ?: ""
+        val country = city.cityId.split("-").getOrNull(1)?.capitalize() ?: ""
+
+        // View'ları güncelle
+        card.findViewById<TextView>(R.id.txtEditorsChoiceCityName).text = cityName
+        card.findViewById<TextView>(R.id.txtEditorsChoiceCountry).text = country
+        card.findViewById<TextView>(R.id.txtEditorsChoiceRating).text = "4.8" // Default değer
+
+        // BURAYA GÖRSEL YÜKLEME KODUNU EKLE
+        val imageView = card.findViewById<ImageView>(R.id.imgEditorsChoiceCity)
+        if (city.imageUrl.isNotEmpty()) {
+            // URL'den görsel yükleme
+            Glide.with(requireContext())
+                .load(city.imageUrl)
+                .centerCrop()
+                .into(imageView)
+        } else {
+            // Görsel yoksa arka plan rengi/resmi ayarla
+            val backgroundResource = when (index % 5) {
+                0 -> R.drawable.category_landscape_bg
+                1 -> R.drawable.category_safety_bg
+                2 -> R.drawable.category_livability_bg
+                3 -> R.drawable.category_cost_bg
+                else -> R.drawable.category_social_bg
+            }
+            imageView.setBackgroundResource(backgroundResource)
+        }
+
+        // Kart tıklama işlemi
+        card.setOnClickListener {
+            try {
+                val action = HomeFragmentDirections.actionHomeFragmentToCityDetailFragment(city.cityId)
+                findNavController().navigate(action)
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Navigation error: ${e.message}", e)
+                Toast.makeText(requireContext(), "Error opening city details", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        return card
+    }
+
+    // Reklam kartı oluşturan metodu güncelle - GridLayout parametrelerini ekle
+    private fun createAdCard(): View {
+        // Mevcut XML layout'u kullan
+        val inflater = LayoutInflater.from(requireContext())
+        val card = inflater.inflate(R.layout.item_editors_choice_city, null, false)
+
+        // GridLayout için parametreler ayarla
+        val params = GridLayout.LayoutParams()
+        params.width = 0  // 0 genişlik = parent genişliğinin 1 column weight kadar kısmı
+        params.height = GridLayout.LayoutParams.WRAP_CONTENT
+        params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)  // column weight = 1
+        params.rowSpec = GridLayout.spec(GridLayout.UNDEFINED)
+        params.setMargins(4, 4, 4, 4)
+        card.layoutParams = params
+
+        // Arkaplanı değiştir
+        card.findViewById<ImageView>(R.id.imgEditorsChoiceCity).setBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.yellow_500)
+        )
+
+        // "REKLAM" yazısı ekle
+        card.findViewById<TextView>(R.id.txtEditorsChoiceCityName).text = "REKLAM"
+        card.findViewById<TextView>(R.id.txtEditorsChoiceCountry).text = "Reklam Alanı"
+        card.findViewById<TextView>(R.id.txtEditorsChoiceRating).visibility = View.GONE
+
+        return card
+    }
+
+
+
+
+
+    // Yardımcı extension function
+    private fun String.capitalize(): String {
+        return this.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
     }
 
 
