@@ -1,5 +1,7 @@
 package com.aliaktas.urbanscore.di
 
+import com.aliaktas.urbanscore.data.repository.CityRecommendationRepository
+import com.aliaktas.urbanscore.data.repository.CityRecommendationRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.CityRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.UserRepository
@@ -43,4 +45,14 @@ object AppModule {
     ): UserRepository {
         return UserRepositoryImpl(auth, firestore)
     }
+
+    @Provides
+    @Singleton
+    fun provideCityRecommendationRepository(
+        firestore: FirebaseFirestore,
+        auth: FirebaseAuth
+    ): CityRecommendationRepository {
+        return CityRecommendationRepositoryImpl(firestore, auth)
+    }
+
 }

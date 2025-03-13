@@ -218,8 +218,8 @@ class ExploreFragment : Fragment() {
         }
 
         binding.btnSuggestCity.setOnClickListener {
-            // Şehir önerme diyaloğu
-            Toast.makeText(context, "City suggestion will be implemented", Toast.LENGTH_SHORT).show()
+            val suggestCityBottomSheet = SuggestCityBottomSheet()
+            suggestCityBottomSheet.show(childFragmentManager, "SuggestCityBottomSheet")
         }
     }
 
