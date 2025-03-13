@@ -130,5 +130,7 @@
     <string name="back_to_login">Back to Login</string>
     <string name="for_travellers">FOR TRAVELLERS</string>
     <string name="default_web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
