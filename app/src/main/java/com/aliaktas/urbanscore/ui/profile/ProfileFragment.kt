@@ -274,7 +274,8 @@ class VisitedCitiesAdapter(
 
         fun bind(city: VisitedCityItem) {
             binding.textCityName.text = "${city.name}, ${city.country}"
-            binding.textRating.text = String.format("%.1f", city.userRating)
+            binding.textRating.text = String.format("%.2f", city.userRating)
+            binding.textRatingCount.text = (position + 1).toString()
 
             // Load flag image
             Glide.with(binding.root)

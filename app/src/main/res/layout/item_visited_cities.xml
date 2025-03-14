@@ -5,32 +5,48 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:paddingHorizontal="8dp"
+    android:paddingHorizontal="4dp"
     android:paddingVertical="8dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/imageFlag"
-        android:layout_width="32dp"
-        android:layout_height="20dp"
-        android:layout_marginStart="8dp"
-        android:scaleType="centerCrop"
+    <TextView
+        android:id="@+id/textRatingCount"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_marginStart="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        tools:text="1" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageFlag"
+        android:layout_width="24dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="12dp"
+        android:scaleType="centerCrop"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/textRatingCount"
+        app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-        tools:src="@color/black" />
+        tools:src="#FFFFFF" />
 
     <TextView
         android:id="@+id/textCityName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textColor="#FFFFFF"
-        android:textSize="16sp"
-        android:fontFamily="@font/roboto_medium"
+        android:textSize="15sp"
+        android:gravity="center_vertical"
+        android:fontFamily="@font/poppins_medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/ratingContainer"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
@@ -41,19 +57,20 @@
         android:id="@+id/ratingContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:background="@drawable/bg_rating"
+        android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:src="@drawable/baseline_star_purple500_24"
+            android:id="@+id/imgStar"
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_star"
             android:contentDescription="@string/rating_star" />
 
         <TextView
@@ -61,10 +78,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:textColor="#FFFFFF"
+            android:textColor="#F3A303"
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:fontFamily="@font/poppins_medium"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="9.2" />
+            tools:text="9.12" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
