@@ -7,13 +7,19 @@
     android:layout_height="match_parent">
 
     <!-- Üst kısımdaki sabit görsel alanı -->
-    <ImageView
-        android:id="@+id/backgroundImage"
-        android:layout_width="300dp"
-        android:layout_height="170dp"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/worldmapimg"
-        android:contentDescription="World map background" />
+    <FrameLayout
+        android:id="@+id/chartContainer"
+        android:layout_width="match_parent"
+        android:layout_marginTop="-15dp"
+        android:layout_height="250dp"
+        android:layout_gravity="center_horizontal">
+
+        <!-- Yeni radar grafiği -->
+        <com.github.mikephil.charting.charts.RadarChart
+            android:id="@+id/radarChart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <ImageButton
         android:id="@+id/toolbar"
@@ -24,14 +30,14 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Back button"
         android:src="@drawable/ic_back"
-        app:tint="@color/gradient_start" />
+        app:tint="#DF21F398" />
 
     <!-- Şehir Bilgileri Alanı -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cityInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="220dp"
         android:padding="16dp">
 
         <!-- Flag, City Name and Rating Row -->
@@ -160,7 +166,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:layout_marginTop="270dp"
+        android:layout_marginTop="320dp"
         android:overScrollMode="never"
         android:paddingBottom="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">

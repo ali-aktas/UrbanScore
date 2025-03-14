@@ -98,6 +98,8 @@ dependencies {
     //Animations
     implementation(libs.lottie)
     implementation(libs.splash.screen)
+    //Graphics
+    implementation(libs.mpandroidchart)
 
 
 }

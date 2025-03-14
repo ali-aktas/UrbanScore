@@ -7,4 +7,6 @@
     <dimen name="card_corner_radius">16dp</dimen>
     <dimen name="card_elevation">4dp</dimen>
     <dimen name="margin_medium">16dp</dimen>
+
+    <dimen name="radar_chart_height">300dp</dimen>
 </resources>

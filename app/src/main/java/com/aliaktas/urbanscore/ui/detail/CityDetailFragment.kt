@@ -1,7 +1,9 @@
 package com.aliaktas.urbanscore.ui.detail
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.text.format.DateFormat
@@ -22,10 +24,17 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.ratecity.RateCityBottomSheet
 import com.bumptech.glide.Glide
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.RadarData
+import com.github.mikephil.charting.data.RadarDataSet
+import com.github.mikephil.charting.data.RadarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
@@ -72,7 +81,107 @@ class CityDetailFragment : Fragment() {
         setupToolbar()
         setupActionButtons()
         setupExploreButtons()
+        setupRadarChart() // Yeni radar grafiği ayarları
         observeViewModel()
+    }
+
+    @SuppressLint("NewApi")
+    private fun setupRadarChart() {
+        binding.radarChart.apply {
+            // Grafik için daha fazla alan sağla
+            layoutParams.height = resources.getDimensionPixelSize(R.dimen.radar_chart_height) // Yeni bir dimen ekleyelim: 300dp
+
+
+            // Genel ayarlar
+            description.isEnabled = false
+            webLineWidth = 0.7f // İnce dış çizgi
+            webColor = Color.parseColor("#33FFFFFF") // Daha şeffaf ve ince ağ çizgileri
+            webLineWidthInner = 0.5f // Daha ince iç çizgi
+            webColorInner = Color.parseColor("#22FFFFFF") // Daha az belirgin iç ağ çizgileri
+            webAlpha = 70 // Daha düşük opaklık
+
+            // Daha fazla alan için offset'i azalt
+            minOffset = 65f
+            setExtraOffsets(0f, 0f, 0f, 0f)
+
+            // Animasyonu daha uzun ve şık yap
+            animateXY(2000, 2000, Easing.EaseInOutQuart)
+
+            // Grafik etiketlerini Poppins Medium font ile ayarla
+            xAxis.apply {
+                textSize = 12f
+                textColor = Color.parseColor("#1BA4C6") // İç grafikle uyumlu renk
+                yOffset = 1f // Metinleri grafiğe yaklaştır
+                xOffset = 0f
+                typeface = resources.getFont(R.font.poppins_medium) // Poppins Medium font
+            }
+
+            // Y ekseni (değer ekseni) ayarları
+            yAxis.apply {
+                setLabelCount(6, true)
+                textColor = Color.parseColor("#1BA4C6") // İç grafikle uyumlu renk
+                textSize = 9f
+                axisMinimum = 0f
+                axisMaximum = 10f
+                setDrawLabels(false)
+                typeface = resources.getFont(R.font.poppins_medium) // Poppins Medium font
+            }
+
+            // "Category Ratings" başlığını kaldır
+            legend.isEnabled = false
+        }
+    }
+
+    private fun updateRadarChartData(ratings: CategoryRatings) {
+        // Kategori isimleri dizisi
+        val categories = arrayOf(
+            "View",
+            "Safety",
+            "Livability",
+            "Cost",
+            "Social"
+        )
+
+        // Kategori puanlarını RadarEntry listesine dönüştür
+        val entries = ArrayList<RadarEntry>()
+        entries.add(RadarEntry(ratings.environment.toFloat()))
+        entries.add(RadarEntry(ratings.safety.toFloat()))
+        entries.add(RadarEntry(ratings.livability.toFloat()))
+        entries.add(RadarEntry(ratings.cost.toFloat()))
+        entries.add(RadarEntry(ratings.social.toFloat()))
+
+        // RadarDataSet oluştur ve özelleştir
+        val dataSet = RadarDataSet(entries, "") // Boş etiket
+
+        // Futuristik mavi-yeşil renk tonları - daha parlak ve modern
+        val primaryColor = Color.parseColor("#DF21F398") // Ana renk (daha parlak)
+        val strokeColor = Color.parseColor("#1BA4C6") // Çizgi rengi
+
+        dataSet.apply {
+            color = strokeColor
+            fillColor = primaryColor
+            setDrawFilled(true) // Dolgu alanı göster
+            fillAlpha = 110 // Daha belirgin dolgu
+            lineWidth = 1.6f // Daha kalın çizgi
+            valueTextColor = Color.WHITE
+            valueTextSize = 12f
+            isDrawHighlightCircleEnabled = true
+            setDrawHighlightIndicators(false)
+            highlightCircleFillColor = Color.WHITE
+            highlightCircleStrokeColor = strokeColor
+            highlightCircleStrokeWidth = 1f
+            setDrawValues(false) // Değer etiketlerini gösterme
+        }
+
+        // Radar verilerini oluştur
+        val radarData = RadarData(dataSet)
+
+        // Kategori isimlerini ayarla
+        binding.radarChart.xAxis.valueFormatter = IndexAxisValueFormatter(categories)
+
+        // Verileri grafiğe uygula
+        binding.radarChart.data = radarData
+        binding.radarChart.invalidate() // Grafiği yenile
     }
 
     private fun setupExploreButtons() {
@@ -91,7 +200,7 @@ class CityDetailFragment : Fragment() {
             val cityName = state.city.cityName
             //val countryName = state.city.country
 
-            val searchQuery = "$cityName travel guide"
+            val searchQuery = "$cityName 4K"
             val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
             val youtubeUrl = "https://www.youtube.com/results?search_query=$encodedQuery"
 
@@ -109,7 +218,7 @@ class CityDetailFragment : Fragment() {
             val cityName = state.city.cityName
             //val countryName = state.city.country
 
-            val searchQuery = "$cityName 4k views"
+            val searchQuery = "Best Landscapes of $cityName"
             val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
             val googleImagesUrl = "https://www.google.com/search?q=$encodedQuery&tbm=isch"
 
@@ -120,7 +229,6 @@ class CityDetailFragment : Fragment() {
             startActivity(intent)
         }
     }
-
 
     private fun setupToolbar() {
         binding.toolbar.setOnClickListener {
@@ -146,8 +254,6 @@ class CityDetailFragment : Fragment() {
         }
     }
 
-
-
     private fun updateWishlistButton(isInWishlist: Boolean) {
         if (isInWishlist) {
             // Zaten wishlist'te
@@ -171,7 +277,6 @@ class CityDetailFragment : Fragment() {
         }
     }
 
-    // Yeni metod ekleyin
     private fun showRemoveFromWishlistDialog() {
         AlertDialog.Builder(requireContext())
             .setTitle("Remove from Bucket List")
@@ -184,7 +289,6 @@ class CityDetailFragment : Fragment() {
             .show()
     }
 
-
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -196,6 +300,7 @@ class CityDetailFragment : Fragment() {
                             is CityDetailState.Success -> {
                                 showLoading(false)
                                 updateUI(state.city)
+                                updateRadarChartData(state.city.ratings) // Radar grafiğini güncelle
                             }
                             is CityDetailState.Error -> {
                                 showLoading(false)
@@ -215,7 +320,6 @@ class CityDetailFragment : Fragment() {
         }
     }
 
-    // Buton görünümünü güncelleyen yeni metot
     private fun updateRateButton(hasRated: Boolean) {
         if (hasRated) {
             binding.btnRateCity.apply {
@@ -250,10 +354,10 @@ class CityDetailFragment : Fragment() {
         }
     }
 
-
     private fun showLoading(isLoading: Boolean) {
         // If using loading animation, control it here
         // For now, just showing/hiding content
+        binding.radarChart.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
     }
 
     private fun updateUI(city: CityModel) {
@@ -289,28 +393,6 @@ class CityDetailFragment : Fragment() {
             binding.txtSocialRating.text = String.format("%.2f", social)
         }
     }
-
-    private fun shareCity() {
-        val state = viewModel.state.value
-        if (state is CityDetailState.Success) {
-            val city = state.city
-            val shareText = getString(
-                R.string.share_city_format,
-                city.cityName,
-                city.country,
-                city.averageRating
-            )
-
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_SUBJECT, "Check out ${city.cityName} on UrbanScore")
-                putExtra(Intent.EXTRA_TEXT, shareText)
-            }
-
-            startActivity(Intent.createChooser(intent, "Share via"))
-        }
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

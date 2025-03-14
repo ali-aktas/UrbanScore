@@ -35,3 +35,5 @@
 -keep class com.aliaktas.urbanscore.data.model.UserModel { *; }
 
 -keep class com.aliaktas.urbanscore.data.model.UserRatingModel { *; }
+
+-keep class com.github.mikephil.charting.** { *; }
