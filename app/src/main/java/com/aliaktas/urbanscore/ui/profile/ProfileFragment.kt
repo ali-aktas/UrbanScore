@@ -1,12 +1,15 @@
 package com.aliaktas.urbanscore.ui.profile
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,6 +24,7 @@ import com.aliaktas.urbanscore.databinding.ItemWishlistCityBinding
 import com.aliaktas.urbanscore.ui.auth.AuthViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.ItemVisitedCitiesBinding
+import com.aliaktas.urbanscore.utils.ShareImageGenerator
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -28,6 +32,9 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -117,7 +124,7 @@ class ProfileFragment : Fragment() {
 
         // Share visited cities button
         binding.btnShareVisitedCities.setOnClickListener {
-            profileViewModel.shareVisitedCities()
+            shareVisitedCitiesToInstagram()
         }
 
         // Share wishlist button
@@ -233,6 +240,70 @@ class ProfileFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+
+    private fun shareVisitedCitiesToInstagram() {
+        val cities = visitedCitiesAdapter.getCurrentList()
+        if (cities.isEmpty()) {
+            Snackbar.make(binding.root, "You don't have any visited cities to share", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            // Görsel oluşturucu sınıfımızı başlat
+            val imageGenerator = ShareImageGenerator(requireContext())
+
+            // Görsel oluştur
+            val bitmap = imageGenerator.createVisitedCitiesImage(
+                visitedCities = cities,
+                totalVisitedCount = cities.size
+            )
+
+            // Bitmap'i cihaza kaydet
+            val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val imageFile = File.createTempFile(
+                "urbanrate_cities_",
+                ".png",
+                storageDir
+            )
+
+            FileOutputStream(imageFile).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+
+            // FileProvider kullanarak URI oluştur
+            val imageUri = FileProvider.getUriForFile(
+                requireContext(),
+                "${requireContext().packageName}.fileprovider",
+                imageFile
+            )
+
+            // Instagram Stories'e paylaşım intent'i oluştur
+            val storiesIntent = Intent("com.instagram.share.ADD_TO_STORY").apply {
+                setDataAndType(imageUri, "image/png")
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            }
+
+            // Instagram uygulaması yüklü mü kontrol et
+            if (storiesIntent.resolveActivity(requireContext().packageManager) != null) {
+                startActivity(storiesIntent)
+            } else {
+                // Instagram yüklü değilse genel paylaşım menüsünü göster
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "image/png"
+                    putExtra(Intent.EXTRA_STREAM, imageUri)
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
+                startActivity(Intent.createChooser(shareIntent, "Share your cities via"))
+            }
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+            Snackbar.make(binding.root, "Error creating image: ${e.message}", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+
 }
 
 // Adapter for Visited Cities (with ratings)
@@ -245,6 +316,10 @@ class VisitedCitiesAdapter(
     fun submitList(newList: List<VisitedCityItem>) {
         cities = newList
         notifyDataSetChanged()
+    }
+
+    fun getCurrentList(): List<VisitedCityItem> {
+        return cities.toList()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

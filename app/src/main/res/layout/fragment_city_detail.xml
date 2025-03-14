@@ -37,7 +37,7 @@
         android:id="@+id/cityInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="230dp"
         android:padding="16dp">
 
         <!-- Flag, City Name and Rating Row -->
@@ -166,7 +166,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:layout_marginTop="320dp"
+        android:layout_marginTop="335dp"
         android:overScrollMode="never"
         android:paddingBottom="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
