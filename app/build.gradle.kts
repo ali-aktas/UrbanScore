@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.baselibrary)
     // KALDIRMAK İÇİN YORUMLAYINız:
     // implementation(libs.testng)
     testImplementation(libs.junit)

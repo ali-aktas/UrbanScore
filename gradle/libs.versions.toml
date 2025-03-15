@@ -30,6 +30,7 @@ testng = "6.9.6"
 junit = "4.13.2"
 mockk = "1.13.8"
 arch-core-testing = "2.2.0"
+baselibrary = "3.2.0-alpha11"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,6 +72,7 @@ testng = { group = "org.testng", name = "testng", version.ref = "testng" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-core-testing" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+androidx-baselibrary = { group = "androidx.databinding", name = "baseLibrary", version.ref = "baselibrary" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

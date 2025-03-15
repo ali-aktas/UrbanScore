@@ -10,6 +10,7 @@ import com.aliaktas.urbanscore.databinding.ItemCityBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 
+// ListAdapter kullanarak DiffUtil implementasyonu
 class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityDiffCallback()) {
 
     var onItemClick: ((CityModel) -> Unit)? = null
@@ -44,7 +45,7 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
             with(binding) {
                 textCityName.text = "${city.cityName}, ${city.country}"
                 textRating.text = String.format("%.2f", city.averageRating)
-                textRatingCount.text = (position + 1).toString()
+                textRatingCount.text = (adapterPosition + 1).toString()
 
                 // Loading Flag URL with Glide
                 Glide.with(root)
@@ -55,13 +56,19 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
         }
     }
 
+    // DiffUtil Callback sınıfı
     private class CityDiffCallback : DiffUtil.ItemCallback<CityModel>() {
         override fun areItemsTheSame(oldItem: CityModel, newItem: CityModel): Boolean {
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: CityModel, newItem: CityModel): Boolean {
-            return oldItem == newItem
+            // Sadece gösterilen alanları karşılaştır
+            return oldItem.id == newItem.id &&
+                    oldItem.cityName == newItem.cityName &&
+                    oldItem.country == newItem.country &&
+                    oldItem.averageRating == newItem.averageRating &&
+                    oldItem.flagUrl == newItem.flagUrl
         }
     }
 }

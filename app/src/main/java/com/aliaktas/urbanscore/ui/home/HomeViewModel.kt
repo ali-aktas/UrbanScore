@@ -3,6 +3,7 @@ package com.aliaktas.urbanscore.ui.home
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,140 +17,117 @@ import javax.inject.Inject
 
 /**
  * ViewModel for the HomeFragment.
- * Manages city data loading and filtering by categories.
+ * Manages data loading, caching, and business logic for the Home screen.
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val cityRepository: CityRepository,
+    private val cityRepository: CityRepository,
     private val networkUtil: NetworkUtil
 ) : BaseViewModel() {
 
-    // State for cities data
-    private val _homeState = MutableStateFlow<HomeState>(HomeState.Initial)
-    val homeState: StateFlow<HomeState> = _homeState.asStateFlow()
+    // State for top rated cities
+    private val _topRatedCitiesState = MutableStateFlow<HomeState>(HomeState.Initial)
+    val topRatedCitiesState: StateFlow<HomeState> = _topRatedCitiesState.asStateFlow()
 
-    // Cache mechanism to avoid unnecessary reloads
-    private var cachedCities: List<CityModel>? = null
+    // State for editors' choice cities
+    private val _editorsChoiceState = MutableStateFlow<List<CuratedCityItem>>(emptyList())
+    val editorsChoiceState: StateFlow<List<CuratedCityItem>> = _editorsChoiceState.asStateFlow()
 
-    // Current selected category
-    private var currentCategory: String = "averageRating"
+    // Cache for top rated cities
+    private var cachedTopRatedCities: List<CityModel>? = null
 
     init {
-        // Initial data load with a small delay to ensure smooth UI initialization
-        launch {
-            kotlinx.coroutines.delay(100)
-            refreshCities(false) // Use cache if available
-        }
+        loadTopRatedCities(false)
+        loadEditorsChoiceCities()
     }
 
     /**
-     * Refreshes city data based on current category.
+     * Loads the top rated cities based on average rating.
+     * Always uses averageRating for HomeFragment, regardless of any category selection.
      *
-     * @param forceRefresh If true, ignores cache and forces new data load.
-     * @param category Optional category to filter cities. If provided, updates current category.
+     * @param forceRefresh If true, ignores cache and forces a new network request
      */
-    fun refreshCities(forceRefresh: Boolean = true, category: String? = null) {
-        // Update category if provided
-        if (category != null) {
-            currentCategory = category
-        }
+    fun loadTopRatedCities(forceRefresh: Boolean = false) {
+        // Always use "averageRating" for HomeFragment
+        // This ensures top rated cities list is consistent
+        val categoryToUse = "averageRating"
 
         // Use cache if available and not forcing refresh
-        if (!forceRefresh && cachedCities != null) {
-            _homeState.value = HomeState.Success(cachedCities!!)
+        if (!forceRefresh && cachedTopRatedCities != null) {
+            _topRatedCitiesState.value = HomeState.Success(cachedTopRatedCities!!)
             return
         }
 
-        // Check network connectivity first
+        // Check network connectivity
         if (!networkUtil.isNetworkAvailable()) {
-            if (cachedCities != null) {
-                // We have cached data, so show it with a network warning
-                _homeState.value = HomeState.Success(cachedCities!!)
-                launch {
+            if (cachedTopRatedCities != null) {
+                _topRatedCitiesState.value = HomeState.Success(cachedTopRatedCities!!)
+                // Coroutine scope içinde emitEvent çağrısı
+                viewModelScope.launch {
                     emitEvent(UiEvent.Error("No internet connection. Showing cached data."))
                 }
             } else {
-                // No cached data available
-                _homeState.value = HomeState.Error("No internet connection. Please try again when you're online.")
+                _topRatedCitiesState.value = HomeState.Error("No internet connection. Please try again later.")
             }
             return
         }
 
-        // Get current cities to keep during loading
-        val currentCities = if (_homeState.value is HomeState.Success) {
-            (_homeState.value as HomeState.Success).cities
+        // Preserve old data during loading if available
+        val currentCities = if (_topRatedCitiesState.value is HomeState.Success) {
+            (_topRatedCitiesState.value as HomeState.Success).cities
         } else {
-            cachedCities
+            cachedTopRatedCities
         }
 
-        // Update state to loading, preserving old data
-        _homeState.value = HomeState.Loading(oldData = currentCities)
+        _topRatedCitiesState.value = HomeState.Loading(oldData = currentCities)
 
-        // Use launchWithLoading to handle loading state automatically
-        launchWithLoading {
+        viewModelScope.launch {
             try {
-                // Use category-specific query for consistent behavior
-                cityRepository.getCitiesByCategoryRating(currentCategory, 20)
+                cityRepository.getCitiesByCategoryRating(categoryToUse, 20)
                     .catch { e ->
                         handleError(e)
-                        _homeState.value = HomeState.Error(getErrorMessage(e))
+                        _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
                     }
                     .collectLatest { cities ->
-                        // Update cache and state
-                        cachedCities = cities
-                        _homeState.value = HomeState.Success(cities)
+                        cachedTopRatedCities = cities
+                        _topRatedCitiesState.value = HomeState.Success(cities)
                     }
             } catch (e: Exception) {
                 handleError(e)
-                _homeState.value = HomeState.Error(getErrorMessage(e))
+                _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
             }
         }
     }
 
     /**
-     * Switches to a different category and loads data for that category.
-     *
-     * @param category The category to switch to.
+     * Loads editor's choice cities from the repository
      */
-    fun switchCategory(category: String) {
-        if (category != currentCategory) {
-            refreshCities(true, category)
+    private fun loadEditorsChoiceCities() {
+        if (!networkUtil.isNetworkAvailable()) {
+            return // Silently fail, as this is not crucial content
+        }
+
+        viewModelScope.launch {
+            try {
+                cityRepository.getCuratedCities("editors_choice")
+                    .catch { e ->
+                        handleError(e)
+                    }
+                    .collectLatest { cities ->
+                        _editorsChoiceState.value = cities
+                    }
+            } catch (e: Exception) {
+                handleError(e)
+            }
         }
     }
 
     /**
-     * Sort cities by their rating in ascending or descending order.
-     *
-     * @param ascending If true, sorts in ascending order, otherwise descending.
+     * Called when returning to HomeFragment to ensure we always have top rated cities
+     * based on average rating, not category-specific ratings.
      */
-    fun sortByRating(ascending: Boolean = false) {
-        val currentState = _homeState.value
-        if (currentState is HomeState.Success) {
-            val sortedCities = if (ascending) {
-                currentState.cities.sortedBy { it.averageRating }
-            } else {
-                currentState.cities.sortedByDescending { it.averageRating }
-            }
-            cachedCities = sortedCities
-            _homeState.value = HomeState.Success(sortedCities)
-        }
-    }
-
-    /**
-     * Sort cities by their population in ascending or descending order.
-     *
-     * @param ascending If true, sorts in ascending order, otherwise descending.
-     */
-    fun sortByPopulation(ascending: Boolean = false) {
-        val currentState = _homeState.value
-        if (currentState is HomeState.Success) {
-            val sortedCities = if (ascending) {
-                currentState.cities.sortedBy { it.population }
-            } else {
-                currentState.cities.sortedByDescending { it.population }
-            }
-            cachedCities = sortedCities
-            _homeState.value = HomeState.Success(sortedCities)
-        }
+    fun refreshOnReturn() {
+        // No force refresh needed - will use cache if available
+        loadTopRatedCities(false)
     }
 }
