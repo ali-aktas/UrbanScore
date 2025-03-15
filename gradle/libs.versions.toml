@@ -2,7 +2,6 @@
 agp = "8.5.1"
 kotlin = "1.9.0"
 coreKtx = "1.15.0"
-junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
@@ -27,6 +26,10 @@ lottie = "6.1.0"
 splash-screen = "1.0.1"
 foundationAndroid = "1.7.8"
 mpandroidchart = "3.1.0"
+testng = "6.9.6"
+junit = "4.13.2"
+mockk = "1.13.8"
+arch-core-testing = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -64,6 +67,10 @@ google-auth = { group = "com.google.android.gms", name = "play-services-auth", v
 splash-screen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splash-screen" }
 androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 mpandroidchart = { group = "com.github.PhilJay", name = "MPAndroidChart", version.ref = "mpandroidchart" }
+testng = { group = "org.testng", name = "testng", version.ref = "testng" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-core-testing" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

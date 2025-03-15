@@ -1,6 +1,5 @@
 package com.aliaktas.urbanscore.ui.home
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,18 +17,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
-import com.aliaktas.urbanscore.utils.TestDataGenerator
 import com.bumptech.glide.Glide
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.util.Locale
 
 @AndroidEntryPoint
@@ -309,14 +306,47 @@ class HomeFragment : Fragment() {
         }
     }
 
+    // HomeFragment.kt
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state ->
-                    if (isFragmentVisible) {
+                // HomeState gözlemle
+                launch {
+                    viewModel.homeState.collect { state ->
                         updateUI(state)
                     }
                 }
+
+                // Loading state'i gözlemle
+                launch {
+                    viewModel.isLoading.collect { isLoading ->
+                        binding.animationLoading.isVisible = isLoading && (viewModel.homeState.value is HomeState.Initial)
+                    }
+                }
+
+                // UI Events'i gözlemle
+                launch {
+                    viewModel.events.collect { event ->
+                        handleEvent(event)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun handleEvent(event: BaseViewModel.UiEvent) {
+        when (event) {
+            is BaseViewModel.UiEvent.Error -> {
+                Snackbar.make(binding.root, event.message, Snackbar.LENGTH_LONG).show()
+            }
+            is BaseViewModel.UiEvent.Success -> {
+                Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+            is BaseViewModel.UiEvent.RefreshData -> {
+                viewModel.refreshCities(true)
+            }
+            else -> {
+                // Handle other events
             }
         }
     }

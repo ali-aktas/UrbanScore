@@ -1,23 +1,28 @@
-package com.aliaktas.urbanscore.utils
+package com.aliaktas.urbanscore.util
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.os.Environment
+import androidx.core.content.FileProvider
 import androidx.core.content.res.ResourcesCompat
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.ui.profile.VisitedCitiesAdapter
+import java.io.File
+import java.io.FileOutputStream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-/**
- * Şehir paylaşım görsellerini oluşturmak için yardımcı sınıf
- */
-class ShareImageGenerator(private val context: Context) {
-
+@Singleton
+class ImageUtils @Inject constructor(
+    private val context: Context
+) {
     /**
      * Ziyaret edilen şehirlerin listesinden bir Instagram paylaşım görseli oluşturur
      *
@@ -49,7 +54,7 @@ class ShareImageGenerator(private val context: Context) {
         // Uygulama başlığını ekle
         val titlePaint = Paint().apply {
             color = Color.WHITE
-            textSize = 70f // Biraz küçülttüm
+            textSize = 70f
             typeface = ResourcesCompat.getFont(context, R.font.poppins_bold)
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
@@ -58,8 +63,8 @@ class ShareImageGenerator(private val context: Context) {
 
         // Slogan ekle
         val sloganPaint = Paint().apply {
-            color = Color.parseColor("#C0FFFFFF") // Hafif şeffaf beyaz
-            textSize = 42f // Biraz küçülttüm
+            color = Color.parseColor("#C0FFFFFF")
+            textSize = 42f
             typeface = ResourcesCompat.getFont(context, R.font.poppins_medium)
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
@@ -77,21 +82,21 @@ class ShareImageGenerator(private val context: Context) {
         val maxCities = minOf(15, visitedCities.size)
         val textPaint = Paint().apply {
             color = Color.WHITE
-            textSize = 48f // Daha küçük yazı boyutu
+            textSize = 48f
             typeface = ResourcesCompat.getFont(context, R.font.poppins_medium)
             isAntiAlias = true
         }
         val ratingPaint = Paint().apply {
-            color = Color.parseColor("#FFB500") // Rating puanları için altın/sarı renk
-            textSize = 48f // Daha küçük yazı boyutu
+            color = Color.parseColor("#FFB500")
+            textSize = 48f
             typeface = ResourcesCompat.getFont(context, R.font.poppins_bold)
             isAntiAlias = true
-            textAlign = Paint.Align.RIGHT // Sağa hizalama
+            textAlign = Paint.Align.RIGHT
         }
 
         // Şehir başına Y pozisyonu
         val startY = 500f
-        val lineHeight = 80f // Satır aralığını azalttım
+        val lineHeight = 80f
 
         for (i in 0 until maxCities) {
             val city = visitedCities[i]
@@ -99,8 +104,8 @@ class ShareImageGenerator(private val context: Context) {
 
             // Sıralama numarası
             val rankPaint = Paint().apply {
-                color = Color.parseColor("#14DEE0") // Turkuaz-mavi
-                textSize = 48f // Daha küçük yazı boyutu
+                color = Color.parseColor("#14DEE0")
+                textSize = 48f
                 typeface = ResourcesCompat.getFont(context, R.font.poppins_bold)
                 textAlign = Paint.Align.LEFT
                 isAntiAlias = true
@@ -125,8 +130,8 @@ class ShareImageGenerator(private val context: Context) {
 
         // Alt bilgi ekle
         val footerPaint = Paint().apply {
-            color = Color.parseColor("#80FFFFFF") // Yarı şeffaf beyaz
-            textSize = 36f // Biraz küçülttüm
+            color = Color.parseColor("#80FFFFFF")
+            textSize = 36f
             typeface = ResourcesCompat.getFont(context, R.font.roboto_extralight)
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
@@ -134,5 +139,46 @@ class ShareImageGenerator(private val context: Context) {
         canvas.drawText("Shared via UrbanRate App", width / 2f, height - 100f, footerPaint)
 
         return bitmap
+    }
+
+    /**
+     * Bitmap'i paylaşmak için intent oluşturur
+     */
+    fun createShareImageIntent(bitmap: Bitmap): Intent {
+        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile = File.createTempFile(
+            "urbanrate_cities_",
+            ".png",
+            storageDir
+        )
+
+        FileOutputStream(imageFile).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+
+        // FileProvider kullanarak URI oluştur
+        val imageUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            imageFile
+        )
+
+        // Instagram Stories'e paylaşım intent'i oluştur
+        val storiesIntent = Intent("com.instagram.share.ADD_TO_STORY").apply {
+            setDataAndType(imageUri, "image/png")
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
+
+        // Instagram uygulaması yüklü mü kontrol et
+        if (storiesIntent.resolveActivity(context.packageManager) != null) {
+            return storiesIntent
+        }
+
+        // Instagram yüklü değilse genel paylaşım menüsünü göster
+        return Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, imageUri)
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        }
     }
 }

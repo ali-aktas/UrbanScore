@@ -7,12 +7,29 @@
     <string name="top_rated_cities">Top Rated Cities</string>
     <string name="view_all_cities">View all cities</string>
     <string name="loading_cities">Loading cities…</string>
-    <string name="error_loading_data">Something went wrong. Please try again.</string>
     <string name="retry">Retry</string>
     <string name="home_text">If we can rate cafes, we can rate cities!</string>
     <string name="top_rated_cities_in">Top Rated Cities in %1$s</string>
     <string name="continent_image">Continent image</string>
 
+    <!-- Error messages -->
+    <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
+    <string name="error_network">Network error. Please check your connection.</string>
+    <string name="error_unknown">An unexpected error occurred. Please try again.</string>
+    <string name="error_authentication_failed">Authentication failed.</string>
+    <string name="error_invalid_email">Invalid email format.</string>
+    <string name="error_wrong_password">Incorrect password.</string>
+    <string name="error_user_not_found">User not found.</string>
+    <string name="error_user_disabled">This account has been disabled.</string>
+    <string name="error_too_many_requests">Too many attempts. Please try again later.</string>
+    <string name="error_operation_not_allowed">This operation is not allowed.</string>
+    <string name="error_email_already_in_use">Email already in use by another account.</string>
+    <string name="error_weak_password">Password is too weak. Please use a stronger password.</string>
+    <string name="error_city_not_found">City could not be found.</string>
+    <string name="error_rating_failed">Rating could not be submitted. Please try again.</string>
+    <string name="error_no_connection_cached_data">No internet connection. Showing cached data.</string>
+    <string name="error_loading_data">Could not load data. Please try again.</string>
+    <string name="error_loading_cities">Could not load cities. Please try again.</string>
 
     <!-- Category names and descriptions -->
     <string name="environment_title">Landscapes &amp; Aesthetics</string>

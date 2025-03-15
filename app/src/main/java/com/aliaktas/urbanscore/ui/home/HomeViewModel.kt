@@ -1,14 +1,16 @@
 package com.aliaktas.urbanscore.ui.home
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
+import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,25 +20,23 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val cityRepository: CityRepository
-) : ViewModel() {
+    val cityRepository: CityRepository,
+    private val networkUtil: NetworkUtil
+) : BaseViewModel() {
 
-    // State flow for UI state
-    private val _state = MutableStateFlow<HomeState>(HomeState.Initial)
-    val state: StateFlow<HomeState> = _state.asStateFlow()
+    // State for cities data
+    private val _homeState = MutableStateFlow<HomeState>(HomeState.Initial)
+    val homeState: StateFlow<HomeState> = _homeState.asStateFlow()
 
     // Cache mechanism to avoid unnecessary reloads
     private var cachedCities: List<CityModel>? = null
-
-    // Loading state tracking
-    private var isDataLoading = false
 
     // Current selected category
     private var currentCategory: String = "averageRating"
 
     init {
         // Initial data load with a small delay to ensure smooth UI initialization
-        viewModelScope.launch {
+        launch {
             kotlinx.coroutines.delay(100)
             refreshCities(false) // Use cache if available
         }
@@ -54,49 +54,54 @@ class HomeViewModel @Inject constructor(
             currentCategory = category
         }
 
-        // Prevent multiple simultaneous loads
-        if (isDataLoading) {
+        // Use cache if available and not forcing refresh
+        if (!forceRefresh && cachedCities != null) {
+            _homeState.value = HomeState.Success(cachedCities!!)
             return
         }
 
-        // Use cache if available and not forcing refresh
-        if (!forceRefresh && cachedCities != null) {
-            _state.value = HomeState.Success(cachedCities!!)
+        // Check network connectivity first
+        if (!networkUtil.isNetworkAvailable()) {
+            if (cachedCities != null) {
+                // We have cached data, so show it with a network warning
+                _homeState.value = HomeState.Success(cachedCities!!)
+                launch {
+                    emitEvent(UiEvent.Error("No internet connection. Showing cached data."))
+                }
+            } else {
+                // No cached data available
+                _homeState.value = HomeState.Error("No internet connection. Please try again when you're online.")
+            }
             return
         }
 
         // Get current cities to keep during loading
-        val currentCities = if (_state.value is HomeState.Success) {
-            (_state.value as HomeState.Success).cities
+        val currentCities = if (_homeState.value is HomeState.Success) {
+            (_homeState.value as HomeState.Success).cities
         } else {
             cachedCities
         }
 
         // Update state to loading, preserving old data
-        _state.value = HomeState.Loading(oldData = currentCities)
+        _homeState.value = HomeState.Loading(oldData = currentCities)
 
-        // Mark loading in progress
-        isDataLoading = true
-
-        viewModelScope.launch {
+        // Use launchWithLoading to handle loading state automatically
+        launchWithLoading {
             try {
                 // Use category-specific query for consistent behavior
-                val citiesFlow = cityRepository.getCitiesByCategoryRating(currentCategory, 20)
-
-                citiesFlow
+                cityRepository.getCitiesByCategoryRating(currentCategory, 20)
                     .catch { e ->
-                        isDataLoading = false
-                        _state.value = HomeState.Error(e.message ?: "An error occurred")
+                        handleError(e)
+                        _homeState.value = HomeState.Error(getErrorMessage(e))
                     }
-                    .collect { cities ->
+                    .collectLatest { cities ->
                         // Update cache and state
                         cachedCities = cities
-                        _state.value = HomeState.Success(cities)
-                        isDataLoading = false
+                        _homeState.value = HomeState.Success(cities)
                     }
             } catch (e: Exception) {
-                isDataLoading = false
-                _state.value = HomeState.Error(e.message ?: "An error occurred")
+                handleError(e)
+                _homeState.value = HomeState.Error(getErrorMessage(e))
             }
         }
     }
@@ -118,7 +123,7 @@ class HomeViewModel @Inject constructor(
      * @param ascending If true, sorts in ascending order, otherwise descending.
      */
     fun sortByRating(ascending: Boolean = false) {
-        val currentState = _state.value
+        val currentState = _homeState.value
         if (currentState is HomeState.Success) {
             val sortedCities = if (ascending) {
                 currentState.cities.sortedBy { it.averageRating }
@@ -126,7 +131,7 @@ class HomeViewModel @Inject constructor(
                 currentState.cities.sortedByDescending { it.averageRating }
             }
             cachedCities = sortedCities
-            _state.value = HomeState.Success(sortedCities)
+            _homeState.value = HomeState.Success(sortedCities)
         }
     }
 
@@ -136,7 +141,7 @@ class HomeViewModel @Inject constructor(
      * @param ascending If true, sorts in ascending order, otherwise descending.
      */
     fun sortByPopulation(ascending: Boolean = false) {
-        val currentState = _state.value
+        val currentState = _homeState.value
         if (currentState is HomeState.Success) {
             val sortedCities = if (ascending) {
                 currentState.cities.sortedBy { it.population }
@@ -144,7 +149,7 @@ class HomeViewModel @Inject constructor(
                 currentState.cities.sortedByDescending { it.population }
             }
             cachedCities = sortedCities
-            _state.value = HomeState.Success(sortedCities)
+            _homeState.value = HomeState.Success(sortedCities)
         }
     }
 }

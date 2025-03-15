@@ -24,6 +24,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
@@ -81,7 +82,7 @@ class CityDetailFragment : Fragment() {
         setupToolbar()
         setupActionButtons()
         setupExploreButtons()
-        setupRadarChart() // Yeni radar grafiği ayarları
+        setupRadarChart()
         observeViewModel()
     }
 
@@ -195,7 +196,7 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun openYouTubeSearch() {
-        val state = viewModel.state.value
+        val state = viewModel.detailState.value // state yerine detailState kullan
         if (state is CityDetailState.Success) {
             val cityName = state.city.cityName
             //val countryName = state.city.country
@@ -213,7 +214,7 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun openGoogleSearch() {
-        val state = viewModel.state.value
+        val state = viewModel.detailState.value // state yerine detailState kullan
         if (state is CityDetailState.Success) {
             val cityName = state.city.cityName
             //val countryName = state.city.country
@@ -290,32 +291,43 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        // Observe state
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Şehir detaylarını gözlemle
                 launch {
-                    viewModel.state.collect { state ->
+                    viewModel.detailState.collect { state ->
                         when (state) {
                             is CityDetailState.Loading -> showLoading(true)
                             is CityDetailState.Success -> {
                                 showLoading(false)
                                 updateUI(state.city)
-                                updateRadarChartData(state.city.ratings) // Radar grafiğini güncelle
+                                updateRadarChartData(state.city.ratings)
                             }
                             is CityDetailState.Error -> {
                                 showLoading(false)
-                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                                // Error handled by events
                             }
                         }
                     }
                 }
 
-                // Puanlama durumunu gözlemle
+                // Loading state'i gözlemle
                 launch {
-                    viewModel.hasRated.collect { hasRated ->
-                        updateRateButton(hasRated)
+                    viewModel.isLoading.collect { isLoading ->
+                        // Show/hide loading indicator
+                        binding.progressBar?.isVisible = isLoading
                     }
                 }
+
+                // UI Events'i gözlemle
+                launch {
+                    viewModel.events.collect { event ->
+                        handleEvent(event)
+                    }
+                }
+
+                // Diğer state'leri gözlemle...
             }
         }
     }
@@ -350,6 +362,20 @@ class CityDetailFragment : Fragment() {
                     val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
                     bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
                 }
+            }
+        }
+    }
+
+    private fun handleEvent(event: BaseViewModel.UiEvent) {
+        when (event) {
+            is BaseViewModel.UiEvent.Error -> {
+                Snackbar.make(binding.root, event.message, Snackbar.LENGTH_LONG).show()
+            }
+            is BaseViewModel.UiEvent.Success -> {
+                Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
+            }
+            else -> {
+                // Handle other events
             }
         }
     }

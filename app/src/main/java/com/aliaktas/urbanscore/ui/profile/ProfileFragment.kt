@@ -22,9 +22,8 @@ import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentProfileBinding
 import com.aliaktas.urbanscore.databinding.ItemWishlistCityBinding
 import com.aliaktas.urbanscore.ui.auth.AuthViewModel
-import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.ItemVisitedCitiesBinding
-import com.aliaktas.urbanscore.utils.ShareImageGenerator
+import com.aliaktas.urbanscore.util.ShareImageGenerator
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar

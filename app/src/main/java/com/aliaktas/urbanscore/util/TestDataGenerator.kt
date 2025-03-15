@@ -1,4 +1,4 @@
-package com.aliaktas.urbanscore.utils
+package com.aliaktas.urbanscore.util
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore

@@ -1,27 +1,27 @@
 package com.aliaktas.urbanscore.ui.profile
 
 import android.content.Intent
-import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.aliaktas.urbanscore.data.model.CityModel
+import android.graphics.Bitmap
+import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
-import com.google.firebase.auth.FirebaseAuth
+import com.aliaktas.urbanscore.util.ImageUtils
+import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val cityRepository: CityRepository,
-    private val auth: FirebaseAuth
-) : ViewModel() {
+    private val networkUtil: NetworkUtil,
+    private val imageUtils: ImageUtils
+) : BaseViewModel() {
 
     // State for visited cities
     private val _visitedCities = MutableStateFlow<List<VisitedCitiesAdapter.VisitedCityItem>>(emptyList())
@@ -36,7 +36,7 @@ class ProfileViewModel @Inject constructor(
     val shareIntent: StateFlow<Intent?> = _shareIntent.asStateFlow()
 
     // Map to cache city details
-    private val cityCache = mutableMapOf<String, CityModel>()
+    private val cityCache = mutableMapOf<String, com.aliaktas.urbanscore.data.model.CityModel>()
 
     init {
         loadVisitedCities()
@@ -44,25 +44,24 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun loadVisitedCities() {
-        viewModelScope.launch {
-            Log.d("ProfileViewModel", "Loading visited cities...")
+        launch {
+            if (!networkUtil.isNetworkAvailable()) {
+                emitEvent(UiEvent.Error("No internet connection. Some data may not be available."))
+                return@launch
+            }
 
             userRepository.getUserVisitedCities()
                 .catch { e ->
-                    Log.e("ProfileViewModel", "Error loading visited cities", e)
+                    handleError(e)
                 }
-                .collect { visitedCitiesMap ->
-                    Log.d("ProfileViewModel", "Received ${visitedCitiesMap.size} visited cities")
-
+                .collectLatest { visitedCitiesMap ->
                     if (visitedCitiesMap.isEmpty()) {
                         _visitedCities.value = emptyList()
-                        return@collect
+                        return@collectLatest
                     }
 
                     // Convert map to list with city details
-                    val cityIds = visitedCitiesMap.keys.toList()
                     val visitedWithRatings = mutableListOf<Pair<String, Double>>()
-
                     for ((cityId, rating) in visitedCitiesMap) {
                         visitedWithRatings.add(cityId to rating)
                     }
@@ -78,24 +77,22 @@ class ProfileViewModel @Inject constructor(
             return
         }
 
-        Log.d("ProfileViewModel", "Fetching details for ${citiesWithRatings.size} cities")
-
         val result = mutableListOf<VisitedCitiesAdapter.VisitedCityItem>()
         var completedCount = 0
 
         citiesWithRatings.forEach { (cityId, rating) ->
-            viewModelScope.launch {
+            launch {
                 try {
                     // Şehir detaylarını al
                     cityRepository.getCityById(cityId)
                         .catch { e ->
-                            Log.e("ProfileViewModel", "Error fetching city $cityId", e)
+                            handleError(e)
                             synchronized(result) {
                                 completedCount++
                                 checkCompletion(result, completedCount, citiesWithRatings.size)
                             }
                         }
-                        .collect { city ->
+                        .collectLatest { city ->
                             city?.let {
                                 synchronized(result) {
                                     // Cache şehir bilgisini
@@ -123,7 +120,7 @@ class ProfileViewModel @Inject constructor(
                             }
                         }
                 } catch (e: Exception) {
-                    Log.e("ProfileViewModel", "Error in city fetch: ${e.message}", e)
+                    handleError(e)
                     synchronized(result) {
                         completedCount++
                         checkCompletion(result, completedCount, citiesWithRatings.size)
@@ -136,25 +133,25 @@ class ProfileViewModel @Inject constructor(
     private fun checkCompletion(cities: List<VisitedCitiesAdapter.VisitedCityItem>, completed: Int, total: Int) {
         if (completed >= total) {
             val sorted = cities.sortedByDescending { it.userRating }
-            Log.d("ProfileViewModel", "All cities fetched, updating UI with ${sorted.size} cities")
             _visitedCities.value = sorted
         }
     }
 
     private fun loadWishlistCities() {
-        viewModelScope.launch {
-            Log.d("ProfileViewModel", "Loading wishlist cities...")
+        launch {
+            if (!networkUtil.isNetworkAvailable()) {
+                // Already shown error in loadVisitedCities, no need to show again
+                return@launch
+            }
 
             userRepository.getUserWishlist()
                 .catch { e ->
-                    Log.e("ProfileViewModel", "Error loading wishlist", e)
+                    handleError(e)
                 }
-                .collect { wishlistIds ->
-                    Log.d("ProfileViewModel", "Received ${wishlistIds.size} wishlist cities")
-
+                .collectLatest { wishlistIds ->
                     if (wishlistIds.isEmpty()) {
                         _wishlistCities.value = emptyList()
-                        return@collect
+                        return@collectLatest
                     }
 
                     fetchWishlistCityDetails(wishlistIds)
@@ -168,24 +165,22 @@ class ProfileViewModel @Inject constructor(
             return
         }
 
-        Log.d("ProfileViewModel", "Fetching details for ${cityIds.size} wishlist cities")
-
         val result = mutableListOf<WishlistCitiesAdapter.WishlistCityItem>()
         var completedCount = 0
 
         cityIds.forEach { cityId ->
-            viewModelScope.launch {
+            launch {
                 try {
                     // Şehir detaylarını al
                     cityRepository.getCityById(cityId)
                         .catch { e ->
-                            Log.e("ProfileViewModel", "Error fetching wishlist city $cityId", e)
+                            handleError(e)
                             synchronized(result) {
                                 completedCount++
                                 checkWishlistCompletion(result, completedCount, cityIds.size)
                             }
                         }
-                        .collect { city ->
+                        .collectLatest { city ->
                             city?.let {
                                 synchronized(result) {
                                     // Cache şehir bilgisini
@@ -212,7 +207,7 @@ class ProfileViewModel @Inject constructor(
                             }
                         }
                 } catch (e: Exception) {
-                    Log.e("ProfileViewModel", "Error in wishlist city fetch", e)
+                    handleError(e)
                     synchronized(result) {
                         completedCount++
                         checkWishlistCompletion(result, completedCount, cityIds.size)
@@ -225,47 +220,48 @@ class ProfileViewModel @Inject constructor(
     private fun checkWishlistCompletion(cities: List<WishlistCitiesAdapter.WishlistCityItem>, completed: Int, total: Int) {
         if (completed >= total) {
             val sorted = cities.sortedBy { it.name }
-            Log.d("ProfileViewModel", "All wishlist cities fetched, updating UI with ${sorted.size} cities")
             _wishlistCities.value = sorted
         }
     }
 
     fun shareVisitedCities() {
-        val cities = _visitedCities.value
-        if (cities.isEmpty()) return
-
-        val shareText = buildString {
-            append("My visited cities on UrbanScore:\n\n")
-            cities.forEachIndexed { index, city ->
-                append("${index + 1}. ${city.name}, ${city.country} - ${String.format("%.1f", city.userRating)}/10\n")
+        launch {
+            val cities = _visitedCities.value
+            if (cities.isEmpty()) {
+                emitEvent(UiEvent.Error("You don't have any visited cities to share"))
+                return@launch
             }
-            append("\nDownload UrbanScore to rate your favorite cities!")
-        }
 
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "My UrbanScore Visited Cities")
-            putExtra(Intent.EXTRA_TEXT, shareText)
+            try {
+                // Bitmap oluşturma işlemi artık ImageUtils sınıfına taşındı
+                val bitmap = imageUtils.createVisitedCitiesImage(cities, cities.size)
+                val intent = imageUtils.createShareImageIntent(bitmap)
+                _shareIntent.value = intent
+            } catch (e: Exception) {
+                handleError(e)
+                emitEvent(UiEvent.Error("Error creating image: ${e.message}"))
+            }
         }
-
-        _shareIntent.value = intent
     }
 
     fun shareWishlist() {
         val cities = _wishlistCities.value
-        if (cities.isEmpty()) return
+        if (cities.isEmpty()) {
+            launch { emitEvent(UiEvent.Error("You don't have any cities in your bucket list to share")) }
+            return
+        }
 
         val shareText = buildString {
-            append("My city bucket list on UrbanScore:\n\n")
+            append("My city bucket list on UrbanRate:\n\n")
             cities.forEachIndexed { index, city ->
                 append("${index + 1}. ${city.name}, ${city.country}\n")
             }
-            append("\nDownload UrbanScore to create your own bucket list!")
+            append("\nDownload UrbanRate to create your own bucket list!")
         }
 
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "My UrbanScore Bucket List")
+            putExtra(Intent.EXTRA_SUBJECT, "My UrbanRate Bucket List")
             putExtra(Intent.EXTRA_TEXT, shareText)
         }
 
@@ -277,21 +273,25 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun removeFromWishlist(cityId: String) {
-        viewModelScope.launch {
-            Log.d("ProfileViewModel", "Removing city $cityId from wishlist")
+        launchWithLoading {
             try {
                 val result = userRepository.removeFromWishlist(cityId)
                 result.fold(
                     onSuccess = {
-                        Log.d("ProfileViewModel", "Successfully removed $cityId from wishlist")
+                        emitEvent(UiEvent.Success("City removed from bucket list"))
                     },
                     onFailure = { e ->
-                        Log.e("ProfileViewModel", "Error removing from wishlist", e)
+                        handleError(e)
                     }
                 )
             } catch (e: Exception) {
-                Log.e("ProfileViewModel", "Exception removing from wishlist", e)
+                handleError(e)
             }
         }
+    }
+
+    fun refreshData() {
+        loadVisitedCities()
+        loadWishlistCities()
     }
 }

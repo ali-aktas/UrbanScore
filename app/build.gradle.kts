@@ -45,7 +45,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -53,6 +52,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.foundation.android)
+    // KALDIRMAK İÇİN YORUMLAYINız:
+    // implementation(libs.testng)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -91,15 +92,18 @@ dependencies {
     implementation(libs.firebase.firestore)
     //implementation(libs.firebase.analytics)
     //implementation(libs.firebase.messaging)
-
     //Auth
     implementation(libs.google.auth)
-
     //Animations
     implementation(libs.lottie)
     implementation(libs.splash.screen)
     //Graphics
     implementation(libs.mpandroidchart)
 
-
+    // Test dependencies
+    // BURADA AŞAĞIDA TEKRAR JUNİT OLDUĞU İÇİN BU SATIRI SİL:
+    // testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.arch.core.testing)
 }
