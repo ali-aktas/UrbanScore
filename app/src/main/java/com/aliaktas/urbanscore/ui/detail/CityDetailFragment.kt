@@ -1,21 +1,12 @@
 package com.aliaktas.urbanscore.ui.detail
 
-import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
-import android.content.res.ColorStateList
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -24,23 +15,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.R
-import com.aliaktas.urbanscore.base.BaseViewModel
-import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.ratecity.RateCityBottomSheet
 import com.bumptech.glide.Glide
-import com.github.mikephil.charting.animation.Easing
-import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.RadarData
-import com.github.mikephil.charting.data.RadarDataSet
-import com.github.mikephil.charting.data.RadarEntry
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.net.URLEncoder
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -53,15 +37,22 @@ class CityDetailFragment : Fragment() {
     private val viewModel: CityDetailViewModel by viewModels()
     private val args: CityDetailFragmentArgs by navArgs()
 
+    private lateinit var radarChartHelper: RadarChartHelper
+
+    // Reference to rating bottom sheet for lifecycle management
+    private var ratingBottomSheet: RateCityBottomSheet? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Setup shared element transition animation
+        // Setup shared element transition
         sharedElementEnterTransition = MaterialContainerTransform().apply {
             duration = 300L
-            scrimColor = ContextCompat.getColor(requireContext(), R.color.gradient_center)
             fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
         }
+
+        // Initialize chart helper
+        radarChartHelper = RadarChartHelper(requireContext())
     }
 
     override fun onCreateView(
@@ -76,318 +67,130 @@ class CityDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Set the transition name for shared element transition
-        ViewCompat.setTransitionName(binding.toolbar, "city_${args.cityId}")
+        // Setup transition name for shared element transition
+        binding.toolbar.transitionName = "city_${args.cityId}"
 
-        setupToolbar()
-        setupActionButtons()
-        setupExploreButtons()
+        setupClickListeners()
         setupRadarChart()
         observeViewModel()
     }
 
-    @SuppressLint("NewApi")
     private fun setupRadarChart() {
-        binding.radarChart.apply {
-            // Grafik için daha fazla alan sağla
-            layoutParams.height = resources.getDimensionPixelSize(R.dimen.radar_chart_height) // Yeni bir dimen ekleyelim: 300dp
-
-
-            // Genel ayarlar
-            description.isEnabled = false
-            webLineWidth = 0.7f // İnce dış çizgi
-            webColor = Color.parseColor("#33FFFFFF") // Daha şeffaf ve ince ağ çizgileri
-            webLineWidthInner = 0.5f // Daha ince iç çizgi
-            webColorInner = Color.parseColor("#22FFFFFF") // Daha az belirgin iç ağ çizgileri
-            webAlpha = 70 // Daha düşük opaklık
-
-            // Daha fazla alan için offset'i azalt
-            minOffset = 65f
-            setExtraOffsets(0f, 0f, 0f, 0f)
-
-            // Animasyonu daha uzun ve şık yap
-            animateXY(2000, 2000, Easing.EaseInOutQuart)
-
-            // Grafik etiketlerini Poppins Medium font ile ayarla
-            xAxis.apply {
-                textSize = 12f
-                textColor = Color.parseColor("#1BA4C6") // İç grafikle uyumlu renk
-                yOffset = 1f // Metinleri grafiğe yaklaştır
-                xOffset = 0f
-                typeface = resources.getFont(R.font.poppins_medium) // Poppins Medium font
-            }
-
-            // Y ekseni (değer ekseni) ayarları
-            yAxis.apply {
-                setLabelCount(6, true)
-                textColor = Color.parseColor("#1BA4C6") // İç grafikle uyumlu renk
-                textSize = 9f
-                axisMinimum = 0f
-                axisMaximum = 10f
-                setDrawLabels(false)
-                typeface = resources.getFont(R.font.poppins_medium) // Poppins Medium font
-            }
-
-            // "Category Ratings" başlığını kaldır
-            legend.isEnabled = false
+        // Launch coroutine to setup chart (UI thread work)
+        lifecycleScope.launch {
+            radarChartHelper.setupRadarChart(binding.radarChart)
         }
     }
 
-    private fun updateRadarChartData(ratings: CategoryRatings) {
-        // Kategori isimleri dizisi
-        val categories = arrayOf(
-            "View",
-            "Safety",
-            "Livability",
-            "Cost",
-            "Social"
-        )
-
-        // Kategori puanlarını RadarEntry listesine dönüştür
-        val entries = ArrayList<RadarEntry>()
-        entries.add(RadarEntry(ratings.environment.toFloat()))
-        entries.add(RadarEntry(ratings.safety.toFloat()))
-        entries.add(RadarEntry(ratings.livability.toFloat()))
-        entries.add(RadarEntry(ratings.cost.toFloat()))
-        entries.add(RadarEntry(ratings.social.toFloat()))
-
-        // RadarDataSet oluştur ve özelleştir
-        val dataSet = RadarDataSet(entries, "") // Boş etiket
-
-        // Futuristik mavi-yeşil renk tonları - daha parlak ve modern
-        val primaryColor = Color.parseColor("#DF21F398") // Ana renk (daha parlak)
-        val strokeColor = Color.parseColor("#1BA4C6") // Çizgi rengi
-
-        dataSet.apply {
-            color = strokeColor
-            fillColor = primaryColor
-            setDrawFilled(true) // Dolgu alanı göster
-            fillAlpha = 110 // Daha belirgin dolgu
-            lineWidth = 1.6f // Daha kalın çizgi
-            valueTextColor = Color.WHITE
-            valueTextSize = 12f
-            isDrawHighlightCircleEnabled = true
-            setDrawHighlightIndicators(false)
-            highlightCircleFillColor = Color.WHITE
-            highlightCircleStrokeColor = strokeColor
-            highlightCircleStrokeWidth = 1f
-            setDrawValues(false) // Değer etiketlerini gösterme
-        }
-
-        // Radar verilerini oluştur
-        val radarData = RadarData(dataSet)
-
-        // Kategori isimlerini ayarla
-        binding.radarChart.xAxis.valueFormatter = IndexAxisValueFormatter(categories)
-
-        // Verileri grafiğe uygula
-        binding.radarChart.data = radarData
-        binding.radarChart.invalidate() // Grafiği yenile
-    }
-
-    private fun setupExploreButtons() {
-        binding.btnExploreYouTube.setOnClickListener {
-            openYouTubeSearch()
-        }
-
-        binding.btnExploreGoogle.setOnClickListener {
-            openGoogleSearch()
-        }
-    }
-
-    private fun openYouTubeSearch() {
-        val state = viewModel.detailState.value // state yerine detailState kullan
-        if (state is CityDetailState.Success) {
-            val cityName = state.city.cityName
-            //val countryName = state.city.country
-
-            val searchQuery = "$cityName 4K"
-            val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
-            val youtubeUrl = "https://www.youtube.com/results?search_query=$encodedQuery"
-
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(youtubeUrl)
-            }
-
-            startActivity(intent)
-        }
-    }
-
-    private fun openGoogleSearch() {
-        val state = viewModel.detailState.value // state yerine detailState kullan
-        if (state is CityDetailState.Success) {
-            val cityName = state.city.cityName
-            //val countryName = state.city.country
-
-            val searchQuery = "Best Landscapes of $cityName"
-            val encodedQuery = URLEncoder.encode(searchQuery, "UTF-8")
-            val googleImagesUrl = "https://www.google.com/search?q=$encodedQuery&tbm=isch"
-
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(googleImagesUrl)
-            }
-
-            startActivity(intent)
-        }
-    }
-
-    private fun setupToolbar() {
+    private fun setupClickListeners() {
+        // Back button
         binding.toolbar.setOnClickListener {
             findNavController().navigateUp()
         }
-    }
 
-    private fun setupActionButtons() {
-        // btnRateCity için mevcut kodu koruyoruz
+        // Action buttons
         binding.btnRateCity.setOnClickListener {
-            // Show the rate city bottom sheet instead of navigating
-            val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
-            bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
+            viewModel.showRatingSheet()
         }
 
-        // Wishlist butonunu duruma göre dinlemek için observer ekliyoruz
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.isInWishlist.collect { isInWishlist ->
-                    updateWishlistButton(isInWishlist)
-                }
-            }
+        binding.btnAddToWishlist.setOnClickListener {
+            viewModel.toggleWishlist()
         }
-    }
 
-    private fun updateWishlistButton(isInWishlist: Boolean) {
-        if (isInWishlist) {
-            // Zaten wishlist'te
-            binding.btnAddToWishlist.apply {
-                text = "Remove from Bucket List"
-                backgroundTintList = ContextCompat.getColorStateList(requireContext(), android.R.color.holo_red_light)
-                setOnClickListener {
-                    showRemoveFromWishlistDialog()
-                }
-            }
-        } else {
-            // Wishlist'te değil
-            binding.btnAddToWishlist.apply {
-                text = getString(R.string.add_to_wishlist)
-                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.white)
-                setOnClickListener {
-                    viewModel.addToWishlist()
-                    Snackbar.make(binding.root, "Added to bucket list", Snackbar.LENGTH_SHORT).show()
-                }
-            }
+        // Explore buttons
+        binding.btnExploreYouTube.setOnClickListener {
+            viewModel.openYouTubeSearch()
         }
-    }
 
-    private fun showRemoveFromWishlistDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle("Remove from Bucket List")
-            .setMessage("Are you sure you want to remove this city from your bucket list?")
-            .setPositiveButton("Yes") { _, _ ->
-                viewModel.removeFromWishlist()
-                Snackbar.make(binding.root, "Removed from bucket list", Snackbar.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("No", null)
-            .show()
+        binding.btnExploreGoogle.setOnClickListener {
+            viewModel.openGoogleSearch()
+        }
     }
 
     private fun observeViewModel() {
-        // Observe state
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Şehir detaylarını gözlemle
+                // Observe state
                 launch {
-                    viewModel.detailState.collect { state ->
-                        when (state) {
-                            is CityDetailState.Loading -> showLoading(true)
-                            is CityDetailState.Success -> {
-                                showLoading(false)
-                                updateUI(state.city)
-                                updateRadarChartData(state.city.ratings)
-                            }
-                            is CityDetailState.Error -> {
-                                showLoading(false)
-                                // Error handled by events
-                            }
-                        }
+                    viewModel.detailState.collectLatest { state ->
+                        updateUI(state)
                     }
                 }
 
-                // Loading state'i gözlemle
+                // Observe events
                 launch {
-                    viewModel.isLoading.collect { isLoading ->
-                        // Show/hide loading indicator
-                        binding.progressBar?.isVisible = isLoading
-                    }
-                }
-
-                // UI Events'i gözlemle
-                launch {
-                    viewModel.events.collect { event ->
+                    viewModel.detailEvents.collectLatest { event ->
                         handleEvent(event)
                     }
                 }
-
-                // Diğer state'leri gözlemle...
             }
         }
     }
 
-    private fun updateRateButton(hasRated: Boolean) {
-        if (hasRated) {
-            binding.btnRateCity.apply {
-                text = "Rated"
-                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.rating_color)
-                // Seçenek 1: Butonu devre dışı bırak (tekrar puanlama yapılamaz)
-                // isEnabled = false
-
-                // Seçenek 2: Butonu aktif bırak (tekrar puanlama yapılabilir)
-                setOnClickListener {
-                    Snackbar.make(binding.root, "You've already rated this city. Would you like to update your rating?", Snackbar.LENGTH_LONG)
-                        .setAction("Update") {
-                            // Puanlama bottom sheet'i göster
-                            val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
-                            bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
-                        }
-                        .show()
-                }
-            }
-        } else {
-            binding.btnRateCity.apply {
-                text = getString(R.string.rate_this_city)
-                backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.gradient_center)
-                isEnabled = true
-
-                // Normal puanlama işlevini geri yükle
-                setOnClickListener {
-                    val bottomSheet = RateCityBottomSheet.newInstance(args.cityId)
-                    bottomSheet.show(childFragmentManager, "RateCityBottomSheet")
-                }
-            }
-        }
-    }
-
-    private fun handleEvent(event: BaseViewModel.UiEvent) {
+    private fun handleEvent(event: CityDetailEvent) {
         when (event) {
-            is BaseViewModel.UiEvent.Error -> {
-                Snackbar.make(binding.root, event.message, Snackbar.LENGTH_LONG).show()
+            is CityDetailEvent.OpenUrl -> {
+                openUrl(event.url)
             }
-            is BaseViewModel.UiEvent.Success -> {
-                Snackbar.make(binding.root, event.message, Snackbar.LENGTH_SHORT).show()
+            is CityDetailEvent.ShowRatingSheet -> {
+                showRatingBottomSheet(event.cityId)
             }
-            else -> {
-                // Handle other events
+            is CityDetailEvent.ShowMessage -> {
+                showMessage(event.message)
+            }
+            is CityDetailEvent.ShareCity -> {
+                startActivity(Intent.createChooser(event.shareIntent, "Share via"))
+            }
+            is CityDetailEvent.DismissRatingSheet -> {
+                ratingBottomSheet?.dismiss()
+                ratingBottomSheet = null
             }
         }
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        // If using loading animation, control it here
-        // For now, just showing/hiding content
-        binding.radarChart.visibility = if (isLoading) View.INVISIBLE else View.VISIBLE
+    private fun openUrl(url: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
+        } catch (e: Exception) {
+            showMessage("Could not open link: ${e.message}")
+        }
     }
 
-    private fun updateUI(city: CityModel) {
-        // Şehir adı ve bayrak
+    private fun showRatingBottomSheet(cityId: String) {
+        ratingBottomSheet = RateCityBottomSheet.newInstance(cityId).apply {
+            show(childFragmentManager, "RateCityBottomSheet")
+        }
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun updateUI(state: CityDetailState) {
+        when (state) {
+            is CityDetailState.Loading -> {
+                binding.progressBar.isVisible = true
+                binding.cityInfoLayout.isVisible = false
+            }
+            is CityDetailState.Success -> {
+                binding.progressBar.isVisible = false
+                binding.cityInfoLayout.isVisible = true
+
+                updateCityInfo(state.city)
+                updateRatingData(state.city)
+                updateWishlistButton(state.isInWishlist)
+                updateRateButton(state.hasUserRated)
+            }
+            is CityDetailState.Error -> {
+                binding.progressBar.isVisible = false
+                showErrorDialog(state.message)
+            }
+        }
+    }
+
+    private fun updateCityInfo(city: CityModel) {
+        // City name and flag
         binding.textCityName.text = city.cityName
         binding.txtRatingCount.text = resources.getQuantityString(
             R.plurals.based_on_ratings,
@@ -395,22 +198,24 @@ class CityDetailFragment : Fragment() {
             city.ratingCount
         )
 
-        // Bayrak yükleme
+        // Load flag
         Glide.with(this)
             .load(city.flagUrl)
             .centerCrop()
             .into(binding.imgFlag)
 
-        // Şehir bilgileri
+        // City information
         binding.txtCountry.text = city.country
         binding.txtRegion.text = city.region
         binding.txtPopulation.text = NumberFormat.getNumberInstance(Locale.getDefault())
             .format(city.population)
 
-        // Ortalama puanlama
+        // Average rating
         binding.txtAverageRating.text = String.format("%.2f", city.averageRating)
+    }
 
-        // Kategori puanlamaları
+    private fun updateRatingData(city: CityModel) {
+        // Update category ratings
         with(city.ratings) {
             binding.txtEnvironmentRating.text = String.format("%.2f", environment)
             binding.txtSafetyRating.text = String.format("%.2f", safety)
@@ -418,10 +223,58 @@ class CityDetailFragment : Fragment() {
             binding.txtCostRating.text = String.format("%.2f", cost)
             binding.txtSocialRating.text = String.format("%.2f", social)
         }
+
+        // Update radar chart in background
+        lifecycleScope.launch {
+            radarChartHelper.updateChartData(binding.radarChart, city.ratings)
+        }
+    }
+
+    private fun updateWishlistButton(isInWishlist: Boolean) {
+        binding.btnAddToWishlist.apply {
+            if (isInWishlist) {
+                text = "Remove from Bucket List"
+                setBackgroundColor(resources.getColor(android.R.color.holo_red_light, null))
+            } else {
+                text = getString(R.string.add_to_wishlist)
+                setBackgroundColor(resources.getColor(R.color.white, null))
+            }
+        }
+    }
+
+    private fun updateRateButton(hasRated: Boolean) {
+        binding.btnRateCity.apply {
+            if (hasRated) {
+                text = "Update Rating"
+                setBackgroundColor(resources.getColor(R.color.rating_color, null))
+            } else {
+                text = getString(R.string.rate_this_city)
+                setBackgroundColor(resources.getColor(R.color.gradient_center, null))
+            }
+        }
+    }
+
+    private fun showErrorDialog(message: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Error")
+            .setMessage(message)
+            .setPositiveButton("Retry") { _, _ -> viewModel.loadCityDetails() }
+            .setNegativeButton("Go Back") { _, _ -> findNavController().navigateUp() }
+            .show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh data if returning from rating bottom sheet
+        if (ratingBottomSheet?.isAdded == true && !ratingBottomSheet?.isVisible!!) {
+            viewModel.refreshAfterRating()
+            ratingBottomSheet = null
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        ratingBottomSheet = null
     }
 }
