@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.databinding.FragmentCategoryListBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -73,14 +74,13 @@ class CategoryListFragment : Fragment() {
 
         citiesAdapter.onItemClick = { city ->
             Log.d("CategoryListFragment", "City clicked: ${city.cityName}")
-            val action = CategoryListFragmentDirections.actionCategoryListFragmentToCityDetailFragment(city.id)
-            findNavController().navigate(action)
+            (requireActivity() as MainActivity).navigateToCityDetail(city.id)
         }
     }
 
     private fun setupButtons() {
         binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         binding.btnLoadMore.setOnClickListener {

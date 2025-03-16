@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.databinding.FragmentProfileBinding
@@ -202,9 +203,7 @@ class ProfileFragment : Fragment() {
 
     private fun navigateToCityDetail(cityId: String) {
         try {
-            val action = ProfileFragmentDirections
-                .actionProfileFragmentToCityDetailFragment(cityId)
-            findNavController().navigate(action)
+            (requireActivity() as MainActivity).navigateToCityDetail(cityId)
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Navigation error: ${e.message}", e)
             showMessage("Navigation error")
@@ -221,7 +220,9 @@ class ProfileFragment : Fragment() {
             .setPositiveButton(R.string.yes) { _, _ ->
                 FirebaseAuth.getInstance().signOut()
                 showMessage("Logged out successfully")
-                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+
+                // Navigation Component yerine doğrudan Activity'ye yönlendirme
+                (requireActivity() as MainActivity).showLoginFragment()
             }
             .show()
     }

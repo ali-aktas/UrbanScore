@@ -15,6 +15,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentLoginBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -116,6 +117,7 @@ class LoginFragment : Fragment() {
         }
     }
 
+    // LoginFragment.kt içinde mevcut updateUI metoduna ekle veya bu metodu değiştir
     private fun updateUI(state: AuthState) {
         when (state) {
             is AuthState.Loading -> {
@@ -125,13 +127,8 @@ class LoginFragment : Fragment() {
                 binding.btnSignUp.isEnabled = false
             }
             is AuthState.Authenticated -> {
-                // Eğer zaten HomeFragment'taysak tekrar navigasyon yapma
-                if (findNavController().currentDestination?.id != R.id.homeFragment) {
-                    // Navigasyonu geciktirmeden yap
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
-                    }, 100) // 100ms gecikme (isteğe bağlı)
-                }
+                // Burada başarılı giriş sonrası yönlendirme
+                (requireActivity() as MainActivity).navigateToHomeAfterLogin()
             }
             is AuthState.Unauthenticated -> {
                 binding.progressBar.visibility = View.GONE

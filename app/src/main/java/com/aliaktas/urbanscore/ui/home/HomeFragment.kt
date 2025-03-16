@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CategoryModel
@@ -214,12 +215,8 @@ class HomeFragment : Fragment() {
 
     private fun navigateToCategoryList(categoryId: String? = null) {
         try {
-            val action = if (categoryId != null) {
-                HomeFragmentDirections.actionHomeFragmentToCategoryListFragment(categoryId)
-            } else {
-                HomeFragmentDirections.actionHomeFragmentToCategoryListFragment()
-            }
-            findNavController().navigate(action)
+            // Navigation Component yerine MainActivity API'sini kullan
+            (requireActivity() as MainActivity).navigateToCategoryList(categoryId ?: "averageRating")
         } catch (e: Exception) {
             Log.e("HomeFragment", "Navigation error: ${e.message}", e)
             Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
@@ -228,8 +225,7 @@ class HomeFragment : Fragment() {
 
     private fun navigateToCityDetail(cityId: String) {
         try {
-            val action = HomeFragmentDirections.actionHomeFragmentToCityDetailFragment(cityId)
-            findNavController().navigate(action)
+            (requireActivity() as MainActivity).navigateToCityDetail(cityId)
         } catch (e: Exception) {
             Log.e("HomeFragment", "Navigation error: ${e.message}", e)
             Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()

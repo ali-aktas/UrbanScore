@@ -7,21 +7,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentExploreBinding
 import com.aliaktas.urbanscore.databinding.ItemFeaturedCityBinding
 import com.bumptech.glide.Glide
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Locale
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExploreFragment : Fragment() {
@@ -29,11 +31,9 @@ class ExploreFragment : Fragment() {
     private var _binding: FragmentExploreBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: ExploreViewModel by viewModels()
     private lateinit var cityAdapter: FeaturedCityAdapter
     private val allCities = mutableListOf<CityModel>() // Tüm şehirleri saklamak için
-
-    @Inject
-    lateinit var firestore: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,10 +53,9 @@ class ExploreFragment : Fragment() {
         binding.cityViewPager.layoutParams = layoutParams
 
         setupCityCarousel()
-        loadAllCities() // Önce tüm şehirleri bir kere yükle
         setupClickListeners()
+        observeViewModel()
     }
-
 
     private fun setupCityCarousel() {
         // Boş liste ile adaptörü başlat, veriler gelince güncellenecek
@@ -96,91 +95,90 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    private fun loadAllCities() {
-        lifecycleScope.launch {
-            try {
-                binding.progressBar.visibility = View.VISIBLE
-
-                // Tüm şehirleri yükle
-                firestore.collection("cities")
-                    .limit(100) // Makul bir limit
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        val cities = snapshot.documents.mapNotNull { doc ->
-                            try {
-                                val model = doc.toObject(CityModel::class.java)
-                                model?.copy(id = doc.id)
-                            } catch (e: Exception) {
-                                null
-                            }
-                        }
-
+    private fun observeViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // AllCities'i gözlemle
+                launch {
+                    viewModel.allCities.collect { cities ->
                         allCities.clear()
                         allCities.addAll(cities)
-
-                        binding.progressBar.visibility = View.GONE
-
-                        // Şimdilik popüler şehirleri yükle - normal akış
-                        loadPopularCities()
                     }
-                    .addOnFailureListener { e ->
-                        binding.progressBar.visibility = View.GONE
-                        Toast.makeText(context, "Error loading cities: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
 
-                        // Hata durumunda da popüler şehirleri yüklemeyi dene
-                        loadPopularCities()
+                // PopularCities'i gözlemle
+                launch {
+                    viewModel.popularCities.collect { cities ->
+                        if (cities.isNotEmpty()) {
+                            updateCities(cities)
+                        } else if (cityAdapter.itemCount == 0) {
+                            // Eğer boşsa ve henüz bir şey gösterilmiyorsa mock verileri göster
+                            showMockCities()
+                        }
                     }
-            } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
-                Log.e("ExploreFragment", "Error loading all cities", e)
+                }
 
-                // Hata durumunda da popüler şehirleri yüklemeyi dene
-                loadPopularCities()
+                // Loading durumunu gözlemle
+                launch {
+                    viewModel.isLoading.collect { isLoading ->
+                        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+                    }
+                }
             }
         }
     }
 
-    private fun loadPopularCities() {
-        // Firebase'den "popular_cities" verilerini yükle
-        lifecycleScope.launch {
-            try {
-                Log.d("ExploreFragment", "Loading popular cities")
+    private fun setupClickListeners() {
+        binding.cardSearch.setOnClickListener {
+            showSearchBottomSheet()
+        }
 
-                // "curated_lists" koleksiyonundan "popular_cities" tipindeki verileri al
-                firestore.collection("curated_lists")
-                    .whereEqualTo("listType", "popular_cities")
-                    // position'a göre sıralayalım, ama sorgu hatası alırsak manual sıralama yaparız
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        Log.d("ExploreFragment", "Found ${snapshot.size()} popular cities")
+        binding.btnSuggestCity.setOnClickListener {
+            val suggestCityBottomSheet = SuggestCityBottomSheet()
+            suggestCityBottomSheet.show(childFragmentManager, "SuggestCityBottomSheet")
+        }
+    }
 
-                        val cities = snapshot.documents.mapNotNull { doc ->
-                            try {
-                                val model = doc.toObject(CuratedCityItem::class.java)
-                                model?.copy(id = doc.id)
-                            } catch (e: Exception) {
-                                Log.e("ExploreFragment", "Error converting document", e)
-                                null
-                            }
-                        }
+    private fun showSearchBottomSheet() {
+        if (allCities.isEmpty()) {
+            binding.progressBar.visibility = View.VISIBLE
 
-                        // position'a göre sırala
-                        val sortedCities = cities.sortedBy { it.position }
+            // ViewModel aracılığıyla şehirleri yükle
+            viewModel.loadAllCities()
 
-                        // Şehirleri adaptöre aktar
-                        updateCities(sortedCities)
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e("ExploreFragment", "Error loading popular cities", e)
-                        Toast.makeText(context, "Şehirleri yüklerken hata oluştu", Toast.LENGTH_SHORT).show()
+            // Şehirler hazır olduğunda observable içinde zaten fark edeceğiz
+            // ve bottom sheet'i o zaman göstereceğiz
 
-                        // Hata durumunda mock verilerle devam et
-                        showMockCities()
-                    }
-            } catch (e: Exception) {
-                Log.e("ExploreFragment", "Exception in loadPopularCities", e)
-                showMockCities()
+            // Direkt bir timeout ile kontrol edelim
+            lifecycleScope.launch {
+                kotlinx.coroutines.delay(2000) // 2 saniye bekleyelim
+                if (allCities.isNotEmpty()) {
+                    showBottomSheetWithCities()
+                }
             }
+        } else {
+            showBottomSheetWithCities()
+        }
+    }
+
+    private fun showBottomSheetWithCities() {
+        val searchBottomSheet = SearchBottomSheetFragment.newInstance(
+            cities = allCities,
+            onCitySelected = { cityId ->
+                navigateToCityDetail(cityId)
+            }
+        )
+        searchBottomSheet.show(childFragmentManager, "SearchBottomSheet")
+    }
+
+    private fun updateCities(cities: List<CuratedCityItem>) {
+        if (cities.isNotEmpty()) {
+            Log.d("ExploreFragment", "Updating UI with ${cities.size} cities")
+            cityAdapter = FeaturedCityAdapter(cities)
+            binding.cityViewPager.adapter = cityAdapter
+        } else {
+            Log.d("ExploreFragment", "No popular cities found, showing mock data")
+            showMockCities()
         }
     }
 
@@ -202,90 +200,19 @@ class ExploreFragment : Fragment() {
         updateCities(curatedItems)
     }
 
-    private fun updateCities(cities: List<CuratedCityItem>) {
-        if (cities.isNotEmpty()) {
-            Log.d("ExploreFragment", "Updating UI with ${cities.size} cities")
-            cityAdapter = FeaturedCityAdapter(cities)
-            binding.cityViewPager.adapter = cityAdapter
-        } else {
-            Log.d("ExploreFragment", "No popular cities found, showing mock data")
-            showMockCities()
-        }
-    }
-
-    private fun setupClickListeners() {
-        binding.cardSearch.setOnClickListener {
-            showSearchBottomSheet()
-        }
-
-        binding.btnSuggestCity.setOnClickListener {
-            val suggestCityBottomSheet = SuggestCityBottomSheet()
-            suggestCityBottomSheet.show(childFragmentManager, "SuggestCityBottomSheet")
-        }
-    }
-
-    private fun showSearchBottomSheet() {
-        if (allCities.isEmpty()) {
-            binding.progressBar.visibility = View.VISIBLE
-
-            lifecycleScope.launch {
-                try {
-                    firestore.collection("cities")
-                        .limit(100)
-                        .get()
-                        .addOnSuccessListener { snapshot ->
-                            binding.progressBar.visibility = View.GONE
-
-                            val cities = snapshot.documents.mapNotNull { doc ->
-                                try {
-                                    val model = doc.toObject(CityModel::class.java)
-                                    model?.copy(id = doc.id)
-                                } catch (e: Exception) {
-                                    null
-                                }
-                            }
-
-                            allCities.clear()
-                            allCities.addAll(cities)
-
-                            showBottomSheetWithCities()
-                        }
-                        .addOnFailureListener { e ->
-                            binding.progressBar.visibility = View.GONE
-                            Toast.makeText(context, "Error loading cities: ${e.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } catch (e: Exception) {
-                    binding.progressBar.visibility = View.GONE
-                    Log.e("ExploreFragment", "Error loading cities for search", e)
-                }
-            }
-        } else {
-            showBottomSheetWithCities()
-        }
-    }
-
-    private fun showBottomSheetWithCities() {
-        val searchBottomSheet = SearchBottomSheetFragment.newInstance(
-            cities = allCities,
-            onCitySelected = { cityId ->
-                navigateToCityDetail(cityId)
-            }
-        )
-        searchBottomSheet.show(childFragmentManager, "SearchBottomSheet")
-    }
-
-
-
-
-
     private fun navigateToCityDetail(cityId: String) {
         try {
-            val action = ExploreFragmentDirections.actionExploreFragmentToCityDetailFragment(cityId)
-            findNavController().navigate(action)
+            (requireActivity() as MainActivity).navigateToCityDetail(cityId)
         } catch (e: Exception) {
             Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
             Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    // Scroll to top fonksiyonu - MainActivity'den çağrılabilir
+    fun scrollToTop() {
+        // Root view'ı en başa kaydır
+        binding.root.scrollTo(0, 0)
     }
 
     override fun onDestroyView() {
@@ -342,8 +269,7 @@ class ExploreFragment : Fragment() {
             holder.itemView.setOnClickListener {
                 try {
                     // Şehir detay sayfasına git
-                    val action = ExploreFragmentDirections.actionExploreFragmentToCityDetailFragment(city.cityId)
-                    findNavController().navigate(action)
+                    (requireActivity() as MainActivity).navigateToCityDetail(city.cityId)
                 } catch (e: Exception) {
                     Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
                     Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()

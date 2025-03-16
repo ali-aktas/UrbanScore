@@ -85,7 +85,7 @@ class CityDetailFragment : Fragment() {
     private fun setupClickListeners() {
         // Back button
         binding.toolbar.setOnClickListener {
-            findNavController().navigateUp()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         // Action buttons
@@ -233,7 +233,7 @@ class CityDetailFragment : Fragment() {
     private fun updateWishlistButton(isInWishlist: Boolean) {
         binding.btnAddToWishlist.apply {
             if (isInWishlist) {
-                text = "Remove from Bucket List"
+                text = "In your list"
                 setBackgroundColor(resources.getColor(android.R.color.holo_red_light, null))
             } else {
                 text = getString(R.string.add_to_wishlist)
