@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.home
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
@@ -7,6 +8,7 @@ import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -36,7 +38,25 @@ class HomeViewModel @Inject constructor(
     // Cache for top rated cities
     private var cachedTopRatedCities: List<CityModel>? = null
 
+    private var networkObserver: Job? = null
+    private var wasInErrorState = false
+
     init {
+        // İnternet bağlantısı değişikliklerini gözlemle
+        networkObserver = viewModelScope.launch {
+            networkUtil.observeNetworkState()
+                .collect { isConnected ->
+                    Log.d("HomeViewModel", "Network state changed: connected=$isConnected, currentState=${_topRatedCitiesState.value.javaClass.simpleName}")
+
+                    // İnternet bağlantısı geri geldiyse ve şu anda hata durumundaysak ya da daha önce hata durumundaysak
+                    if (isConnected && (wasInErrorState || _topRatedCitiesState.value is HomeState.Error)) {
+                        Log.d("HomeViewModel", "Internet connection restored, reloading data")
+                        wasInErrorState = false
+                        loadTopRatedCities(true) // Force refresh
+                    }
+                }
+        }
+
         loadTopRatedCities(false)
         loadEditorsChoiceCities()
     }
@@ -67,6 +87,7 @@ class HomeViewModel @Inject constructor(
                     emitEvent(UiEvent.Error("No internet connection. Showing cached data."))
                 }
             } else {
+                wasInErrorState = true // Hata durumunu işaretle
                 _topRatedCitiesState.value = HomeState.Error("No internet connection. Please try again later.")
             }
             return
@@ -86,6 +107,7 @@ class HomeViewModel @Inject constructor(
                 cityRepository.getCitiesByCategoryRating(categoryToUse, 20)
                     .catch { e ->
                         handleError(e)
+                        wasInErrorState = true // Hata durumunu işaretle
                         _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
                     }
                     .collectLatest { cities ->
@@ -94,6 +116,7 @@ class HomeViewModel @Inject constructor(
                     }
             } catch (e: Exception) {
                 handleError(e)
+                wasInErrorState = true // Hata durumunu işaretle
                 _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
             }
         }
@@ -120,6 +143,11 @@ class HomeViewModel @Inject constructor(
                 handleError(e)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        networkObserver?.cancel()
     }
 
     /**

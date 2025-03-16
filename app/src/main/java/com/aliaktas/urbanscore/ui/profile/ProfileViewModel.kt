@@ -131,50 +131,58 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+
     private fun setupDataStreams() {
         viewModelScope.launch {
-            try {
-                // İnternet bağlantısı kontrolü
-                if (!networkUtil.isNetworkAvailable()) {
-                    _profileState.value = ProfileState.Error("Internet connection required")
-                    return@launch
-                }
+            // İlk durumu Loading olarak ayarla
+            _profileState.value = ProfileState.Loading
 
-                // Loading state göster
-                _profileState.value = ProfileState.Loading
-
-                // Üç Flow'u birleştirerek tek bir Flow oluşturuyoruz
-                combine(
-                    userRepository.getCurrentUser(),                // Kullanıcı verileri
-                    userRepository.getUserVisitedCities(),          // Ziyaret edilen şehirler
-                    userRepository.getUserWishlist()                // Bucket list
-                ) { user, visitedCitiesMap, wishlistIds ->
-                    Triple(user, visitedCitiesMap, wishlistIds)
-                }.collectLatest { (user, visitedCitiesMap, wishlistIds) ->
-                    // Kullanıcı giriş yapmamış olabilir
-                    if (user == null) {
-                        _profileState.value = ProfileState.Error("User not authenticated")
-                        return@collectLatest
-                    }
-
-                    // Şehir detaylarını yükleme işlemlerini başlat
-                    val visitedCities = fetchCityDetails(visitedCitiesMap)
-                    val wishlistCities = fetchWishlistCityDetails(wishlistIds)
-
-                    // Success state güncelle
+            // İnternet bağlantı durumunu izle
+            networkUtil.observeNetworkState().collectLatest { isConnected ->
+                if (!isConnected) {
+                    // İnternet bağlantısı yoksa, kullanıcıya bildirilen Success durumu
                     _profileState.value = ProfileState.Success(
-                        displayName = user.displayName.ifEmpty { "Traveler" },
-                        photoUrl = user.photoUrl,
-                        visitedCities = visitedCities,
-                        wishlistCities = wishlistCities
+                        displayName = "No connection",
+                        photoUrl = "",
+                        visitedCities = emptyList(),
+                        wishlistCities = emptyList()
                     )
+                    emitEvent(UiEvent.Error("Internet connection required"))
+                } else {
+                    // İnternet varsa, verileri yüklemeye başla
+                    _profileState.value = ProfileState.Loading
+
+                    // Üç Flow'u birleştirerek tek bir Flow oluşturuyoruz
+                    combine(
+                        userRepository.getCurrentUser(),                // Kullanıcı verileri
+                        userRepository.getUserVisitedCities(),          // Ziyaret edilen şehirler
+                        userRepository.getUserWishlist()                // Bucket list
+                    ) { user, visitedCitiesMap, wishlistIds ->
+                        Triple(user, visitedCitiesMap, wishlistIds)
+                    }.collectLatest { (user, visitedCitiesMap, wishlistIds) ->
+                        // Kullanıcı giriş yapmamış olabilir
+                        if (user == null) {
+                            _profileState.value = ProfileState.Error("User not authenticated")
+                            return@collectLatest
+                        }
+
+                        // Şehir detaylarını yükleme işlemlerini başlat
+                        val visitedCities = fetchCityDetails(visitedCitiesMap)
+                        val wishlistCities = fetchWishlistCityDetails(wishlistIds)
+
+                        // Success state güncelle
+                        _profileState.value = ProfileState.Success(
+                            displayName = user.displayName.ifEmpty { "Traveler" },
+                            photoUrl = user.photoUrl,
+                            visitedCities = visitedCities,
+                            wishlistCities = wishlistCities
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                _profileState.value = ProfileState.Error("Failed to load profile: ${e.localizedMessage}")
-                logError("Profile loading error", e)
             }
         }
     }
+
 
     // Yenileme için - Mevcut state'i korur, arka planda günceller
     fun refreshUserProfile() {

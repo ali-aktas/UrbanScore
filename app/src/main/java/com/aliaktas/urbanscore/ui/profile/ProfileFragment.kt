@@ -73,7 +73,8 @@ class ProfileFragment : Fragment() {
         super.onResume()
         Log.d("ProfileFragment", "onResume: Fragment is now in foreground")
 
-        // artık burada refresh çağrısı yapmayacağız çünkü Flow'lar zaten güncel verileri gönderiyor
+        // Manual refresh - bağlantı durumundan bağımsız olarak yenileme yapmayı dene
+        viewModel.refreshUserProfile()
     }
 
 

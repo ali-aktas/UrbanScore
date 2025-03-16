@@ -53,6 +53,7 @@ class HomeFragment : Fragment() {
         setupRecyclerViews()
         setupClickListeners()
         setupAnimations()
+        setupSwipeRefresh() // SwipeRefresh setup'ı gözlemcilerden önce yapılmalı
         observeViewModel()
     }
 
@@ -61,6 +62,17 @@ class HomeFragment : Fragment() {
         // Her zaman HomeFragment'a döndüğümüzde top rated cities listesini yeniliyoruz
         // Bu, kategori seçiminden sonra Ana sayfaya döndüğümüzde listenin etkilenmemesini sağlar
         viewModel.refreshOnReturn()
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.loadTopRatedCities(true) // Force refresh
+        }
+
+        binding.swipeRefreshLayout.setColorSchemeResources(
+            R.color.auth_accent,
+            R.color.auth_primary
+        )
     }
 
     private fun setupRecyclerViews() {
@@ -120,14 +132,18 @@ class HomeFragment : Fragment() {
         }
     }
 
-
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Observe top rated cities state
                 launch {
-                    viewModel.topRatedCitiesState.collectLatest { state ->
+                    viewModel.topRatedCitiesState.collect { state ->
+                        Log.d("HomeFragment", "State update: ${state.javaClass.simpleName}")
                         updateTopRatedCitiesUI(state)
+
+                        // SwipeRefreshLayout durumunu güncelle
+                        binding.swipeRefreshLayout.isRefreshing = state is HomeState.Loading &&
+                                state.oldData != null
                     }
                 }
 
@@ -159,41 +175,59 @@ class HomeFragment : Fragment() {
     private fun updateTopRatedCitiesUI(state: HomeState) {
         when (state) {
             is HomeState.Initial -> {
+                binding.swipeRefreshLayout.isVisible = true
                 binding.loadingContainer.isVisible = false
                 binding.errorContainer.isVisible = false
+                binding.nestedLayout.isVisible = true
                 binding.cardCitiesList.isVisible = false
+                Log.d("HomeFragment", "UI State: Initial")
             }
             is HomeState.Loading -> {
                 if (state.oldData != null && state.oldData.isNotEmpty()) {
+                    binding.swipeRefreshLayout.isVisible = true
                     binding.loadingContainer.isVisible = false
                     binding.errorContainer.isVisible = false
+                    binding.nestedLayout.isVisible = true
                     binding.cardCitiesList.isVisible = true
+                    Log.d("HomeFragment", "UI State: Loading with existing data")
                 } else {
+                    binding.swipeRefreshLayout.isVisible = true
                     binding.loadingContainer.isVisible = true
                     binding.animationLoading.isVisible = true
                     binding.animationLoading.playAnimation()
                     binding.errorContainer.isVisible = false
+                    binding.nestedLayout.isVisible = true
                     binding.cardCitiesList.isVisible = false
+                    Log.d("HomeFragment", "UI State: Loading new data")
                 }
             }
             is HomeState.Success -> {
+                binding.swipeRefreshLayout.isVisible = true
                 binding.loadingContainer.isVisible = false
                 binding.errorContainer.isVisible = false
+                binding.nestedLayout.isVisible = true
                 binding.cardCitiesList.isVisible = true
                 citiesAdapter.submitList(state.cities)
+                Log.d("HomeFragment", "UI State: Success with ${state.cities.size} cities")
             }
             is HomeState.Error -> {
                 if (citiesAdapter.itemCount > 0) {
+                    // Eğer daha önce yüklenmiş şehirler varsa, onları göstermeye devam et
+                    binding.swipeRefreshLayout.isVisible = true
                     binding.loadingContainer.isVisible = false
                     binding.errorContainer.isVisible = false
-                    binding.cardCitiesList.isVisible = true
+                    binding.nestedLayout.isVisible = true
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                    Log.d("HomeFragment", "UI State: Error with existing content")
                 } else {
+                    // Hiç içerik yoksa, hata ekranını göster, içeriği gizle
+                    binding.swipeRefreshLayout.isVisible = false  // SwipeRefresh'i gizle
                     binding.loadingContainer.isVisible = false
                     binding.errorContainer.isVisible = true
                     binding.textError.text = state.message
                     binding.animationError.playAnimation()
-                    binding.cardCitiesList.isVisible = false
+                    binding.nestedLayout.isVisible = false  // Ana içeriği gizle
+                    Log.d("HomeFragment", "UI State: Error with no content")
                 }
             }
         }

@@ -11,15 +11,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// NetworkUtil.kt içindeki değişiklikler
+
 @Singleton
 class NetworkUtil @Inject constructor(
     private val context: Context
 ) {
+    private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
     /**
      * Check if network is available
      */
     fun isNetworkAvailable(): Boolean {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCapabilities = connectivityManager.activeNetwork ?: return false
         val actNw = connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
 
@@ -35,8 +38,6 @@ class NetworkUtil @Inject constructor(
      * Observe network state changes as a Flow
      */
     fun observeNetworkState(): Flow<Boolean> = callbackFlow {
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 trySend(true)
@@ -45,19 +46,15 @@ class NetworkUtil @Inject constructor(
             override fun onLost(network: Network) {
                 trySend(false)
             }
-
-            override fun onUnavailable() {
-                trySend(false)
-            }
         }
 
-        val request = NetworkRequest.Builder()
+        val networkRequest = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
 
-        connectivityManager.registerNetworkCallback(request, callback)
+        connectivityManager.registerNetworkCallback(networkRequest, callback)
 
-        // Initial value
+        // İlk değeri gönder
         trySend(isNetworkAvailable())
 
         awaitClose {
