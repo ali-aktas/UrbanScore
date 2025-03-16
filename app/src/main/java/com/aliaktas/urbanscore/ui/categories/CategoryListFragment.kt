@@ -80,7 +80,7 @@ class CategoryListFragment : Fragment() {
 
     private fun setupButtons() {
         binding.btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            (requireActivity() as MainActivity).handleBackPressed()
         }
 
         binding.btnLoadMore.setOnClickListener {

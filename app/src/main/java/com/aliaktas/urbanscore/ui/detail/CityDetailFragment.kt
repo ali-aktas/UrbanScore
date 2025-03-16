@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
@@ -87,7 +88,7 @@ class CityDetailFragment : Fragment() {
     private fun setupClickListeners() {
         // Back button
         binding.toolbar.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            (requireActivity() as MainActivity).handleBackPressed()
         }
 
         // Action buttons
