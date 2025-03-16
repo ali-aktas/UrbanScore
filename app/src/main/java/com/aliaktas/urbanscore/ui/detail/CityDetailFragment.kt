@@ -3,9 +3,11 @@ package com.aliaktas.urbanscore.ui.detail
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -158,8 +160,19 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun showRatingBottomSheet(cityId: String) {
-        ratingBottomSheet = RateCityBottomSheet.newInstance(cityId).apply {
-            show(childFragmentManager, "RateCityBottomSheet")
+        try {
+            Log.d("CityDetailFragment", "Creating rating sheet for cityId: $cityId")
+            val bottomSheet = RateCityBottomSheet.newInstance(cityId)
+
+            Log.d("CityDetailFragment", "About to show rating sheet")
+            bottomSheet.show(parentFragmentManager, "RateCityBottomSheet")
+
+            Log.d("CityDetailFragment", "Rating sheet shown")
+            ratingBottomSheet = bottomSheet
+        } catch (e: Exception) {
+            Log.e("CityDetailFragment", "Error showing rating sheet: ${e.message}", e)
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Could not open rating screen: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -243,13 +256,12 @@ class CityDetailFragment : Fragment() {
     }
 
     private fun updateRateButton(hasRated: Boolean) {
-        binding.btnRateCity.apply {
-            if (hasRated) {
-                text = "Update Rating"
-                setBackgroundColor(resources.getColor(R.color.rating_color, null))
-            } else {
-                text = getString(R.string.rate_this_city)
-                setBackgroundColor(resources.getColor(R.color.gradient_center, null))
+        binding.btnRateCity.setOnClickListener {
+            try {
+                viewModel.showRatingSheet()
+            } catch (e: Exception) {
+                Log.e("CityDetailFragment", "Error in rate button click: ${e.message}", e)
+                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
