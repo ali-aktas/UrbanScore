@@ -2,6 +2,7 @@ package com.aliaktas.urbanscore.ui.detail
 
 import android.content.Context
 import android.graphics.Color
+import androidx.annotation.ColorInt
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.github.mikephil.charting.charts.RadarChart
@@ -12,12 +13,42 @@ import com.github.mikephil.charting.data.RadarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 /**
  * Helper class to manage radar chart operations.
  * Handles chart setup, data processing and updates.
  */
-class RadarChartHelper(private val context: Context) {
+class RadarChartHelper @Inject constructor(private val context: Context) {
+
+    // Chart appearance constants
+    companion object {
+        private val CATEGORIES = arrayOf("View", "Safety", "Livability", "Cost", "Social")
+
+        @ColorInt private val PRIMARY_COLOR = Color.parseColor("#DF21F398")
+        @ColorInt private val STROKE_COLOR = Color.parseColor("#1BA4C6")
+        @ColorInt private val TEXT_COLOR = Color.parseColor("#1BA4C6")
+        @ColorInt private val WEB_COLOR = Color.parseColor("#33FFFFFF")
+        @ColorInt private val WEB_COLOR_INNER = Color.parseColor("#22FFFFFF")
+
+        private const val WEB_LINE_WIDTH = 0.7f
+        private const val WEB_LINE_WIDTH_INNER = 0.5f
+        private const val WEB_ALPHA = 70
+
+        private const val CHART_MIN_OFFSET = 65f
+        private const val AXIS_TEXT_SIZE = 12f
+        private const val AXIS_VALUE_TEXT_SIZE = 9f
+
+        private const val AXIS_MIN = 0f
+        private const val AXIS_MAX = 10f
+
+        private const val DATASET_FILL_ALPHA = 110
+        private const val DATASET_LINE_WIDTH = 1.6f
+        private const val DATASET_VALUE_TEXT_SIZE = 12f
+        private const val DATASET_HIGHLIGHT_STROKE_WIDTH = 1f
+
+        private const val ANIMATION_DURATION = 1500
+    }
 
     /**
      * Setup the radar chart with initial configuration.
@@ -27,32 +58,33 @@ class RadarChartHelper(private val context: Context) {
         chart.apply {
             // Chart configuration
             description.isEnabled = false
-            webLineWidth = 0.7f
-            webColor = Color.parseColor("#33FFFFFF")
-            webLineWidthInner = 0.5f
-            webColorInner = Color.parseColor("#22FFFFFF")
-            webAlpha = 70
+            webLineWidth = WEB_LINE_WIDTH
+            webColor = WEB_COLOR
+            webLineWidthInner = WEB_LINE_WIDTH_INNER
+            webColorInner = WEB_COLOR_INNER
+            webAlpha = WEB_ALPHA
 
             // Layout configuration
-            minOffset = 65f
+            minOffset = CHART_MIN_OFFSET
             setExtraOffsets(0f, 0f, 0f, 0f)
 
             // X axis labels
             xAxis.apply {
-                textSize = 12f
-                textColor = Color.parseColor("#1BA4C6")
+                textSize = AXIS_TEXT_SIZE
+                textColor = TEXT_COLOR
                 yOffset = 1f
                 xOffset = 0f
                 typeface = context.resources.getFont(R.font.poppins_medium)
+                valueFormatter = IndexAxisValueFormatter(CATEGORIES)
             }
 
             // Y axis (values axis)
             yAxis.apply {
                 setLabelCount(6, true)
-                textColor = Color.parseColor("#1BA4C6")
-                textSize = 9f
-                axisMinimum = 0f
-                axisMaximum = 10f
+                textColor = TEXT_COLOR
+                textSize = AXIS_VALUE_TEXT_SIZE
+                axisMinimum = AXIS_MIN
+                axisMaximum = AXIS_MAX
                 setDrawLabels(false)
                 typeface = context.resources.getFont(R.font.poppins_medium)
             }
@@ -64,8 +96,10 @@ class RadarChartHelper(private val context: Context) {
 
     /**
      * Process city ratings and update chart data.
-     * This can be called whenever the data changes.
      * Processing happens on background thread, UI update on main thread.
+     *
+     * @param chart The RadarChart instance to update
+     * @param ratings The category ratings data to display
      */
     suspend fun updateChartData(chart: RadarChart, ratings: CategoryRatings) {
         // Calculate chart data on IO thread
@@ -75,19 +109,19 @@ class RadarChartHelper(private val context: Context) {
 
         // Update UI on Main thread
         withContext(Dispatchers.Main) {
-            // Set category labels
-            chart.xAxis.valueFormatter = IndexAxisValueFormatter(CATEGORIES)
-
             // Apply chart data and animate
             chart.data = chartData
             chart.invalidate()
-            chart.animateXY(1500, 1500)
+            chart.animateXY(ANIMATION_DURATION, ANIMATION_DURATION)
         }
     }
 
     /**
      * Create radar chart data from category ratings.
      * This is a CPU-intensive operation, so it runs on background thread.
+     *
+     * @param ratings The category ratings data to convert to chart data
+     * @return RadarData object ready to be displayed
      */
     private fun createChartData(ratings: CategoryRatings): RadarData {
         // Convert ratings to radar entries
@@ -100,30 +134,23 @@ class RadarChartHelper(private val context: Context) {
         }
 
         // Create and style data set
-        val primaryColor = Color.parseColor("#DF21F398")
-        val strokeColor = Color.parseColor("#1BA4C6")
-
         val dataSet = RadarDataSet(entries, "").apply {
-            color = strokeColor
-            fillColor = primaryColor
+            color = STROKE_COLOR
+            fillColor = PRIMARY_COLOR
             setDrawFilled(true)
-            fillAlpha = 110
-            lineWidth = 1.6f
+            fillAlpha = DATASET_FILL_ALPHA
+            lineWidth = DATASET_LINE_WIDTH
             valueTextColor = Color.WHITE
-            valueTextSize = 12f
+            valueTextSize = DATASET_VALUE_TEXT_SIZE
             isDrawHighlightCircleEnabled = true
             setDrawHighlightIndicators(false)
             highlightCircleFillColor = Color.WHITE
-            highlightCircleStrokeColor = strokeColor
-            highlightCircleStrokeWidth = 1f
+            highlightCircleStrokeColor = STROKE_COLOR
+            highlightCircleStrokeWidth = DATASET_HIGHLIGHT_STROKE_WIDTH
             setDrawValues(false)
         }
 
         // Return radar data
         return RadarData(dataSet)
-    }
-
-    companion object {
-        private val CATEGORIES = arrayOf("View", "Safety", "Livability", "Cost", "Social")
     }
 }

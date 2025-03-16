@@ -30,6 +30,8 @@
     <string name="error_no_connection_cached_data">No internet connection. Showing cached data.</string>
     <string name="error_loading_data">Could not load data. Please try again.</string>
     <string name="error_loading_cities">Could not load cities. Please try again.</string>
+    <string name="error">Error</string>
+
 
     <!-- Category names and descriptions -->
     <string name="environment_title">Landscapes &amp; Aesthetics</string>
@@ -82,6 +84,8 @@
     <string name="rate_this_city">Rate the city</string>
     <string name="share">Share</string>
     <string name="share_city_format">Check out %1$s, %2$s on UrbanScore! It has an average rating of %3$.1f/10. Download the app to explore more cities!</string>
+    <string name="update_rating">Update rating</string>
+    <string name="in_your_list">In your list</string>
 
 
     <!-- Category names and descriptions -->
