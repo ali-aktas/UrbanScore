@@ -9,7 +9,7 @@ import android.graphics.Paint
 import android.graphics.Shader
 import androidx.core.content.res.ResourcesCompat
 import com.aliaktas.urbanscore.R
-import com.aliaktas.urbanscore.ui.profile.VisitedCitiesAdapter
+import com.aliaktas.urbanscore.ui.profile.VisitedCityItem  // Yeni import
 
 /**
  * Şehir paylaşım görsellerini oluşturmak için yardımcı sınıf
@@ -24,7 +24,7 @@ class ShareImageGenerator(private val context: Context) {
      * @return Oluşturulan bitmap
      */
     fun createVisitedCitiesImage(
-        visitedCities: List<VisitedCitiesAdapter.VisitedCityItem>,
+        visitedCities: List<VisitedCityItem>,
         totalVisitedCount: Int
     ): Bitmap {
         // Instagram Stories için 1080x1920 boyutunda bir bitmap oluştur (9:16 oranı)

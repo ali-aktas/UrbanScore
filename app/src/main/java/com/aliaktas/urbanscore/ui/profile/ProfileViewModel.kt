@@ -1,19 +1,58 @@
 package com.aliaktas.urbanscore.ui.profile
 
 import android.content.Intent
-import android.graphics.Bitmap
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.base.BaseViewModel
+import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.ImageUtils
 import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
+// ProfileState ve ilgili veri sınıfları
+sealed class ProfileState {
+    data object Loading : ProfileState()
+    data class Success(
+        val displayName: String,
+        val photoUrl: String,
+        val visitedCities: List<VisitedCityItem>,
+        val wishlistCities: List<WishlistCityItem>
+    ) : ProfileState()
+    data class Error(val message: String) : ProfileState()
+}
+
+data class VisitedCityItem(
+    val id: String,
+    val name: String,
+    val country: String,
+    val flagUrl: String,
+    val userRating: Double,
+    val position: Int = 0
+)
+
+data class WishlistCityItem(
+    val id: String,
+    val name: String,
+    val country: String,
+    val flagUrl: String
+)
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -23,257 +62,223 @@ class ProfileViewModel @Inject constructor(
     private val imageUtils: ImageUtils
 ) : BaseViewModel() {
 
-    // State for visited cities
-    private val _visitedCities = MutableStateFlow<List<VisitedCitiesAdapter.VisitedCityItem>>(emptyList())
-    val visitedCities: StateFlow<List<VisitedCitiesAdapter.VisitedCityItem>> = _visitedCities.asStateFlow()
+    // UI state'i için tek bir flow
+    private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
+    val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
 
-    // State for wishlist cities
-    private val _wishlistCities = MutableStateFlow<List<WishlistCitiesAdapter.WishlistCityItem>>(emptyList())
-    val wishlistCities: StateFlow<List<WishlistCitiesAdapter.WishlistCityItem>> = _wishlistCities.asStateFlow()
+    // Paylaşım intent'i için ayrı flow (tek kullanımlık)
+    private val _shareIntent = MutableSharedFlow<Intent?>(replay = 0)
+    val shareIntent: SharedFlow<Intent?> = _shareIntent.asSharedFlow()
 
-    // State for share intent
-    private val _shareIntent = MutableStateFlow<Intent?>(null)
-    val shareIntent: StateFlow<Intent?> = _shareIntent.asStateFlow()
-
-    // Map to cache city details
-    private val cityCache = mutableMapOf<String, com.aliaktas.urbanscore.data.model.CityModel>()
+    // Şehir verilerini cache'lemek için map
+    private val cityCache = mutableMapOf<String, CityModel>()
 
     init {
-        loadVisitedCities()
-        loadWishlistCities()
+        loadUserProfile()
     }
 
-    private fun loadVisitedCities() {
-        launch {
-            if (!networkUtil.isNetworkAvailable()) {
-                emitEvent(UiEvent.Error("No internet connection. Some data may not be available."))
-                return@launch
+    fun loadUserProfile() {
+        _profileState.value = ProfileState.Loading
+
+        viewModelScope.launch {
+            try {
+                // İnternet bağlantısı kontrolü
+                if (!networkUtil.isNetworkAvailable()) {
+                    _profileState.value = ProfileState.Error("Internet connection required")
+                    return@launch
+                }
+
+                // Paralel asenkron işlemler ile hem kullanıcı verilerini hem de şehir verilerini alalım
+                coroutineScope {
+                    // Kullanıcının temel verilerini al
+                    val userDeferred = async { userRepository.getCurrentUser().first() }
+
+                    // Kullanıcının ziyaret ettiği şehirleri al
+                    val visitedCitiesDeferred = async { userRepository.getUserVisitedCities().first() }
+
+                    // Kullanıcının bucket list'ini al
+                    val wishlistDeferred = async { userRepository.getUserWishlist().first() }
+
+                    // Tüm asenkron işlemlerin tamamlanmasını bekle
+                    val user = userDeferred.await() ?: run {
+                        _profileState.value = ProfileState.Error("User not authenticated")
+                        return@coroutineScope
+                    }
+
+                    val visitedCitiesMap = visitedCitiesDeferred.await()
+                    val wishlistIds = wishlistDeferred.await()
+
+                    // Ziyaret edilen şehirler için detaylı verileri getir
+                    val visitedCities = fetchCityDetails(visitedCitiesMap)
+
+                    // Wishlist için detaylı verileri getir
+                    val wishlistCities = fetchWishlistCityDetails(wishlistIds)
+
+                    // Başarılı durumu güncelle
+                    _profileState.value = ProfileState.Success(
+                        displayName = user.displayName.ifEmpty { "Traveler" },
+                        photoUrl = user.photoUrl,
+                        visitedCities = visitedCities,
+                        wishlistCities = wishlistCities
+                    )
+                }
+            } catch (e: Exception) {
+                _profileState.value = ProfileState.Error("Failed to load profile: ${e.localizedMessage}")
+                logError("Profile loading error", e)
             }
-
-            userRepository.getUserVisitedCities()
-                .catch { e ->
-                    handleError(e)
-                }
-                .collectLatest { visitedCitiesMap ->
-                    if (visitedCitiesMap.isEmpty()) {
-                        _visitedCities.value = emptyList()
-                        return@collectLatest
-                    }
-
-                    // Convert map to list with city details
-                    val visitedWithRatings = mutableListOf<Pair<String, Double>>()
-                    for ((cityId, rating) in visitedCitiesMap) {
-                        visitedWithRatings.add(cityId to rating)
-                    }
-
-                    fetchCityDetails(visitedWithRatings)
-                }
         }
     }
 
-    private fun fetchCityDetails(citiesWithRatings: List<Pair<String, Double>>) {
-        if (citiesWithRatings.isEmpty()) {
-            _visitedCities.value = emptyList()
-            return
-        }
-
-        val result = mutableListOf<VisitedCitiesAdapter.VisitedCityItem>()
-        var completedCount = 0
-
-        citiesWithRatings.forEach { (cityId, rating) ->
-            launch {
+    // Ziyaret edilen şehirler için detayları getir
+    private suspend fun fetchCityDetails(
+        visitedCitiesMap: Map<String, Double>
+    ): List<VisitedCityItem> = withContext(Dispatchers.Default) {
+        // Performans için paralel sorgular
+        val deferredCities = visitedCitiesMap.map { (cityId, rating) ->
+            async {
                 try {
-                    // Şehir detaylarını al
-                    cityRepository.getCityById(cityId)
-                        .catch { e ->
-                            handleError(e)
-                            synchronized(result) {
-                                completedCount++
-                                checkCompletion(result, completedCount, citiesWithRatings.size)
-                            }
-                        }
-                        .collectLatest { city ->
-                            city?.let {
-                                synchronized(result) {
-                                    // Cache şehir bilgisini
-                                    cityCache[cityId] = it
-
-                                    // VisitedCityItem oluştur
-                                    result.add(
-                                        VisitedCitiesAdapter.VisitedCityItem(
-                                            id = it.id,
-                                            name = it.cityName,
-                                            country = it.country,
-                                            flagUrl = it.flagUrl,
-                                            userRating = rating
-                                        )
-                                    )
-
-                                    completedCount++
-                                    checkCompletion(result, completedCount, citiesWithRatings.size)
-                                }
-                            } ?: run {
-                                synchronized(result) {
-                                    completedCount++
-                                    checkCompletion(result, completedCount, citiesWithRatings.size)
-                                }
-                            }
-                        }
+                    // Cache'den kontrol et
+                    val cachedCity = cityCache[cityId]
+                    if (cachedCity != null) {
+                        createVisitedCityItem(cachedCity, rating)
+                    } else {
+                        // Cache'de yoksa, API'den getir
+                        val city = cityRepository.getCityById(cityId).first()
+                        if (city != null) {
+                            cityCache[cityId] = city
+                            createVisitedCityItem(city, rating)
+                        } else null
+                    }
                 } catch (e: Exception) {
-                    handleError(e)
-                    synchronized(result) {
-                        completedCount++
-                        checkCompletion(result, completedCount, citiesWithRatings.size)
-                    }
+                    logError("Error fetching city details: $cityId", e)
+                    null
                 }
             }
         }
+
+        // Tüm asenkron işlemlerin sonuçlarını topla
+        val results = deferredCities.awaitAll()
+
+        // Null olmayanları filtrele ve puana göre sırala
+        results.filterNotNull()
+            .sortedByDescending { it.userRating }
+            .mapIndexed { index, item -> item.copy(position = index + 1) }
     }
 
-    private fun checkCompletion(cities: List<VisitedCitiesAdapter.VisitedCityItem>, completed: Int, total: Int) {
-        if (completed >= total) {
-            val sorted = cities.sortedByDescending { it.userRating }
-            _visitedCities.value = sorted
-        }
-    }
-
-    private fun loadWishlistCities() {
-        launch {
-            if (!networkUtil.isNetworkAvailable()) {
-                // Already shown error in loadVisitedCities, no need to show again
-                return@launch
-            }
-
-            userRepository.getUserWishlist()
-                .catch { e ->
-                    handleError(e)
-                }
-                .collectLatest { wishlistIds ->
-                    if (wishlistIds.isEmpty()) {
-                        _wishlistCities.value = emptyList()
-                        return@collectLatest
-                    }
-
-                    fetchWishlistCityDetails(wishlistIds)
-                }
-        }
-    }
-
-    private fun fetchWishlistCityDetails(cityIds: List<String>) {
-        if (cityIds.isEmpty()) {
-            _wishlistCities.value = emptyList()
-            return
-        }
-
-        val result = mutableListOf<WishlistCitiesAdapter.WishlistCityItem>()
-        var completedCount = 0
-
-        cityIds.forEach { cityId ->
-            launch {
+    // Wishlist şehirleri için detayları getir
+    private suspend fun fetchWishlistCityDetails(
+        wishlistIds: List<String>
+    ): List<WishlistCityItem> = withContext(Dispatchers.Default) {
+        // Performans için paralel sorgular
+        val deferredCities = wishlistIds.map { cityId ->
+            async {
                 try {
-                    // Şehir detaylarını al
-                    cityRepository.getCityById(cityId)
-                        .catch { e ->
-                            handleError(e)
-                            synchronized(result) {
-                                completedCount++
-                                checkWishlistCompletion(result, completedCount, cityIds.size)
-                            }
-                        }
-                        .collectLatest { city ->
-                            city?.let {
-                                synchronized(result) {
-                                    // Cache şehir bilgisini
-                                    cityCache[cityId] = it
-
-                                    // WishlistCityItem oluştur
-                                    result.add(
-                                        WishlistCitiesAdapter.WishlistCityItem(
-                                            id = it.id,
-                                            name = it.cityName,
-                                            country = it.country,
-                                            flagUrl = it.flagUrl
-                                        )
-                                    )
-
-                                    completedCount++
-                                    checkWishlistCompletion(result, completedCount, cityIds.size)
-                                }
-                            } ?: run {
-                                synchronized(result) {
-                                    completedCount++
-                                    checkWishlistCompletion(result, completedCount, cityIds.size)
-                                }
-                            }
-                        }
-                } catch (e: Exception) {
-                    handleError(e)
-                    synchronized(result) {
-                        completedCount++
-                        checkWishlistCompletion(result, completedCount, cityIds.size)
+                    // Cache'den kontrol et
+                    val cachedCity = cityCache[cityId]
+                    if (cachedCity != null) {
+                        createWishlistCityItem(cachedCity)
+                    } else {
+                        // Cache'de yoksa, API'den getir
+                        val city = cityRepository.getCityById(cityId).first()
+                        if (city != null) {
+                            cityCache[cityId] = city
+                            createWishlistCityItem(city)
+                        } else null
                     }
+                } catch (e: Exception) {
+                    logError("Error fetching wishlist city: $cityId", e)
+                    null
                 }
             }
         }
+
+        // Tüm asenkron işlemlerin sonuçlarını topla
+        val results = deferredCities.awaitAll()
+
+        // Null olmayanları filtrele ve ada göre sırala
+        results.filterNotNull()
+            .sortedBy { it.name }
     }
 
-    private fun checkWishlistCompletion(cities: List<WishlistCitiesAdapter.WishlistCityItem>, completed: Int, total: Int) {
-        if (completed >= total) {
-            val sorted = cities.sortedBy { it.name }
-            _wishlistCities.value = sorted
-        }
+    // Helper method to create VisitedCityItem
+    private fun createVisitedCityItem(city: CityModel, rating: Double): VisitedCityItem {
+        return VisitedCityItem(
+            id = city.id,
+            name = city.cityName,
+            country = city.country,
+            flagUrl = city.flagUrl,
+            userRating = rating
+        )
     }
 
+    // Helper method to create WishlistCityItem
+    private fun createWishlistCityItem(city: CityModel): WishlistCityItem {
+        return WishlistCityItem(
+            id = city.id,
+            name = city.cityName,
+            country = city.country,
+            flagUrl = city.flagUrl
+        )
+    }
+
+    // Paylaşım fonksiyonları
     fun shareVisitedCities() {
-        launch {
-            val cities = _visitedCities.value
-            if (cities.isEmpty()) {
-                emitEvent(UiEvent.Error("You don't have any visited cities to share"))
+        viewModelScope.launch {
+            val currentState = _profileState.value
+            if (currentState !is ProfileState.Success || currentState.visitedCities.isEmpty()) {
+                emitEvent(UiEvent.Error("No cities to share"))
                 return@launch
             }
 
             try {
-                // Bitmap oluşturma işlemi artık ImageUtils sınıfına taşındı
+                // ImageUtils sınıfını kullanarak bitmap oluştur ve intent al
+                val cities = currentState.visitedCities
                 val bitmap = imageUtils.createVisitedCitiesImage(cities, cities.size)
                 val intent = imageUtils.createShareImageIntent(bitmap)
-                _shareIntent.value = intent
+
+                // Intent'i Fragment'a ilet
+                _shareIntent.emit(intent)
             } catch (e: Exception) {
-                handleError(e)
-                emitEvent(UiEvent.Error("Error creating image: ${e.message}"))
+                logError("Error creating share image", e)
+                emitEvent(UiEvent.Error("Failed to create image: ${e.localizedMessage}"))
             }
         }
     }
 
     fun shareWishlist() {
-        val cities = _wishlistCities.value
-        if (cities.isEmpty()) {
-            launch { emitEvent(UiEvent.Error("You don't have any cities in your bucket list to share")) }
-            return
-        }
-
-        val shareText = buildString {
-            append("My city bucket list on UrbanRate:\n\n")
-            cities.forEachIndexed { index, city ->
-                append("${index + 1}. ${city.name}, ${city.country}\n")
+        viewModelScope.launch {
+            val currentState = _profileState.value
+            if (currentState !is ProfileState.Success || currentState.wishlistCities.isEmpty()) {
+                emitEvent(UiEvent.Error("No cities in your bucket list to share"))
+                return@launch
             }
-            append("\nDownload UrbanRate to create your own bucket list!")
+
+            try {
+                val cities = currentState.wishlistCities
+                val shareText = buildString {
+                    append("My city bucket list on UrbanRate:\n\n")
+                    cities.forEachIndexed { index, city ->
+                        append("${index + 1}. ${city.name}, ${city.country}\n")
+                    }
+                    append("\nDownload UrbanRate to create your own bucket list!")
+                }
+
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_SUBJECT, "My UrbanRate Bucket List")
+                    putExtra(Intent.EXTRA_TEXT, shareText)
+                }
+
+                _shareIntent.emit(intent)
+            } catch (e: Exception) {
+                logError("Error sharing wishlist", e)
+                emitEvent(UiEvent.Error("Failed to share: ${e.localizedMessage}"))
+            }
         }
-
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, "My UrbanRate Bucket List")
-            putExtra(Intent.EXTRA_TEXT, shareText)
-        }
-
-        _shareIntent.value = intent
-    }
-
-    fun clearShareIntent() {
-        _shareIntent.value = null
     }
 
     fun removeFromWishlist(cityId: String) {
-        launchWithLoading {
+        viewModelScope.launch {
             try {
                 val result = userRepository.removeFromWishlist(cityId)
                 result.fold(
@@ -281,17 +286,23 @@ class ProfileViewModel @Inject constructor(
                         emitEvent(UiEvent.Success("City removed from bucket list"))
                     },
                     onFailure = { e ->
-                        handleError(e)
+                        logError("Error removing from wishlist", e)
+                        emitEvent(UiEvent.Error("Failed to remove: ${e.localizedMessage}"))
                     }
                 )
             } catch (e: Exception) {
-                handleError(e)
+                logError("Error removing from wishlist", e)
+                emitEvent(UiEvent.Error("Failed to remove: ${e.localizedMessage}"))
             }
         }
     }
 
-    fun refreshData() {
-        loadVisitedCities()
-        loadWishlistCities()
+    // Hata ayıklama için yardımcı fonksiyon
+    private fun logError(message: String, error: Throwable) {
+        Log.e(TAG, message, error)
+    }
+
+    companion object {
+        private const val TAG = "ProfileViewModel"
     }
 }

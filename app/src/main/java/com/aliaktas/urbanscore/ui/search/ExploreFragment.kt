@@ -57,6 +57,7 @@ class ExploreFragment : Fragment() {
         setupClickListeners()
     }
 
+
     private fun setupCityCarousel() {
         // Boş liste ile adaptörü başlat, veriler gelince güncellenecek
         cityAdapter = FeaturedCityAdapter(emptyList())

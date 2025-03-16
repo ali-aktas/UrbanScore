@@ -119,6 +119,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

@@ -1,15 +1,13 @@
 package com.aliaktas.urbanscore.ui.profile
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,23 +15,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.databinding.FragmentProfileBinding
-import com.aliaktas.urbanscore.databinding.ItemWishlistCityBinding
-import com.aliaktas.urbanscore.ui.auth.AuthViewModel
-import com.aliaktas.urbanscore.databinding.ItemVisitedCitiesBinding
-import com.aliaktas.urbanscore.util.ShareImageGenerator
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -41,11 +31,16 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
 
-    private val authViewModel: AuthViewModel by viewModels()
-    private val profileViewModel: ProfileViewModel by viewModels()
+    private val viewModel: ProfileViewModel by viewModels()
 
-    private lateinit var visitedCitiesAdapter: VisitedCitiesAdapter
-    private lateinit var wishlistCitiesAdapter: WishlistCitiesAdapter
+    // Adaptörleri lazy olarak başlat - sadece kullanıldığında oluşturulur
+    private val visitedCitiesAdapter by lazy { VisitedCitiesAdapter(this::navigateToCityDetail) }
+    private val wishlistCitiesAdapter by lazy {
+        WishlistCitiesAdapter(
+            onItemClick = this::navigateToCityDetail,
+            onRemoveClick = viewModel::removeFromWishlist
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,160 +54,160 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupUI()
         setupRecyclerViews()
         setupClickListeners()
-        observeViewModels()
+        observeViewModel()
     }
 
-    private fun setupUI() {
-        // Display user info (will be populated from AuthViewModel)
-        // Initially empty, will be filled from observeViewModels
-    }
 
     private fun setupRecyclerViews() {
-        // Setup Visited Cities RecyclerView
-        visitedCitiesAdapter = VisitedCitiesAdapter(
-            onItemClick = { cityId ->
-                navigateToCityDetail(cityId)
-            }
-        )
+        // Visited Cities RecyclerView
         binding.rvVisitedCities.apply {
-            layoutManager = LinearLayoutManager(context)
             adapter = visitedCitiesAdapter
-            // Önemli: İç içe kaydırmayı etkinleştir
-            isNestedScrollingEnabled = true
-            // Sabit boyut ayarını kapat (dinamik içerik için)
-            setHasFixedSize(false)
-        }
-
-        // Setup Wishlist Cities RecyclerView
-        wishlistCitiesAdapter = WishlistCitiesAdapter(
-            onItemClick = { cityId ->
-                navigateToCityDetail(cityId)
-            },
-            onRemoveClick = { cityId ->
-                profileViewModel.removeFromWishlist(cityId)
-            }
-        )
-        binding.rvWishlistCities.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = wishlistCitiesAdapter
-            // Önemli: İç içe kaydırmayı etkinleştir
-            isNestedScrollingEnabled = true
-            // Sabit boyut ayarını kapat (dinamik içerik için)
-            setHasFixedSize(false)
+            // RecyclerView optimizasyonları
+            setHasFixedSize(true)
+            itemAnimator = null // İlk yükleme animasyonunu devre dışı bırak
         }
-    }
 
-    private fun navigateToCityDetail(cityId: String) {
-        try {
-            val action = ProfileFragmentDirections.actionProfileFragmentToCityDetailFragment(cityId)
-            findNavController().navigate(action)
-        } catch (e: Exception) {
-            Log.e("ProfileFragment", "Navigation error: ${e.message}", e)
-            Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+        // Wishlist Cities RecyclerView
+        binding.rvWishlistCities.apply {
+            adapter = wishlistCitiesAdapter
+            layoutManager = LinearLayoutManager(context)
+            setHasFixedSize(true)
+            itemAnimator = null
         }
     }
 
     private fun setupClickListeners() {
+        // Share visited cities
+        binding.btnShareVisitedCities.setOnClickListener {
+            viewModel.shareVisitedCities()
+        }
+
+        // Share wishlist
+        binding.btnShareBucketList.setOnClickListener {
+            viewModel.shareWishlist()
+        }
+
         // Logout button
         binding.btnLogout.setOnClickListener {
             showLogoutConfirmationDialog()
         }
-
-        // Share visited cities button
-        binding.btnShareVisitedCities.setOnClickListener {
-            shareVisitedCitiesToInstagram()
-        }
-
-        // Share wishlist button
-        binding.btnShareBucketList.setOnClickListener {
-            profileViewModel.shareWishlist()
-        }
     }
 
-    private fun observeViewModels() {
+
+
+    private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
+            // State flow'u gözlemle
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Observe Auth State
+                // Profile state
                 launch {
-                    authViewModel.state.collect { state ->
-                        updateAuthUI(state)
+                    viewModel.profileState.collect { state ->
+                        updateUI(state)
                     }
                 }
 
-                // Observe Visited Cities
+                // Share intent (tek seferlik event)
                 launch {
-                    profileViewModel.visitedCities.collectLatest { cities ->
-                        visitedCitiesAdapter.submitList(cities)
-                        binding.txtVisitedCitiesCount.text = "Visited cities: ${cities.size}"
-
-                        // Empty state kontrolü
-                        if (cities.isEmpty()) {
-                            binding.tvNoVisitedCities.visibility = View.VISIBLE
-                            binding.rvVisitedCities.visibility = View.GONE
-                        } else {
-                            binding.tvNoVisitedCities.visibility = View.GONE
-                            binding.rvVisitedCities.visibility = View.VISIBLE
-                        }
-                    }
-                }
-
-                // Observe Wishlist
-                launch {
-                    profileViewModel.wishlistCities.collectLatest { cities ->
-                        wishlistCitiesAdapter.submitList(cities)
-
-                        // Empty state kontrolü
-                        if (cities.isEmpty()) {
-                            binding.tvNoWishlistCities.visibility = View.VISIBLE
-                            binding.rvWishlistCities.visibility = View.GONE
-                        } else {
-                            binding.tvNoWishlistCities.visibility = View.GONE
-                            binding.rvWishlistCities.visibility = View.VISIBLE
-                        }
-                    }
-                }
-
-                // Observe Share Intent
-                launch {
-                    profileViewModel.shareIntent.collect { intent ->
+                    viewModel.shareIntent.collect { intent ->
                         intent?.let {
                             try {
                                 startActivity(Intent.createChooser(it, "Share via"))
-                                // Intent'i kullandıktan sonra null'a ayarla
-                                profileViewModel.clearShareIntent()
                             } catch (e: Exception) {
-                                Log.e("ProfileFragment", "Error sharing: ${e.message}")
-                                Toast.makeText(context, "Paylaşma hatası: ${e.message}", Toast.LENGTH_SHORT).show()
+                                showMessage("Error sharing: ${e.localizedMessage}")
                             }
                         }
                     }
                 }
+
+                // UI Event'leri gözlemle
+                launch {
+                    viewModel.events.collect { event ->
+                        handleEvent(event)
+                    }
+                }
             }
         }
     }
 
-    private fun updateAuthUI(state: com.aliaktas.urbanscore.ui.auth.AuthState) {
+    private fun updateUI(state: ProfileState) {
         when (state) {
-            is com.aliaktas.urbanscore.ui.auth.AuthState.Authenticated -> {
-                binding.txtUsername.text = state.user.displayName.ifEmpty { "Traveler!" }
+            is ProfileState.Loading -> {
+                showLoading(true)
+            }
 
-                // Load profile image if available
-                if (state.user.photoUrl.isNotEmpty()) {
+            is ProfileState.Success -> {
+                showLoading(false)
+
+                // Kullanıcı bilgilerini göster
+                binding.txtUsername.text = state.displayName
+                binding.txtVisitedCitiesCount.text =
+                    "Visited cities: ${state.visitedCities.size}"
+
+                // Profil fotoğrafını yükle
+                if (state.photoUrl.isNotEmpty()) {
                     Glide.with(this)
-                        .load(state.user.photoUrl)
+                        .load(state.photoUrl)
                         .circleCrop()
                         .into(binding.imageProfileAvatar)
                 }
+
+                // Listeleri güncelle
+                updateVisitedCitiesList(state.visitedCities)
+                updateWishlistCitiesList(state.wishlistCities)
             }
-            is com.aliaktas.urbanscore.ui.auth.AuthState.Unauthenticated -> {
-                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
+
+            is ProfileState.Error -> {
+                showLoading(false)
+                showMessage(state.message)
             }
-            else -> {
-                // Handle other states if needed
-            }
+        }
+    }
+
+    private fun updateVisitedCitiesList(cities: List<VisitedCityItem>) {
+        // Boş liste kontrolü - UI'da gösterilecek metin
+        binding.tvNoVisitedCities.isVisible = cities.isEmpty()
+        binding.rvVisitedCities.isVisible = cities.isNotEmpty()
+
+        // Listeyi güncelle (DiffUtil adapter içinde çalışacak)
+        visitedCitiesAdapter.submitList(cities)
+    }
+
+    private fun updateWishlistCitiesList(cities: List<WishlistCityItem>) {
+        // Boş liste kontrolü - UI'da gösterilecek metin
+        binding.tvNoWishlistCities.isVisible = cities.isEmpty()
+        binding.rvWishlistCities.isVisible = cities.isNotEmpty()
+
+        // Listeyi güncelle (DiffUtil adapter içinde çalışacak)
+        wishlistCitiesAdapter.submitList(cities)
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        // İlerde progress bar eklenirse burada gösterilebilir
+    }
+
+    private fun handleEvent(event: BaseViewModel.UiEvent) {
+        when (event) {
+            is BaseViewModel.UiEvent.Error -> showMessage(event.message)
+            is BaseViewModel.UiEvent.Success -> showMessage(event.message)
+            else -> { /* Diğer event tipleri */ }
+        }
+    }
+
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun navigateToCityDetail(cityId: String) {
+        try {
+            val action = ProfileFragmentDirections
+                .actionProfileFragmentToCityDetailFragment(cityId)
+            findNavController().navigate(action)
+        } catch (e: Exception) {
+            Log.e("ProfileFragment", "Navigation error: ${e.message}", e)
+            showMessage("Navigation error")
         }
     }
 
@@ -224,208 +219,15 @@ class ProfileFragment : Fragment() {
                 dialog.dismiss()
             }
             .setPositiveButton(R.string.yes) { _, _ ->
-                logoutUser()
+                FirebaseAuth.getInstance().signOut()
+                showMessage("Logged out successfully")
+                findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
             }
             .show()
-    }
-
-    private fun logoutUser() {
-        FirebaseAuth.getInstance().signOut()
-        Toast.makeText(context, "Çıkış yapıldı", Toast.LENGTH_SHORT).show()
-        findNavController().navigate(R.id.action_profileFragment_to_loginFragment)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-
-    private fun shareVisitedCitiesToInstagram() {
-        val cities = visitedCitiesAdapter.getCurrentList()
-        if (cities.isEmpty()) {
-            Snackbar.make(binding.root, "You don't have any visited cities to share", Snackbar.LENGTH_SHORT).show()
-            return
-        }
-
-        try {
-            // Görsel oluşturucu sınıfımızı başlat
-            val imageGenerator = ShareImageGenerator(requireContext())
-
-            // Görsel oluştur
-            val bitmap = imageGenerator.createVisitedCitiesImage(
-                visitedCities = cities,
-                totalVisitedCount = cities.size
-            )
-
-            // Bitmap'i cihaza kaydet
-            val storageDir = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val imageFile = File.createTempFile(
-                "urbanrate_cities_",
-                ".png",
-                storageDir
-            )
-
-            FileOutputStream(imageFile).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            }
-
-            // FileProvider kullanarak URI oluştur
-            val imageUri = FileProvider.getUriForFile(
-                requireContext(),
-                "${requireContext().packageName}.fileprovider",
-                imageFile
-            )
-
-            // Instagram Stories'e paylaşım intent'i oluştur
-            val storiesIntent = Intent("com.instagram.share.ADD_TO_STORY").apply {
-                setDataAndType(imageUri, "image/png")
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            }
-
-            // Instagram uygulaması yüklü mü kontrol et
-            if (storiesIntent.resolveActivity(requireContext().packageManager) != null) {
-                startActivity(storiesIntent)
-            } else {
-                // Instagram yüklü değilse genel paylaşım menüsünü göster
-                val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "image/png"
-                    putExtra(Intent.EXTRA_STREAM, imageUri)
-                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                }
-                startActivity(Intent.createChooser(shareIntent, "Share your cities via"))
-            }
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Snackbar.make(binding.root, "Error creating image: ${e.message}", Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-
-}
-
-// Adapter for Visited Cities (with ratings)
-class VisitedCitiesAdapter(
-    private val onItemClick: (String) -> Unit
-) : RecyclerView.Adapter<VisitedCitiesAdapter.ViewHolder>() {
-
-    private var cities: List<VisitedCityItem> = emptyList()
-
-    fun submitList(newList: List<VisitedCityItem>) {
-        cities = newList
-        notifyDataSetChanged()
-    }
-
-    fun getCurrentList(): List<VisitedCityItem> {
-        return cities.toList()
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemVisitedCitiesBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
-        return ViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(cities[position])
-    }
-
-    override fun getItemCount() = cities.size
-
-    inner class ViewHolder(private val binding: ItemVisitedCitiesBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        init {
-            binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onItemClick(cities[position].id)
-                }
-            }
-        }
-
-        fun bind(city: VisitedCityItem) {
-            binding.textCityName.text = "${city.name}, ${city.country}"
-            binding.textRating.text = String.format("%.2f", city.userRating)
-            binding.textRatingCount.text = (position + 1).toString()
-
-            // Load flag image
-            Glide.with(binding.root)
-                .load(city.flagUrl)
-                .into(binding.imageFlag)
-        }
-    }
-
-    data class VisitedCityItem(
-        val id: String,
-        val name: String,
-        val country: String,
-        val flagUrl: String,
-        val userRating: Double
-    )
-}
-
-// Adapter for Wishlist Cities
-class WishlistCitiesAdapter(
-    private val onItemClick: (String) -> Unit,
-    private val onRemoveClick: ((String) -> Unit)? = null
-) : RecyclerView.Adapter<WishlistCitiesAdapter.ViewHolder>() {
-
-    private var cities: List<WishlistCityItem> = emptyList()
-
-    fun submitList(newList: List<WishlistCityItem>) {
-        cities = newList
-        notifyDataSetChanged()
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemWishlistCityBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false
-        )
-        return ViewHolder(binding)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(cities[position])
-    }
-
-    override fun getItemCount() = cities.size
-
-    inner class ViewHolder(private val binding: ItemWishlistCityBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-        init {
-            binding.root.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onItemClick(cities[position].id)
-                }
-            }
-
-            binding.btnRemove.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    onRemoveClick?.invoke(cities[position].id)
-                }
-            }
-        }
-
-        fun bind(city: WishlistCityItem) {
-            binding.textCityName.text = "${city.name}, ${city.country}"
-
-            // Load flag image
-            Glide.with(binding.root)
-                .load(city.flagUrl)
-                .into(binding.imageFlag)
-        }
-    }
-
-    data class WishlistCityItem(
-        val id: String,
-        val name: String,
-        val country: String,
-        val flagUrl: String
-    )
 }

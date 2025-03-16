@@ -59,6 +59,7 @@ class AllCitiesFragment : Fragment() {
         }
     }
 
+
     private fun navigateToCategoryList(categoryId: String) {
         try {
             val action = AllCitiesFragmentDirections.actionAllCitiesFragmentToCategoryListFragment(categoryId)

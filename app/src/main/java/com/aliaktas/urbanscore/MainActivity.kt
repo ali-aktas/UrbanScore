@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
     private lateinit var navController: NavController
     private val authViewModel: AuthViewModel by viewModels()
 
-    // These are the fragments that should show bottom navigation
+    // Bottom nav görünürlük kontrolü için destination setleri
     private val bottomNavVisibleDestinations = setOf(
         R.id.homeFragment,
         R.id.exploreFragment,
@@ -35,12 +35,12 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         R.id.categoryListFragment
     )
 
-    // These are the actual bottom navigation menu items
+    // Ana bottom nav menü öğeleri
     private val bottomNavMenuItems = setOf(
         R.id.homeFragment,
         R.id.exploreFragment,
-        R.id.profileFragment,
-        R.id.allCitiesFragment
+        R.id.allCitiesFragment,
+        R.id.profileFragment
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             navController.navigate(R.id.homeFragment, null, navOptions)
         }
 
-        // Setup bottom navigation with NavController using custom implementation
+        // Setup bottom navigation
         setupBottomNavigation()
 
         // Listen for destination changes to show/hide bottom nav
@@ -82,29 +82,26 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
         setupBackButtonHandling()
     }
 
-    /**
-     * Özel bottom navigation kurulumu
-     * Fragment'ların yeniden oluşturulmasını engeller
-     */
     private fun setupBottomNavigation() {
-        // Özel item seçim listener'ı
+        // Bottom Navigation click listener
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            // NavOptions ile her zaman aynı instance'ı kullanacak şekilde ayarla
+            // NavOptions ile tek seferlik navigasyon yapılandırması
             val navOptions = NavOptions.Builder()
                 .setLaunchSingleTop(true)
-                .setEnterAnim(R.anim.slide_in_left)
-                .setExitAnim(R.anim.slide_out_left)
-                .setPopEnterAnim(R.anim.slide_in_right)
-                .setPopExitAnim(R.anim.slide_out_right)
+                .setEnterAnim(R.anim.material_enter)
+                .setExitAnim(R.anim.material_exit)
+                .setPopEnterAnim(R.anim.material_enter)
+                .setPopExitAnim(R.anim.material_exit)
                 .build()
 
+            // Check which item was clicked
             when (item.itemId) {
                 R.id.homeFragment,
                 R.id.exploreFragment,
                 R.id.profileFragment,
                 R.id.allCitiesFragment -> {
                     if (navController.currentDestination?.id != item.itemId) {
-                        // Sadece farklı bir tab'a geçildiğinde navigate et
+                        // Only navigate if the destination is different
                         navController.navigate(item.itemId, null, navOptions)
                     }
                     true
@@ -113,16 +110,10 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
             }
         }
 
-        // Aynı tab'a tekrar tıklandığında hiçbir şey yapma
+        // Do nothing when the same item is reselected
         binding.bottomNavigation.setOnItemReselectedListener { /* No-op */ }
     }
 
-    /**
-     * Sets up custom back button handling to fix navigation issues:
-     * 1. Prevents going back to login from main flow
-     * 2. Makes sure "back" navigates correctly between tabs
-     * 3. Handles AllCitiesFragment correctly as a bottom nav destination
-     */
     private fun setupBackButtonHandling() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -130,18 +121,15 @@ class MainActivity : AppCompatActivity(), NavController.OnDestinationChangedList
 
                 try {
                     when {
-                        // If on any bottom nav tab, handle in custom way
-                        currentDestinationId in bottomNavMenuItems -> {
-                            if (currentDestinationId == R.id.homeFragment) {
-                                // If on home, exit app
-                                finish()
-                            } else {
-                                // Otherwise, go to home tab
-                                binding.bottomNavigation.selectedItemId = R.id.homeFragment
-                            }
+                        // If on home, exit app
+                        currentDestinationId == R.id.homeFragment -> {
+                            finish()
                         }
-
-                        // Normal back navigation for content destinations
+                        // If on any other bottom nav tab, go to home
+                        currentDestinationId in bottomNavMenuItems -> {
+                            binding.bottomNavigation.selectedItemId = R.id.homeFragment
+                        }
+                        // Otherwise, use default back navigation
                         else -> {
                             if (isEnabled) {
                                 isEnabled = false
