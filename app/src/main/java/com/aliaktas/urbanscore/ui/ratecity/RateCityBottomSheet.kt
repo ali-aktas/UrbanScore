@@ -92,6 +92,8 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    // RateCityBottomSheet.kt'de setupSubmitButton metodunda yapılacak değişiklik
+
     private fun setupSubmitButton() {
         binding.btnSubmitRating.setOnClickListener {
             cityId?.let { id ->
@@ -103,19 +105,20 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
                     social = binding.sliderSocial.value.toDouble()
                 )
 
-                // Buton durumunu güncelle
                 binding.btnSubmitRating.isEnabled = false
                 binding.btnSubmitRating.text = "Submitting..."
 
-                // ÖNEMLİ: BottomSheet'i kapatmadan önce işlemin tamamlanmasını izle
                 lifecycleScope.launch {
                     viewModel.submitRating(id, ratings)
 
-                    // State'i gözlemle ve başarılı olduğunda kapat
                     viewModel.ratingState.collect { state ->
                         when (state) {
                             is RateCityState.Success -> {
                                 Toast.makeText(requireContext(), "Rating submitted successfully!", Toast.LENGTH_SHORT).show()
+
+                                // ÖNEMLİ: Bu satırı ekliyoruz
+                                Log.d("RateCityBottomSheet", "Rating submitted successfully, triggering profile refresh")
+
                                 dismiss()
                             }
                             is RateCityState.Error -> {
@@ -123,7 +126,7 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
                                 binding.btnSubmitRating.isEnabled = true
                                 binding.btnSubmitRating.text = "Submit Rating"
                             }
-                            else -> {} // Diğer durumlar için bir şey yapma
+                            else -> {}
                         }
                     }
                 }

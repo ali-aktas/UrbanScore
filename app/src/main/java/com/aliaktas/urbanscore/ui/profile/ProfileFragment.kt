@@ -58,6 +58,22 @@ class ProfileFragment : Fragment() {
         setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
+
+        // ViewModel'in Flow'larının düzgün çalıştığından emin olmak için
+        Log.d("ProfileFragment", "onViewCreated: Starting to observe ViewModel")
+    }
+
+    // Bu yeni metodu ekleyin - Fragment'ın görünürlüğünü izlemek için
+    override fun onStart() {
+        super.onStart()
+        Log.d("ProfileFragment", "onStart: Fragment is becoming visible")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("ProfileFragment", "onResume: Fragment is now in foreground")
+
+        // artık burada refresh çağrısı yapmayacağız çünkü Flow'lar zaten güncel verileri gönderiyor
     }
 
 
@@ -100,12 +116,15 @@ class ProfileFragment : Fragment() {
 
 
     private fun observeViewModel() {
+        Log.d("ProfileFragment", "Starting to observe ViewModel flows")
+
         viewLifecycleOwner.lifecycleScope.launch {
             // State flow'u gözlemle
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Profile state
                 launch {
                     viewModel.profileState.collect { state ->
+                        Log.d("ProfileFragment", "Received new profile state: ${state.javaClass.simpleName}")
                         updateUI(state)
                     }
                 }
@@ -166,6 +185,8 @@ class ProfileFragment : Fragment() {
             }
         }
     }
+
+
 
     private fun updateVisitedCitiesList(cities: List<VisitedCityItem>) {
         // Boş liste kontrolü - UI'da gösterilecek metin

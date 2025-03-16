@@ -28,14 +28,23 @@ class UserRepositoryImpl @Inject constructor(
         private const val TAG = "UserRepository"
     }
 
+    // UserRepository.kt arayüzünde değişiklik yok, sadece implementasyonda optimize ediyoruz
+
+// UserRepositoryImpl.kt'de güncellenecek metotlar:
+
     override fun getCurrentUser(): Flow<UserModel?> = callbackFlow {
         val authStateListener = FirebaseAuth.AuthStateListener { auth ->
             if (auth.currentUser != null) {
                 // Kullanıcı giriş yapmış, Firestore'dan detaylı bilgileri al
                 firestore.collection(USERS_COLLECTION).document(auth.currentUser!!.uid)
-                    .get()
-                    .addOnSuccessListener { documentSnapshot ->
-                        if (documentSnapshot.exists()) {
+                    .addSnapshotListener { documentSnapshot, error ->  // Tek seferlik get() yerine sürekli dinleme
+                        if (error != null) {
+                            Log.e(TAG, "Error listening to user document", error)
+                            trySend(null)
+                            return@addSnapshotListener
+                        }
+
+                        if (documentSnapshot != null && documentSnapshot.exists()) {
                             val user = auth.currentUser!!
                             val data = documentSnapshot.data ?: mapOf<String, Any>()
 
@@ -58,29 +67,9 @@ class UserRepositoryImpl @Inject constructor(
                             )
                             trySend(userModel)
                         } else {
-                            // Firestore'da kullanıcı verisi yok, temel auth bilgilerini kullan
-                            val user = auth.currentUser!!
-                            val userModel = UserModel(
-                                id = user.uid,
-                                email = user.email ?: "",
-                                displayName = user.displayName ?: "",
-                                photoUrl = user.photoUrl?.toString() ?: ""
-                            )
-                            trySend(userModel)
+                            // Firestore'da kullanıcı verisi yok
+                            trySend(null)
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.e(TAG, "Error fetching user data", e)
-                        // Hata durumunda temel auth bilgilerini kullan
-                        val user = auth.currentUser!!
-                        trySend(
-                            UserModel(
-                                id = user.uid,
-                                email = user.email ?: "",
-                                displayName = user.displayName ?: "",
-                                photoUrl = user.photoUrl?.toString() ?: ""
-                            )
-                        )
                     }
             } else {
                 // Kullanıcı çıkış yapmış

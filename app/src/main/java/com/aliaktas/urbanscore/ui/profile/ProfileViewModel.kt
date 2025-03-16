@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -74,10 +76,10 @@ class ProfileViewModel @Inject constructor(
     private val cityCache = mutableMapOf<String, CityModel>()
 
     init {
-        loadUserProfile()
+        setupDataStreams()
     }
 
-    fun loadUserProfile() {
+    private fun loadUserProfile() {
         _profileState.value = ProfileState.Loading
 
         viewModelScope.launch {
@@ -125,6 +127,101 @@ class ProfileViewModel @Inject constructor(
             } catch (e: Exception) {
                 _profileState.value = ProfileState.Error("Failed to load profile: ${e.localizedMessage}")
                 logError("Profile loading error", e)
+            }
+        }
+    }
+
+    private fun setupDataStreams() {
+        viewModelScope.launch {
+            try {
+                // İnternet bağlantısı kontrolü
+                if (!networkUtil.isNetworkAvailable()) {
+                    _profileState.value = ProfileState.Error("Internet connection required")
+                    return@launch
+                }
+
+                // Loading state göster
+                _profileState.value = ProfileState.Loading
+
+                // Üç Flow'u birleştirerek tek bir Flow oluşturuyoruz
+                combine(
+                    userRepository.getCurrentUser(),                // Kullanıcı verileri
+                    userRepository.getUserVisitedCities(),          // Ziyaret edilen şehirler
+                    userRepository.getUserWishlist()                // Bucket list
+                ) { user, visitedCitiesMap, wishlistIds ->
+                    Triple(user, visitedCitiesMap, wishlistIds)
+                }.collectLatest { (user, visitedCitiesMap, wishlistIds) ->
+                    // Kullanıcı giriş yapmamış olabilir
+                    if (user == null) {
+                        _profileState.value = ProfileState.Error("User not authenticated")
+                        return@collectLatest
+                    }
+
+                    // Şehir detaylarını yükleme işlemlerini başlat
+                    val visitedCities = fetchCityDetails(visitedCitiesMap)
+                    val wishlistCities = fetchWishlistCityDetails(wishlistIds)
+
+                    // Success state güncelle
+                    _profileState.value = ProfileState.Success(
+                        displayName = user.displayName.ifEmpty { "Traveler" },
+                        photoUrl = user.photoUrl,
+                        visitedCities = visitedCities,
+                        wishlistCities = wishlistCities
+                    )
+                }
+            } catch (e: Exception) {
+                _profileState.value = ProfileState.Error("Failed to load profile: ${e.localizedMessage}")
+                logError("Profile loading error", e)
+            }
+        }
+    }
+
+    // Yenileme için - Mevcut state'i korur, arka planda günceller
+    fun refreshUserProfile() {
+        // Eğer halihazırda loading state'indeyse, işlemi tekrarlama
+        if (_profileState.value is ProfileState.Loading) return
+
+        viewModelScope.launch {
+            try {
+                // İnternet bağlantısı kontrolü - sessizce başarısız ol
+                if (!networkUtil.isNetworkAvailable()) {
+                    return@launch
+                }
+
+                // Paralel asenkron işlemler ile hem kullanıcı verilerini hem de şehir verilerini alalım
+                coroutineScope {
+                    // Kullanıcının temel verilerini al
+                    val userDeferred = async { userRepository.getCurrentUser().first() }
+
+                    // Kullanıcının ziyaret ettiği şehirleri al
+                    val visitedCitiesDeferred = async { userRepository.getUserVisitedCities().first() }
+
+                    // Kullanıcının bucket list'ini al
+                    val wishlistDeferred = async { userRepository.getUserWishlist().first() }
+
+                    // Tüm asenkron işlemlerin tamamlanmasını bekle
+                    val user = userDeferred.await() ?: return@coroutineScope
+
+                    val visitedCitiesMap = visitedCitiesDeferred.await()
+                    val wishlistIds = wishlistDeferred.await()
+
+                    // Ziyaret edilen şehirler için detaylı verileri getir
+                    val visitedCities = fetchCityDetails(visitedCitiesMap)
+
+                    // Wishlist için detaylı verileri getir
+                    val wishlistCities = fetchWishlistCityDetails(wishlistIds)
+
+                    // Başarılı durumu güncelle
+                    _profileState.value = ProfileState.Success(
+                        displayName = user.displayName.ifEmpty { "Traveler" },
+                        photoUrl = user.photoUrl,
+                        visitedCities = visitedCities,
+                        wishlistCities = wishlistCities
+                    )
+                }
+            } catch (e: Exception) {
+                // Sessizce başarısız ol, UI'ı bozma
+                logError("Profile refresh error", e)
             }
         }
     }
