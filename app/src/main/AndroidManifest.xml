@@ -32,7 +32,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait" />
+
 
         <!-- AndroidManifest.xml dosyasına, <application> tag'inin içine ekleyin -->
         <provider

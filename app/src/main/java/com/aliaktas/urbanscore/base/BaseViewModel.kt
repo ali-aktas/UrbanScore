@@ -27,6 +27,7 @@ abstract class BaseViewModel : ViewModel() {
         }
     }
 
+
     // Launch coroutines with error handling
     protected fun launchWithLoading(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(errorHandler) {
@@ -98,6 +99,7 @@ abstract class BaseViewModel : ViewModel() {
     sealed class UiEvent {
         data class Error(val message: String) : UiEvent()
         data class Success(val message: String) : UiEvent()
+        data class Loading(val message: String) : UiEvent()
         data class Navigate(val route: String) : UiEvent()
         data object ShowLogin : UiEvent()
         data object RefreshData : UiEvent()

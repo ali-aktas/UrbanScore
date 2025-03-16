@@ -108,6 +108,7 @@ class ProfileFragment : Fragment() {
             viewModel.shareWishlist()
         }
 
+
         // Logout button
         binding.btnLogout.setOnClickListener {
             showLogoutConfirmationDialog()
