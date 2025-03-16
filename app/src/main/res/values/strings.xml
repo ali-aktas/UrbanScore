@@ -154,4 +154,17 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+
+    <!-- User Messages -->
+    <string name="msg_no_internet">No internet connection. Please check your network.</string>
+    <string name="msg_rating_saved">Your rating has been saved successfully!</string>
+    <string name="msg_rating_failed">Failed to save your rating. Please try again.</string>
+    <string name="msg_login_failed">Login failed. Please check your credentials.</string>
+    <string name="msg_login_success">Successfully logged in!</string>
+    <string name="msg_wishlist_added">City added to your bucket list!</string>
+    <string name="msg_wishlist_removed">City removed from your bucket list</string>
+    <string name="msg_city_suggestion_received">Thank you! Your city suggestion has been received.</string>
+    <string name="msg_generic_error">An error occurred. Please try again.</string>
+    <string name="msg_loading">Loading...</string>
+
 </resources>

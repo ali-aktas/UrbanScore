@@ -205,7 +205,8 @@ class ExploreFragment : Fragment() {
             (requireActivity() as MainActivity).navigateToCityDetail(cityId)
         } catch (e: Exception) {
             Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
-            Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
+            val errorMessage = getString(R.string.msg_generic_error)
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -227,7 +227,8 @@ class ProfileFragment : Fragment() {
             (requireActivity() as MainActivity).navigateToCityDetail(cityId)
         } catch (e: Exception) {
             Log.e("ProfileFragment", "Navigation error: ${e.message}", e)
-            showMessage("Navigation error")
+            val errorMessage = getString(R.string.msg_generic_error)
+            Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
