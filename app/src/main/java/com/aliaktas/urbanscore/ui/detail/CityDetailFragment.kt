@@ -7,6 +7,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,8 +17,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
+import com.aliaktas.urbanscore.ui.comments.CommentBottomSheet
+import com.aliaktas.urbanscore.ui.comments.CommentsAdapter
 import com.aliaktas.urbanscore.ui.ratecity.RateCityBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
@@ -45,6 +53,9 @@ class CityDetailFragment : Fragment() {
 
     // Reference to rating bottom sheet for lifecycle management
     private var ratingBottomSheet: RateCityBottomSheet? = null
+
+    private lateinit var commentsAdapter: CommentsAdapter
+    private lateinit var commentsSection: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +89,7 @@ class CityDetailFragment : Fragment() {
         setupRadarChart()
         setupClickListeners()
         observeViewModel()
+        setupComments()
     }
 
     private fun initializeUiStateManager() {
@@ -118,6 +130,17 @@ class CityDetailFragment : Fragment() {
         binding.btnExploreGoogle.setOnClickListener {
             viewModel.openGoogleSearch()
         }
+
+        binding.btnShowComments.setOnClickListener {
+            viewModel.toggleComments()
+        }
+
+        // Add comment button
+        binding.btnAddComment.setOnClickListener {
+            viewModel.showCommentBottomSheet()
+        }
+
+
     }
 
     private fun observeViewModel() {
@@ -136,8 +159,18 @@ class CityDetailFragment : Fragment() {
                         handleEvent(event)
                     }
                 }
+
+                // Observe comments state
+                launch {
+                    viewModel.detailState.collectLatest { state ->
+                        if (state is CityDetailState.Success) {
+                            updateCommentsUI(state)
+                        }
+                    }
+                }
             }
         }
+
     }
 
     private fun handleEvent(event: CityDetailEvent) {
@@ -147,6 +180,12 @@ class CityDetailFragment : Fragment() {
             is CityDetailEvent.ShowMessage -> showMessage(event.message)
             is CityDetailEvent.ShareCity -> startActivity(Intent.createChooser(event.shareIntent, "Share via"))
             is CityDetailEvent.DismissRatingSheet -> dismissRatingSheet()
+            is CityDetailEvent.AddCommentResult -> TODO()
+            is CityDetailEvent.LikeCommentResult -> TODO()
+            is CityDetailEvent.ShowCommentBottomSheet -> {
+                val commentBottomSheet = CommentBottomSheet.newInstance(event.cityId)
+                commentBottomSheet.show(childFragmentManager, "CommentBottomSheet")
+            }
         }
     }
 
@@ -178,6 +217,84 @@ class CityDetailFragment : Fragment() {
             ).show()
         }
     }
+
+
+
+    private fun setupComments() {
+        // Comments adapter
+        commentsAdapter = CommentsAdapter(
+            onLikeClick = { comment, like ->
+                viewModel.likeComment(comment.id, like)
+            },
+            onDeleteClick = { commentId ->
+                // Silme işlemi onaylama diyaloğu gösterilebilir
+                viewModel.deleteComment(commentId)
+            }
+        )
+
+        // Comments section layout'unu inflate et
+        commentsSection = layoutInflater.inflate(
+            R.layout.layout_comments_section,
+            binding.nestedScrollView.getChildAt(0) as ViewGroup,
+            false
+        )
+
+        // RecyclerView'i ayarla
+        commentsSection.findViewById<RecyclerView>(R.id.recyclerViewComments).apply {
+            adapter = commentsAdapter
+            layoutManager = LinearLayoutManager(requireContext())
+        }
+
+        // Load more button click
+        commentsSection.findViewById<Button>(R.id.btnLoadMoreComments).setOnClickListener {
+            viewModel.loadMoreComments()
+        }
+
+        // Layout'a ekle (comments butonu altına)
+        val linearLayout = binding.nestedScrollView.getChildAt(0) as ViewGroup
+
+        // Buttons container index'ini bul ve sonrasına ekle
+        val btnExploreGoogleIndex = linearLayout.indexOfChild(binding.btnExploreGoogle)
+        linearLayout.addView(commentsSection, btnExploreGoogleIndex + 1)
+
+        // Başlangıçta gizle
+        commentsSection.visibility = View.GONE
+    }
+
+
+    private fun updateCommentsUI(state: CityDetailState.Success) {
+        // Comments visibility
+        commentsSection.visibility = if (state.showComments) View.VISIBLE else View.GONE
+
+        // Toggle button text
+        binding.btnShowComments.text = if (state.showComments)
+            getString(R.string.hide_comments)
+        else
+            getString(R.string.show_comments, state.comments.size)
+
+        // Update comments list
+        commentsAdapter.submitList(state.comments)
+
+        // Show progress or load more button
+        val progressBar = commentsSection.findViewById<ProgressBar>(R.id.progressBarComments)
+        val loadMoreButton = commentsSection.findViewById<Button>(R.id.btnLoadMoreComments)
+        val noCommentsText = commentsSection.findViewById<TextView>(R.id.txtNoComments)
+
+        progressBar.visibility = if (state.isLoadingComments) View.VISIBLE else View.GONE
+        loadMoreButton.visibility = if (!state.isLoadingComments && state.hasMoreComments)
+            View.VISIBLE
+        else
+            View.GONE
+
+        // Show no comments text if needed
+        noCommentsText.visibility = if (!state.isLoadingComments && state.comments.isEmpty())
+            View.VISIBLE
+        else
+            View.GONE
+    }
+
+
+
 
     private fun dismissRatingSheet() {
         ratingBottomSheet?.dismiss()

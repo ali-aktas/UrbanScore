@@ -173,6 +173,7 @@
 
     <!-- Ana İçerik için NestedScrollView -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
@@ -545,6 +546,43 @@
                 android:textColor="@color/white"
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_google"
+                app:iconTint="@color/white" />
+
+            <!-- app/src/main/res/layout/fragment_city_detail.xml -->
+            <!-- btnExploreGoogle butonundan sonra ekleyin -->
+
+            <Button
+                android:id="@+id/btnShowComments"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#2196F3"
+                android:fontFamily="@font/roboto_extralight"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="@string/show_comments"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_comment"
+                app:iconTint="@color/white" />
+
+            <Button
+                android:id="@+id/btnAddComment"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#4CAF50"
+                android:fontFamily="@font/roboto_extralight"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="@string/add_comment"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_add_comment"
                 app:iconTint="@color/white" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

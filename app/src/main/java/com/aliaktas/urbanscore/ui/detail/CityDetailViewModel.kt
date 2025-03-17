@@ -8,6 +8,7 @@ import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
+import com.google.firebase.firestore.DocumentSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +47,12 @@ class CityDetailViewModel @Inject constructor(
 
     // City data cache
     private var currentCity: CityModel? = null
+
+    // LastComment referansı için değişken
+    private var lastCommentDoc: DocumentSnapshot? = null
+
+    // Yorum gösterme durum değişkeni
+    private val _showComments = MutableStateFlow(false)
 
     init {
         loadCityDetails()
@@ -250,6 +257,163 @@ class CityDetailViewModel @Inject constructor(
             }
         }
     }
+
+    // Yorumları yükle
+    fun loadComments(forceRefresh: Boolean = false) {
+        val currentState = _detailState.value
+        if (currentState !is CityDetailState.Success) return
+
+        // Eğer force refresh istenmişse lastComment'i sıfırla
+        if (forceRefresh) {
+            lastCommentDoc = null
+            // Eski yorumları göstermeye devam ederken yeni yorumları yükle
+            updateSuccessState { copy(isLoadingComments = true, hasMoreComments = true) }
+        } else if (currentState.isLoadingComments) {
+            // Zaten yükleme yapılıyorsa tekrar yükleme
+            return
+        } else {
+            updateSuccessState { copy(isLoadingComments = true) }
+        }
+
+        viewModelScope.launch {
+            try {
+                cityRepository.getComments(cityId, 5, lastCommentDoc)
+                    .catch { e ->
+                        updateSuccessState { copy(isLoadingComments = false) }
+                        _detailEvents.emit(CityDetailEvent.ShowMessage("Error loading comments: ${e.message}"))
+                    }
+                    .collectLatest { result ->
+                        val currentComments = if (forceRefresh || lastCommentDoc == null) {
+                            result.items
+                        } else {
+                            currentState.comments + result.items
+                        }
+
+                        lastCommentDoc = result.lastVisible
+
+                        updateSuccessState {
+                            copy(
+                                comments = currentComments,
+                                hasMoreComments = result.hasMoreItems,
+                                isLoadingComments = false,
+                                showComments = true
+                            )
+                        }
+                    }
+            } catch (e: Exception) {
+                updateSuccessState { copy(isLoadingComments = false) }
+                handleError(e)
+            }
+        }
+    }
+
+    // Daha fazla yorum yükle
+    fun loadMoreComments() {
+        val currentState = _detailState.value
+        if (currentState !is CityDetailState.Success ||
+            !currentState.hasMoreComments ||
+            currentState.isLoadingComments) {
+            return
+        }
+
+        loadComments(false)
+    }
+
+    // Yorum ekle
+    fun addComment(text: String) {
+        if (text.isBlank()) {
+            viewModelScope.launch {
+                _detailEvents.emit(CityDetailEvent.ShowMessage("Comment cannot be empty"))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val result = cityRepository.addComment(cityId, text)
+
+                result.fold(
+                    onSuccess = {
+                        _detailEvents.emit(CityDetailEvent.AddCommentResult(true, "Comment added successfully"))
+                        // Yorumları yeniden yükle
+                        loadComments(true)
+                    },
+                    onFailure = { e ->
+                        _detailEvents.emit(CityDetailEvent.AddCommentResult(false, e.message ?: "Failed to add comment"))
+                    }
+                )
+            } catch (e: Exception) {
+                handleError(e)
+                _detailEvents.emit(CityDetailEvent.AddCommentResult(false, e.message ?: "Failed to add comment"))
+            }
+        }
+    }
+
+    // Yorumu beğen
+    fun likeComment(commentId: String, like: Boolean) {
+        viewModelScope.launch {
+            try {
+                val result = cityRepository.likeComment(cityId, commentId, like)
+
+                result.fold(
+                    onSuccess = {
+                        val message = if (like) "Comment liked" else "Like removed"
+                        _detailEvents.emit(CityDetailEvent.LikeCommentResult(true, message))
+                    },
+                    onFailure = { e ->
+                        _detailEvents.emit(CityDetailEvent.LikeCommentResult(false, e.message ?: "Failed to like comment"))
+                    }
+                )
+            } catch (e: Exception) {
+                handleError(e)
+                _detailEvents.emit(CityDetailEvent.LikeCommentResult(false, e.message ?: "Failed to like comment"))
+            }
+        }
+    }
+
+    // Yorumu sil
+    fun deleteComment(commentId: String) {
+        viewModelScope.launch {
+            try {
+                val result = cityRepository.deleteComment(cityId, commentId)
+
+                result.fold(
+                    onSuccess = {
+                        _detailEvents.emit(CityDetailEvent.ShowMessage("Comment deleted"))
+                        // Yorumları yeniden yükle
+                        loadComments(true)
+                    },
+                    onFailure = { e ->
+                        _detailEvents.emit(CityDetailEvent.ShowMessage("Failed to delete comment: ${e.message}"))
+                    }
+                )
+            } catch (e: Exception) {
+                handleError(e)
+                _detailEvents.emit(CityDetailEvent.ShowMessage("Failed to delete comment: ${e.message}"))
+            }
+        }
+    }
+
+    // Yorum görünürlüğünü değiştir
+    fun toggleComments() {
+        val currentState = _detailState.value
+        if (currentState !is CityDetailState.Success) return
+
+        val newShowComments = !currentState.showComments
+        updateSuccessState { copy(showComments = newShowComments) }
+
+        if (newShowComments && currentState.comments.isEmpty()) {
+            loadComments(true)
+        }
+    }
+
+    // Yorum ekleme bottom sheet'i göster
+    fun showCommentBottomSheet() {
+        viewModelScope.launch {
+            _detailEvents.emit(CityDetailEvent.ShowCommentBottomSheet(cityId))
+        }
+    }
+
 
     /**
      * Called when returning from RatingBottomSheet

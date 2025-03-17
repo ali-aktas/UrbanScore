@@ -86,6 +86,13 @@
     <string name="share_city_format">Check out %1$s, %2$s on UrbanScore! It has an average rating of %3$.1f/10. Download the app to explore more cities!</string>
     <string name="update_rating">Update rating</string>
     <string name="in_your_list">In your list</string>
+    <string name="show_comments">Show reviews (%d)</string>
+    <string name="hide_comments">Hide reviews</string>
+    <string name="add_comment">Add your review</string>
+    <string name="like_comment">Like</string>
+    <string name="delete_comment">Delete</string>
+    <string name="load_more_comments">Load more reviews</string>
+    <string name="no_comments">No reviews yet. Be the first to share your experience!</string>
 
 
     <!-- Category names and descriptions -->
