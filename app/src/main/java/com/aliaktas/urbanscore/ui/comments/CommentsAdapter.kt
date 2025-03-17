@@ -38,6 +38,7 @@ class CommentsAdapter(
         private val binding: ItemCommentBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        // CommentsAdapter.kt içindeki bind metodunda
         fun bind(comment: CommentModel) {
             binding.apply {
                 txtUsername.text = comment.userName
@@ -56,28 +57,36 @@ class CommentsAdapter(
                 }
 
                 // Beğeni durumuna göre butonu güncelle
-                btnLike.isSelected = comment.isLikedByUser
+                if (comment.isLikedByUser) {
+                    btnLike.setImageResource(R.drawable.ic_liked) // Beğenilmiş ikon
+                } else {
+                    btnLike.setImageResource(R.drawable.ic_like) // Normal beğeni ikonu
+                }
+
                 btnLike.setOnClickListener {
                     onLikeClick(comment, !comment.isLikedByUser)
+                    // Optimistik UI güncelleme - hemen görünümü değiştir
+                    // İşlem başarısız olursa ViewModel tarafından geri alınacak
+                    comment.isLikedByUser = !comment.isLikedByUser
+                    if (comment.isLikedByUser) {
+                        comment.likeCount++
+                        btnLike.setImageResource(R.drawable.ic_liked)
+                    } else {
+                        if (comment.likeCount > 0) comment.likeCount--
+                        btnLike.setImageResource(R.drawable.ic_like)
+                    }
+                    txtLikeCount.text = comment.likeCount.toString()
                 }
 
                 // Kullanıcının kendi yorumu ise silme butonu göster
                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-                if (currentUserId == comment.userId) {
-                    btnDelete.visibility = View.VISIBLE
-                    btnDelete.setOnClickListener {
-                        onDeleteClick(comment.id)
-                    }
-                } else {
-                    btnDelete.visibility = View.GONE
+                btnDelete.visibility = if (currentUserId == comment.userId) View.VISIBLE else View.GONE
+                btnDelete.setOnClickListener {
+                    onDeleteClick(comment.id)
                 }
 
                 // Düzenlenmiş yorum işareti
-                if (comment.isEdited) {
-                    txtEdited.visibility = View.VISIBLE
-                } else {
-                    txtEdited.visibility = View.GONE
-                }
+                txtEdited.visibility = if (comment.isEdited) View.VISIBLE else View.GONE
             }
         }
 

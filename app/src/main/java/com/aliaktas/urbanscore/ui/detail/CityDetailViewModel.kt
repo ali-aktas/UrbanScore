@@ -1,6 +1,7 @@
 package com.aliaktas.urbanscore.ui.detail
 
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.base.BaseViewModel
@@ -9,7 +10,9 @@ import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -18,7 +21,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.net.URLEncoder
 import javax.inject.Inject
 
@@ -31,6 +36,7 @@ class CityDetailViewModel @Inject constructor(
     private val cityRepository: CityRepository,
     private val userRepository: UserRepository,
     private val networkUtil: NetworkUtil,
+    private val firestore: FirebaseFirestore,
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel() {
 
@@ -75,42 +81,66 @@ class CityDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
+                // Toplam yorum sayısını almak için sorgu
+                val commentsCountDeferred = async {
+                    try {
+                        val snapshot = firestore.collection("cities")
+                            .document(cityId)
+                            .collection("comments")
+                            .get()
+                            .await()
+
+                        snapshot.size()
+                    } catch (e: Exception) {
+                        // Hata durumunda sessizce başarısız ol, kritik değil
+                        Log.e("CityDetailViewModel", "Error getting comments count", e)
+                        0 // Hata durumunda 0 dön
+                    }
+                }
+
                 // Load city details, wishlist status and rating status in parallel
-                val cityDeferred = launch {
+                val cityDeferred = async {
                     cityRepository.getCityById(cityId)
                         .catch { e ->
                             _detailState.value = CityDetailState.Error(getErrorMessage(e))
+                            null
                         }
-                        .collectLatest { city ->
-                            if (city != null) {
-                                currentCity = city
-                                updateSuccessState { copy(city = city) }
-                            } else {
-                                _detailState.value = CityDetailState.Error("City not found")
-                            }
-                        }
+                        .first() // collectLatest yerine first kullanıyoruz çünkü async içinde flow toplamak istiyoruz
                 }
 
-                val wishlistDeferred = launch {
-                    userRepository.getUserWishlist()
-                        .catch { /* Silent fail, not critical */ }
-                        .collectLatest { wishlist ->
-                            updateSuccessState { copy(isInWishlist = wishlist.contains(cityId)) }
-                        }
+                val wishlistDeferred = async {
+                    try {
+                        userRepository.getUserWishlist().first().contains(cityId)
+                    } catch (e: Exception) {
+                        false // Hata durumunda false dön
+                    }
                 }
 
-                val ratingDeferred = launch {
-                    userRepository.hasUserRatedCity(cityId)
-                        .catch { /* Silent fail, not critical */ }
-                        .collectLatest { hasRated ->
-                            updateSuccessState { copy(hasUserRated = hasRated) }
-                        }
+                val ratingDeferred = async {
+                    try {
+                        userRepository.hasUserRatedCity(cityId).first()
+                    } catch (e: Exception) {
+                        false // Hata durumunda false dön
+                    }
                 }
 
-                // Wait for all data to load
-                cityDeferred.join()
-                wishlistDeferred.join()
-                ratingDeferred.join()
+                // Tüm asenkron işlemlerin sonuçlarını bekle
+                val commentsCount = commentsCountDeferred.await()
+                val city = cityDeferred.await()
+                val isInWishlist = wishlistDeferred.await()
+                val hasUserRated = ratingDeferred.await()
+
+                if (city != null) {
+                    currentCity = city
+                    _detailState.value = CityDetailState.Success(
+                        city = city,
+                        isInWishlist = isInWishlist,
+                        hasUserRated = hasUserRated,
+                        commentsCount = commentsCount
+                    )
+                } else {
+                    _detailState.value = CityDetailState.Error("City not found")
+                }
 
             } catch (e: Exception) {
                 handleError(e)

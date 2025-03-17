@@ -9,7 +9,7 @@ data class CommentModel(
     val userId: String = "",
     val userName: String = "",
     val userPhotoUrl: String = "",
-    val likeCount: Int = 0,
+    var likeCount: Int = 0,
     val isEdited: Boolean = false,
     // Kullanıcının bu yorumu beğenip beğenmediğini takip etmek için
     var isLikedByUser: Boolean = false

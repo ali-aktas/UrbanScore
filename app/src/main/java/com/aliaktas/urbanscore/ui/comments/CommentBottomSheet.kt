@@ -6,11 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.databinding.BottomSheetAddCommentBinding
+import com.aliaktas.urbanscore.ui.detail.CityDetailEvent
 import com.aliaktas.urbanscore.ui.detail.CityDetailViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -18,6 +22,8 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
 
     private var _binding: BottomSheetAddCommentBinding? = null
     private val binding get() = _binding!!
+
+    private var eventCollectorJob: Job? = null
 
     private val viewModel: CityDetailViewModel by viewModels({ requireParentFragment() })
 
@@ -44,8 +50,23 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupClickListeners()
+
+        lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.detailEvents.collect { event ->
+                    if (event is CityDetailEvent.AddCommentResult) {
+                        if (event.success) {
+                            dismiss()
+                        } else {
+                            Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
+                            binding.btnSubmitComment.isEnabled = true
+                            binding.progressBar.visibility = View.GONE
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupClickListeners() {
@@ -54,31 +75,17 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
             if (commentText.isNotEmpty()) {
                 binding.btnSubmitComment.isEnabled = false
                 binding.progressBar.visibility = View.VISIBLE
-
                 viewModel.addComment(commentText)
 
-                // Comment eklendikten sonra bottom sheet'i kapat
-                lifecycleScope.launch {
-                    viewModel.detailEvents.collect { event ->
-                        if (event is com.aliaktas.urbanscore.ui.detail.CityDetailEvent.AddCommentResult) {
-                            if (event.success) {
-                                dismiss()
-                            } else {
-                                Toast.makeText(requireContext(), event.message, Toast.LENGTH_SHORT).show()
-                                binding.btnSubmitComment.isEnabled = true
-                                binding.progressBar.visibility = View.GONE
-                            }
-                        }
-                    }
-                }
-            } else {
-                Toast.makeText(requireContext(), "Please enter a comment", Toast.LENGTH_SHORT).show()
+                // Burada lifecycleScope.launch kullanılıyor ve detailEvents.collect yapılıyor
+                // Bu, her butona basıldığında yeni bir collector oluşturulduğu anlamına gelir!
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        eventCollectorJob?.cancel()
         _binding = null
     }
 }

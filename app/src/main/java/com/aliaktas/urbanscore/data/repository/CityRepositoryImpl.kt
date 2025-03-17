@@ -486,6 +486,7 @@ class CityRepositoryImpl @Inject constructor(
         }
     }
 
+    // CityRepositoryImpl.kt içinde likeComment metodunda güncellemeler
     override suspend fun likeComment(
         cityId: String,
         commentId: String,
@@ -495,7 +496,6 @@ class CityRepositoryImpl @Inject constructor(
             val currentUser = FirebaseAuth.getInstance().currentUser
                 ?: return Result.failure(Exception("User not logged in"))
 
-            // Transaction ile atomik bir şekilde like işlemini gerçekleştir
             firestore.runTransaction { transaction ->
                 // Yorum referansı
                 val commentRef = firestore.collection(CITIES_COLLECTION)
@@ -510,14 +510,20 @@ class CityRepositoryImpl @Inject constructor(
                     .document(cityId)
 
                 val comment = transaction.get(commentRef)
+                // Yorum bulunamadığında kontrol ekle
+                if (!comment.exists()) {
+                    throw Exception("Comment not found")
+                }
+
                 val currentLikes = comment.getLong("likeCount") ?: 0
+                // Kullanıcı beğeni listesi belgesini al
+                val userLikesDoc = transaction.get(userLikesRef)
 
                 if (like) {
                     // Beğeni ekle
                     transaction.update(commentRef, "likeCount", currentLikes + 1)
 
                     // Kullanıcının beğendiği yorumlar listesine ekle
-                    val userLikesDoc = transaction.get(userLikesRef)
                     if (!userLikesDoc.exists()) {
                         // Belge yoksa oluştur
                         transaction.set(userLikesRef, hashMapOf("commentIds" to listOf(commentId)))
@@ -531,8 +537,12 @@ class CityRepositoryImpl @Inject constructor(
                         transaction.update(commentRef, "likeCount", currentLikes - 1)
                     }
 
-                    // Kullanıcının beğendiği yorumlar listesinden çıkar
-                    transaction.update(userLikesRef, "commentIds", FieldValue.arrayRemove(commentId))
+                    // Belge yoksa update yapma
+                    if (userLikesDoc.exists()) {
+                        transaction.update(userLikesRef, "commentIds", FieldValue.arrayRemove(commentId))
+                    } else {
+
+                    }
                 }
             }.await()
 

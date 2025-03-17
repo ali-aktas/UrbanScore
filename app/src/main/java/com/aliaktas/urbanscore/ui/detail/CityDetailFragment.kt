@@ -180,8 +180,18 @@ class CityDetailFragment : Fragment() {
             is CityDetailEvent.ShowMessage -> showMessage(event.message)
             is CityDetailEvent.ShareCity -> startActivity(Intent.createChooser(event.shareIntent, "Share via"))
             is CityDetailEvent.DismissRatingSheet -> dismissRatingSheet()
-            is CityDetailEvent.AddCommentResult -> TODO()
-            is CityDetailEvent.LikeCommentResult -> TODO()
+            is CityDetailEvent.AddCommentResult -> {
+                if (event.success) {
+                    showMessage("Comment added successfully")
+                } else {
+                    showMessage("Failed to add comment: ${event.message}")
+                }
+            }
+            is CityDetailEvent.LikeCommentResult -> {
+                if (!event.success) {
+                    showMessage("Failed to like comment: ${event.message}")
+                }
+            }
             is CityDetailEvent.ShowCommentBottomSheet -> {
                 val commentBottomSheet = CommentBottomSheet.newInstance(event.cityId)
                 commentBottomSheet.show(childFragmentManager, "CommentBottomSheet")
@@ -274,6 +284,11 @@ class CityDetailFragment : Fragment() {
 
         // Update comments list
         commentsAdapter.submitList(state.comments)
+
+        binding.btnShowComments.text = if (state.showComments)
+            getString(R.string.hide_comments)
+        else
+            getString(R.string.show_comments, state.commentsCount)
 
         // Show progress or load more button
         val progressBar = commentsSection.findViewById<ProgressBar>(R.id.progressBarComments)
