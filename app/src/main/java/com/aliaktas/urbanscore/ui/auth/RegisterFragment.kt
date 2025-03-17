@@ -1,7 +1,10 @@
 package com.aliaktas.urbanscore.ui.auth
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
+import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentRegisterBinding
 import com.google.android.material.snackbar.Snackbar
@@ -38,16 +41,12 @@ class RegisterFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupClickListeners()
+        setupInputValidation()
         observeViewModel()
-
-        // Hata izleme için
-        Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
-            Log.e("RegisterFragment", "Uncaught exception: ${throwable.message}", throwable)
-        }
     }
 
     private fun setupClickListeners() {
-        // Kayıt ol butonu
+        // Register button
         binding.btnRegister.setOnClickListener {
             val name = binding.etName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
@@ -59,39 +58,124 @@ class RegisterFragment : Fragment() {
             }
         }
 
-        // Giriş yap butonu
+        // Sign in button
         binding.tvLogin.setOnClickListener {
-            findNavController().navigateUp()
+            // Use MainActivity's custom navigation
+            (requireActivity() as MainActivity).handleBackPressed()
         }
 
-        // Geri butonu
+        // Back button
         binding.btnBack.setOnClickListener {
-            findNavController().navigateUp()
+            // Use MainActivity's custom navigation
+            (requireActivity() as MainActivity).handleBackPressed()
         }
     }
 
+    private fun setupInputValidation() {
+        // Name validation
+        binding.etName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                binding.tilName.error = if (s.toString().trim().isEmpty()) "Name is required" else null
+            }
+        })
+
+        // Email validation
+        binding.etEmail.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val email = s.toString().trim()
+                binding.tilEmail.error = when {
+                    email.isEmpty() -> "Email is required"
+                    !isValidEmail(email) -> "Invalid email format"
+                    else -> null
+                }
+            }
+        })
+
+        // Password validation
+        binding.etPassword.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val password = s.toString()
+                binding.tilPassword.error = when {
+                    password.isEmpty() -> "Password is required"
+                    password.length < 6 -> getString(R.string.password_too_short)
+                    else -> null
+                }
+
+                // Check if confirm password matches
+                val confirmPassword = binding.etConfirmPassword.text.toString()
+                if (confirmPassword.isNotEmpty() && confirmPassword != password) {
+                    binding.tilConfirmPassword.error = getString(R.string.passwords_dont_match)
+                } else if (confirmPassword.isNotEmpty()) {
+                    binding.tilConfirmPassword.error = null
+                }
+            }
+        })
+
+        // Confirm password validation
+        binding.etConfirmPassword.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val confirmPassword = s.toString()
+                val password = binding.etPassword.text.toString()
+
+                binding.tilConfirmPassword.error = when {
+                    confirmPassword.isEmpty() -> "Confirm password is required"
+                    confirmPassword != password -> getString(R.string.passwords_dont_match)
+                    else -> null
+                }
+            }
+        })
+    }
+
     private fun validateInput(name: String, email: String, password: String, confirmPassword: String): Boolean {
-        if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            Snackbar.make(binding.root, "Please fill all fields", Snackbar.LENGTH_SHORT).show()
-            return false
+        var isValid = true
+
+        if (name.isEmpty()) {
+            binding.tilName.error = "Name is required"
+            isValid = false
         }
 
-        if (password.length < 6) {
-            Snackbar.make(binding.root, "Password must be at least 6 characters", Snackbar.LENGTH_SHORT).show()
-            return false
+        if (email.isEmpty()) {
+            binding.tilEmail.error = "Email is required"
+            isValid = false
+        } else if (!isValidEmail(email)) {
+            binding.tilEmail.error = "Invalid email format"
+            isValid = false
         }
 
-        if (password != confirmPassword) {
-            Snackbar.make(binding.root, "Passwords don't match", Snackbar.LENGTH_SHORT).show()
-            return false
+        if (password.isEmpty()) {
+            binding.tilPassword.error = "Password is required"
+            isValid = false
+        } else if (password.length < 6) {
+            binding.tilPassword.error = getString(R.string.password_too_short)
+            isValid = false
+        }
+
+        if (confirmPassword.isEmpty()) {
+            binding.tilConfirmPassword.error = "Confirm password is required"
+            isValid = false
+        } else if (password != confirmPassword) {
+            binding.tilConfirmPassword.error = getString(R.string.passwords_dont_match)
+            isValid = false
         }
 
         if (!binding.cbTerms.isChecked) {
-            Snackbar.make(binding.root, "Please agree to the terms and privacy policy", Snackbar.LENGTH_SHORT).show()
-            return false
+            Snackbar.make(binding.root, getString(R.string.please_agree_terms), Snackbar.LENGTH_SHORT).show()
+            isValid = false
         }
 
-        return true
+        return isValid
+    }
+
+    private fun isValidEmail(email: String): Boolean {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     private fun observeViewModel() {
@@ -112,8 +196,12 @@ class RegisterFragment : Fragment() {
             }
             is AuthState.Authenticated -> {
                 binding.progressBar.visibility = View.GONE
-                // Ana sayfaya yönlendir
-                findNavController().navigate(R.id.action_registerFragment_to_homeFragment)
+                // Navigate to home screen
+                try {
+                    (requireActivity() as MainActivity).navigateToHomeAfterLogin()
+                } catch (e: Exception) {
+                    Log.e("RegisterFragment", "Navigation error", e)
+                }
             }
             is AuthState.Unauthenticated -> {
                 binding.progressBar.visibility = View.GONE
@@ -126,7 +214,7 @@ class RegisterFragment : Fragment() {
                 viewModel.clearError()
             }
             is AuthState.Initial -> {
-                // İlk yükleme durumu, bir şey yapma
+                // Initial loading state, do nothing
                 binding.progressBar.visibility = View.GONE
             }
         }

@@ -13,6 +13,9 @@ import com.aliaktas.urbanscore.databinding.ActivityMainBinding
 import com.aliaktas.urbanscore.navigation.BackStackManager
 import com.aliaktas.urbanscore.navigation.BottomNavigationManager
 import com.aliaktas.urbanscore.navigation.NavigationManager
+import com.aliaktas.urbanscore.ui.auth.ForgotPasswordFragment
+import com.aliaktas.urbanscore.ui.auth.RegisterFragment
+import com.aliaktas.urbanscore.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -151,12 +154,53 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationManager.updateBottomNavVisibility(fragment)
     }
 
-    /**
-     * Login ekranından ana sayfaya gitmek için yardımcı metot
-     */
+    // Within MainActivity.kt, update this method:
     fun navigateToHomeAfterLogin() {
-        backStackManager.clearBackStack() // Backstack'i temizle
-        bottomNavigationManager.showBottomNavFragment(R.id.homeFragment)
+        try {
+            Log.d(TAG, "Navigating to home after login")
+            // Clear back stack to prevent returning to login screens
+            backStackManager.clearBackStack()
+
+            // Show bottom navigation
+            bottomNavigationManager.showBottomNavigation()
+
+            // Navigate to home fragment
+            bottomNavigationManager.showBottomNavFragment(R.id.homeFragment)
+        } catch (e: Exception) {
+            Log.e(TAG, "Navigation error in navigateToHomeAfterLogin", e)
+
+            // Fallback in case of errors
+            try {
+                // Try direct fragment replacement as fallback
+                navigationManager.showFragment(HomeFragment(), false, "HOME_FRAGMENT")
+                bottomNavigationManager.showBottomNavigation()
+            } catch (e2: Exception) {
+                Log.e(TAG, "Critical navigation error", e2)
+
+                // Last resort: recreate activity
+                recreate()
+            }
+        }
+    }
+
+    // MainActivity.kt içerisine bu metotları ekleyin
+
+    /**
+     * Shows the RegisterFragment
+     */
+    fun showRegisterFragment() {
+        val registerFragment = RegisterFragment()
+        navigationManager.showFragment(registerFragment, true, "REGISTER_FRAGMENT")
+        bottomNavigationManager.hideBottomNavigation()
+    }
+
+    /**
+     * Shows the ForgotPasswordFragment
+     */
+    fun showForgotPasswordFragment() {
+        val forgotPasswordFragment = ForgotPasswordFragment()
+        navigationManager.showFragment(forgotPasswordFragment, true, "FORGOT_PASSWORD_FRAGMENT")
+        bottomNavigationManager.hideBottomNavigation()
     }
 
     // State'i kaydet

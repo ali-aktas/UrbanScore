@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.data.model.UserModel
 import com.aliaktas.urbanscore.data.repository.UserRepository
+import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuthException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.ConnectException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,7 +25,7 @@ class AuthViewModel @Inject constructor(
     val state: StateFlow<AuthState> = _state.asStateFlow()
 
     init {
-        // Kullanıcının oturum durumunu kontrol et
+        // Check user authentication status
         viewModelScope.launch {
             userRepository.getCurrentUser().collect { user ->
                 if (user != null) {
@@ -38,15 +42,19 @@ class AuthViewModel @Inject constructor(
     fun signInWithEmail(email: String, password: String) {
         _state.value = AuthState.Loading
         viewModelScope.launch {
-            val result = userRepository.signInWithEmail(email, password)
-            result.fold(
-                onSuccess = { user ->
-                    _state.value = AuthState.Authenticated(user)
-                },
-                onFailure = { exception ->
-                    _state.value = AuthState.Error(exception.message ?: "Authentication failed")
-                }
-            )
+            try {
+                val result = userRepository.signInWithEmail(email, password)
+                result.fold(
+                    onSuccess = { user ->
+                        _state.value = AuthState.Authenticated(user)
+                    },
+                    onFailure = { exception ->
+                        _state.value = AuthState.Error(formatErrorMessage(exception))
+                    }
+                )
+            } catch (e: Exception) {
+                _state.value = AuthState.Error(formatErrorMessage(e))
+            }
         }
     }
 
@@ -62,12 +70,12 @@ class AuthViewModel @Inject constructor(
                     },
                     onFailure = { exception ->
                         Log.e("AuthViewModel", "Sign up failed", exception)
-                        _state.value = AuthState.Error(exception.message ?: "Sign up failed")
+                        _state.value = AuthState.Error(formatErrorMessage(exception))
                     }
                 )
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Unexpected error during sign up", e)
-                _state.value = AuthState.Error(e.message ?: "An unexpected error occurred")
+                _state.value = AuthState.Error(formatErrorMessage(e))
             }
         }
     }
@@ -81,7 +89,7 @@ class AuthViewModel @Inject constructor(
                     _state.value = AuthState.Authenticated(user)
                 },
                 onFailure = { exception ->
-                    _state.value = AuthState.Error(exception.message ?: "Google sign in failed")
+                    _state.value = AuthState.Error(formatErrorMessage(exception))
                 }
             )
         }
@@ -94,10 +102,32 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    // Hataları temizle (örn. error state'den çıkmak için)
+    // Clear errors (to exit error state)
     fun clearError() {
         if (_state.value is AuthState.Error) {
             _state.value = AuthState.Unauthenticated
+        }
+    }
+
+    // Format error messages to be user-friendly
+    private fun formatErrorMessage(exception: Throwable): String {
+        return when (exception) {
+            is FirebaseAuthException -> {
+                when (exception.errorCode) {
+                    "ERROR_INVALID_EMAIL" -> "Invalid email format"
+                    "ERROR_WRONG_PASSWORD" -> "Incorrect password"
+                    "ERROR_USER_NOT_FOUND" -> "No account found with this email"
+                    "ERROR_USER_DISABLED" -> "This account has been disabled"
+                    "ERROR_TOO_MANY_REQUESTS" -> "Too many attempts, please try again later"
+                    "ERROR_OPERATION_NOT_ALLOWED" -> "This operation is currently unavailable"
+                    "ERROR_EMAIL_ALREADY_IN_USE" -> "This email is already in use"
+                    "ERROR_WEAK_PASSWORD" -> "Password is too weak, use at least 6 characters"
+                    else -> "Authentication failed"
+                }
+            }
+            is FirebaseNetworkException -> "Please check your internet connection"
+            is UnknownHostException, is ConnectException -> "Please check your internet connection"
+            else -> "An unexpected error occurred. Please try again."
         }
     }
 }

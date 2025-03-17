@@ -124,6 +124,7 @@
     <string name="logout_success">Logged out successfully.</string>
     <string name="web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
 
+
     <!-- Auth Strings -->
     <string name="email_or_phone">Email or Phone</string>
     <string name="password">Password</string>
@@ -147,6 +148,11 @@
     <string name="forgot_password_description">No worries, we\'ll send you reset instructions</string>
     <string name="email">Email</string>
     <string name="enter_your_email">Enter your Email</string>
+    <string name="forgot_password_prompt">Forgot Password?</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="password_too_short">Password must be at least 6 characters</string>
+    <string name="fill_all_fields">Please fill all fields</string>
+    <string name="please_agree_terms">Please agree to the terms and privacy policy</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_to_login">Back to Login</string>
     <string name="for_travellers">FOR TRAVELLERS</string>

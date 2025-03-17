@@ -28,7 +28,7 @@
         <item name="windowSplashScreenBackground">@color/auth_primary</item>
 
         <!-- Uygulamanın logosunu kullan -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/loginicon2</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/travelrlogo</item>
 
         <!-- Ana tema -->
         <item name="postSplashScreenTheme">@style/Theme.UrbanScore</item>
