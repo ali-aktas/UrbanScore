@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.ActivityMainBinding
 import com.aliaktas.urbanscore.navigation.BackStackManager
 import com.aliaktas.urbanscore.navigation.BottomNavigationManager
@@ -17,6 +18,7 @@ import com.aliaktas.urbanscore.ui.auth.ForgotPasswordFragment
 import com.aliaktas.urbanscore.ui.auth.RegisterFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -32,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     // Geri tuşu callback'i
     private lateinit var backPressedCallback: OnBackPressedCallback
 
+    @Inject
+    lateinit var adManager: AdManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -44,6 +49,10 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        //FirebaseApp.initializeApp(this)
+
+        adManager.initialize()
 
         // Yönetici sınıfları başlat
         setupManagers()

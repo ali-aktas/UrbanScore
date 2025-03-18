@@ -24,6 +24,8 @@ import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Locale
+import com.aliaktas.urbanscore.ads.AdManager
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExploreFragment : Fragment() {
@@ -33,7 +35,10 @@ class ExploreFragment : Fragment() {
 
     private val viewModel: ExploreViewModel by viewModels()
     private lateinit var cityAdapter: FeaturedCityAdapter
-    private val allCities = mutableListOf<CityModel>() // Tüm şehirleri saklamak için
+    private val allCities = mutableListOf<CityModel>()
+
+    @Inject
+    lateinit var adManager: AdManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -55,6 +60,23 @@ class ExploreFragment : Fragment() {
         setupCityCarousel()
         setupClickListeners()
         observeViewModel()
+        loadBannerAd()
+    }
+
+    private fun loadBannerAd() {
+        val adContainerView = binding.adContainerView
+        adManager.getBannerAd()?.let { adView ->
+            // AdView'i daha önce bir parent'a eklenmiş olabilir, önce kaldır
+            (adView.parent as? ViewGroup)?.removeView(adView)
+
+            // AdView'i container'a ekle
+            adContainerView.removeAllViews()
+            adContainerView.addView(adView)
+            adContainerView.visibility = View.VISIBLE
+        } ?: run {
+            // Pro kullanıcı veya reklam yüklenemedi
+            adContainerView.visibility = View.GONE
+        }
     }
 
     private fun setupCityCarousel() {
@@ -217,8 +239,9 @@ class ExploreFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        //_binding = null
+        binding.adContainerView.removeAllViews()
         super.onDestroyView()
-        _binding = null
     }
 
     // Yardımcı Mock sınıfı (eski yapıyı desteklemek için)

@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="12dp"
     android:padding="8dp"
+    android:background="@drawable/category_gradient_overlay"
     android:id="@+id/categoryListContainer"
     android:transitionName="cities_list_transition">
 
@@ -17,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/poppins_medium"
         android:textColor="#FFFFFF"
         android:textSize="32sp" />

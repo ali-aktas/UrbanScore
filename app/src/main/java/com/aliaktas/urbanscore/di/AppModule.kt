@@ -11,6 +11,7 @@ import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.CityRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.data.repository.UserRepositoryImpl
+import com.aliaktas.urbanscore.util.PreferenceManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -91,4 +92,11 @@ object AppModule {
     ): CityRecommendationRepository {
         return CityRecommendationRepositoryImpl(firestore, auth)
     }
+
+    @Provides
+    @Singleton
+    fun providePreferenceManager(@ApplicationContext context: Context): PreferenceManager {
+        return PreferenceManager(context)
+    }
+
 }

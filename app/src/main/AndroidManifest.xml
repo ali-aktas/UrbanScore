@@ -17,6 +17,15 @@
         android:theme="@style/Theme.UrbanScore"
         tools:targetApi="31">
 
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3940256099942544~3347511713"/>
+
+        <!-- Test için debug değeri -->
+        <meta-data
+            android:name="com.google.android.gms.ads.FLAG_OMIT_CONTENT_URLS_IN_APP_MEASUREMENT"
+            android:value="true" />
+
         <!-- Splash Activity -->
         <activity
             android:name=".ui.splash.SplashActivity"
