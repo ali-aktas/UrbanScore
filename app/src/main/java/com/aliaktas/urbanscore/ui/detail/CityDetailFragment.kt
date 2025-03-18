@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.comments.CommentBottomSheet
 import com.aliaktas.urbanscore.ui.comments.CommentsAdapter
@@ -37,23 +38,19 @@ private const val TAG = "CityDetailFragment"
 @AndroidEntryPoint
 class CityDetailFragment : Fragment() {
 
-    private var _binding: FragmentCityDetailBinding? = null
-    private val binding get() = _binding!!
-
-    private val viewModel: CityDetailViewModel by viewModels()
-    private val args: CityDetailFragmentArgs by navArgs()
-
+    @Inject
+    lateinit var adManager: AdManager
     @Inject
     lateinit var formatter: CityDetailFormatter
-
     @Inject
     lateinit var radarChartHelper: RadarChartHelper
 
+    private var _binding: FragmentCityDetailBinding? = null
+    private val binding get() = _binding!!
+    private val viewModel: CityDetailViewModel by viewModels()
+    private val args: CityDetailFragmentArgs by navArgs()
     private lateinit var uiStateManager: CityDetailUiStateManager
-
-    // Reference to rating bottom sheet for lifecycle management
     private var ratingBottomSheet: RateCityBottomSheet? = null
-
     private lateinit var commentsAdapter: CommentsAdapter
     private lateinit var commentsSection: View
 
@@ -78,6 +75,14 @@ class CityDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val shouldShowAd = adManager.recordCityVisit()
+        if (shouldShowAd) {
+            adManager.showInterstitialAd(requireActivity()) {
+                // Reklam kapandıktan sonra yapılacak işlemler (gerekirse)
+                Log.d(TAG, "Interstitial ad closed")
+            }
+        }
 
         // Setup transition name for shared element transition
         binding.toolbar.transitionName = "city_${args.cityId}"
