@@ -180,4 +180,23 @@
     <string name="msg_generic_error">An error occurred. Please try again.</string>
     <string name="msg_loading">Loading...</string>
 
+    <!-- Pro Abonelik İçin String Kaynakları -->
+    <string name="pro_title">Upgrade to Pro</string>
+    <string name="pro_description">Enhance your travel experience with premium features and ad-free browsing</string>
+    <string name="pro_features_title">Pro Features:</string>
+    <string name="feature_no_ads">Ad-free experience</string>
+    <string name="feature_suggests">Unlimited city suggestions</string>
+    <string name="feature_premium_comment">Premium comment experience</string>
+    <string name="monthly_subscription">Monthly Plan</string>
+    <string name="yearly_subscription">Yearly Plan</string>
+    <string name="billed_monthly">Billed monthly, cancel anytime</string>
+    <string name="billed_yearly_save">Billed yearly, save 45% compared to monthly</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="pro_active">You are a Pro User!</string>
+    <string name="subscription_expiry">Your subscription expires on %1$s</string>
+    <string name="renew_subscription">Renew Subscription</string>
+    <string name="pro_subscription">Pro Subscription</string>
+
+
+
 </resources>

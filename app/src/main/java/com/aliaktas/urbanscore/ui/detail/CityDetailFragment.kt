@@ -84,17 +84,30 @@ class CityDetailFragment : Fragment() {
             }
         }
 
-        // Setup transition name for shared element transition
+        if (adManager.shouldSuggestProSubscription()) {
+            showProSubscriptionSuggestion()
+        }
+
         binding.toolbar.transitionName = "city_${args.cityId}"
 
-        // Initialize UI state manager
-        initializeUiStateManager()
 
-        // Setup UI components and observers
+        initializeUiStateManager()
         setupRadarChart()
         setupClickListeners()
         observeViewModel()
         setupComments()
+    }
+
+    private fun showProSubscriptionSuggestion() {
+        val snackbar = Snackbar.make(
+            binding.root,
+            "Want to remove ads? Try Pro subscription!",
+            Snackbar.LENGTH_LONG
+        )
+        snackbar.setAction("Upgrade") {
+            (requireActivity() as MainActivity).navigateToProSubscription()
+        }
+        snackbar.show()
     }
 
     private fun initializeUiStateManager() {

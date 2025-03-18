@@ -87,6 +87,19 @@
             app:strokeWidth="2dp" />
     </FrameLayout>
 
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Settings"
+        android:src="@drawable/ic_menu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#FFFFFF" />
+
     <!-- Kaydırılabilir içerik bölümü -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/profileScrollView"

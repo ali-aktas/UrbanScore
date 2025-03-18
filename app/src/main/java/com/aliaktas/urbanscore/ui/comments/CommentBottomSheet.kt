@@ -76,6 +76,8 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
             val commentText = binding.etComment.text.toString().trim()
             if (commentText.isNotEmpty()) {
                 // Önce ödüllü reklam göster, sonra yorumu gönder
+                binding.btnSubmitComment.isEnabled = false
+
                 adManager.showRewardedAd(
                     requireActivity(),
                     onRewarded = {
@@ -85,7 +87,11 @@ class CommentBottomSheet : BottomSheetDialogFragment() {
                     onAdClosed = {
                         // Reklam gösterilemedi veya kapatıldı durumunda
                         // Pro kullanıcılar için reklam gösterilmez ve direkt onRewarded çağrılır
-                        // Eğer buraya gelindiyse, yorum gönderilmiş demektir
+                        // Eğer buraya gelindiyse ama isEnabled hala false ise
+                        // yorum gönderilmemiş olabilir, butonu aktifleştir
+                        if (!binding.btnSubmitComment.isEnabled) {
+                            binding.btnSubmitComment.isEnabled = true
+                        }
                     }
                 )
             }

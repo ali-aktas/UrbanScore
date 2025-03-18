@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -58,6 +59,7 @@ class ProfileFragment : Fragment() {
         setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
+        setupMenuButton()
 
         // ViewModel'in Flow'larının düzgün çalıştığından emin olmak için
         Log.d("ProfileFragment", "onViewCreated: Starting to observe ViewModel")
@@ -250,6 +252,35 @@ class ProfileFragment : Fragment() {
             }
             .show()
     }
+
+    private fun setupMenuButton() {
+        binding.btnSettings.setOnClickListener {
+            showPopupMenu(it)
+        }
+    }
+
+    private fun showPopupMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_profile, popup.menu)
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_pro_subscription -> {
+                    (requireActivity() as MainActivity).navigateToProSubscription()
+                    true
+                }
+                R.id.menu_logout -> {
+                    // viewModel.signOut() yerine mevcut logout diyalog metodunu çağır
+                    showLogoutConfirmationDialog()
+                    true
+                }
+                else -> false
+            }
+        }
+
+        popup.show()
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

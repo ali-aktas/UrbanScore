@@ -83,6 +83,7 @@ class AdManager @Inject constructor(
     ) {
         if (isPro) {
             onRewarded()
+            onAdClosed()
             return
         }
 
@@ -107,8 +108,22 @@ class AdManager @Inject constructor(
      * Reklamları önceden yükler.
      */
     private fun preloadAds() {
+        if (isPro) return
+
         interstitialAdHelper.loadAd()
         rewardedAdHelper.loadAd()
+    }
+
+    /**
+     * Pro abonelik sayfasına gitme önerisi gösterilmeli mi?
+     * Eğer kullanıcı Pro değilse ve gerekli şartlar sağlanıyorsa true döner.
+     */
+    fun shouldSuggestProSubscription(): Boolean {
+        // Kullanıcı zaten Pro ise öneri gösterme
+        if (isPro) return false
+
+        // Gerekli koşulları kontrol et (örneğin: belirli bir sayıda reklam görüntülendi mi?)
+        return cityVisitCount >= CITY_VISIT_THRESHOLD - 1
     }
 
     companion object {

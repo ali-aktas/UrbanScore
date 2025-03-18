@@ -120,7 +120,6 @@ class ExploreFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // AllCities'i gözlemle
                 launch {
                     viewModel.allCities.collect { cities ->
                         allCities.clear()
@@ -128,19 +127,16 @@ class ExploreFragment : Fragment() {
                     }
                 }
 
-                // PopularCities'i gözlemle
                 launch {
                     viewModel.popularCities.collect { cities ->
                         if (cities.isNotEmpty()) {
                             updateCities(cities)
                         } else if (cityAdapter.itemCount == 0) {
-                            // Eğer boşsa ve henüz bir şey gösterilmiyorsa mock verileri göster
                             showMockCities()
                         }
                     }
                 }
 
-                // Loading durumunu gözlemle
                 launch {
                     viewModel.isLoading.collect { isLoading ->
                         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -165,13 +161,7 @@ class ExploreFragment : Fragment() {
         if (allCities.isEmpty()) {
             binding.progressBar.visibility = View.VISIBLE
 
-            // ViewModel aracılığıyla şehirleri yükle
             viewModel.loadAllCities()
-
-            // Şehirler hazır olduğunda observable içinde zaten fark edeceğiz
-            // ve bottom sheet'i o zaman göstereceğiz
-
-            // Direkt bir timeout ile kontrol edelim
             lifecycleScope.launch {
                 kotlinx.coroutines.delay(2000) // 2 saniye bekleyelim
                 if (allCities.isNotEmpty()) {
@@ -232,7 +222,6 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    // Scroll to top fonksiyonu - MainActivity'den çağrılabilir
     fun scrollToTop() {
         // Root view'ı en başa kaydır
         binding.root.scrollTo(0, 0)
@@ -244,14 +233,12 @@ class ExploreFragment : Fragment() {
         super.onDestroyView()
     }
 
-    // Yardımcı Mock sınıfı (eski yapıyı desteklemek için)
     data class MockCity(
         val id: String,
         val name: String,
         val imageUrl: String
     )
 
-    // Adapter sınıfını FeaturedCityAdapter adı altında tutup içeriğini güncelliyoruz
     inner class FeaturedCityAdapter(private val cities: List<CuratedCityItem>) :
         RecyclerView.Adapter<FeaturedCityAdapter.CityViewHolder>() {
 
@@ -267,7 +254,6 @@ class ExploreFragment : Fragment() {
         override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
             val city = cities[position]
 
-            // cityId'den şehir adını çıkar (örneğin "istanbul-turkey" -> "Istanbul")
             val cityName = city.cityId.split("-").firstOrNull()?.replaceFirstChar {
                 if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
             } ?: "Unknown City"
@@ -275,14 +261,12 @@ class ExploreFragment : Fragment() {
             with(holder.binding) {
                 txtCityName.text = cityName
 
-                // Resim yükleme - önce custom URL, yoksa varsayılan resim
                 if (city.imageUrl.isNotEmpty()) {
                     Glide.with(root.context)
                         .load(city.imageUrl)
                         .centerCrop()
                         .into(imgCity)
                 } else {
-                    // Varsayılan PNG dosyasını yükle
                     Glide.with(root.context)
                         .load(R.drawable.istanbulphoto)
                         .centerCrop()
@@ -292,7 +276,6 @@ class ExploreFragment : Fragment() {
 
             holder.itemView.setOnClickListener {
                 try {
-                    // Şehir detay sayfasına git
                     (requireActivity() as MainActivity).navigateToCityDetail(city.cityId)
                 } catch (e: Exception) {
                     Log.e("ExploreFragment", "Navigation error: ${e.message}", e)

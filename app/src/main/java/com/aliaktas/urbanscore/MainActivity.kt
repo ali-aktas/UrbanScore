@@ -17,6 +17,7 @@ import com.aliaktas.urbanscore.navigation.NavigationManager
 import com.aliaktas.urbanscore.ui.auth.ForgotPasswordFragment
 import com.aliaktas.urbanscore.ui.auth.RegisterFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
+import com.aliaktas.urbanscore.ui.subscription.ProSubscriptionFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -192,11 +193,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // MainActivity.kt içerisine bu metotları ekleyin
 
-    /**
-     * Shows the RegisterFragment
-     */
+    fun navigateToProSubscription() {
+        val proFragment = ProSubscriptionFragment()
+        navigationManager.showFragment(proFragment, true, "PRO_SUBSCRIPTION_FRAGMENT")
+    }
+
+
     fun showRegisterFragment() {
         val registerFragment = RegisterFragment()
         navigationManager.showFragment(registerFragment, true, "REGISTER_FRAGMENT")
