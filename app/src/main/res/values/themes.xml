@@ -25,10 +25,10 @@
     <!-- Splash screen theme for Android 12+ -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Splash screen arkaplan rengi -->
-        <item name="windowSplashScreenBackground">@color/auth_primary</item>
+        <item name="windowSplashScreenBackground">#23B168</item>
 
         <!-- Uygulamanın logosunu kullan -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/travelrlogo</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
 
         <!-- Ana tema -->
         <item name="postSplashScreenTheme">@style/Theme.UrbanScore</item>

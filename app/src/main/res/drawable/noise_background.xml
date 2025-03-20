@@ -3,7 +3,7 @@
     <!-- Mevcut arka plan rengi -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#E2076355" />
+            <solid android:color="#145E5C" />
             <corners android:radius="26dp" />
         </shape>
     </item>

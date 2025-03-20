@@ -254,7 +254,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupMenuButton() {
-        binding.btnSettings.setOnClickListener {
+        binding.profileButton.setOnClickListener {
             showPopupMenu(it)
         }
     }

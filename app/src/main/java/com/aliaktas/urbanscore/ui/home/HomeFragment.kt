@@ -80,7 +80,7 @@ class HomeFragment : Fragment() {
         binding.recyclerViewCategories.apply {
             adapter = categoriesAdapter
             setHasFixedSize(true)
-            itemAnimator = null // Animasyon kaldırıldı - performans için
+            itemAnimator = null
         }
 
         // Kategorileri göster (değişmez veriler)

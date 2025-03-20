@@ -5,23 +5,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingEnd="18dp"
-    android:paddingStart="18dp"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
     tools:context=".ui.search.ExploreFragment">
 
-        <!-- App Title -->
+    <LinearLayout
+        android:id="@+id/txtAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp">
+
         <TextView
-            android:id="@+id/txtAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="32dp"
-            android:fontFamily="@font/poppins_medium"
-            android:text="@string/app_name"
+            android:text="Travel"
+            android:fontFamily="@font/montserrat_black"
             android:textColor="#FFFFFF"
-            android:textSize="32sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R"
+            android:fontFamily="@font/montserrat_black"
+            android:textColor="#FF3E3E"
+            android:textSize="32sp" />
+
+    </LinearLayout>
 
         <!-- Discover Title -->
         <TextView

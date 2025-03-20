@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UrbanRate</string>
+    <string name="app_name">Travel Rate</string>
 
     <!-- Home Screen -->
     <string name="search_hint">Search cities…</string>
@@ -98,7 +98,7 @@
     <!-- Category names and descriptions -->
     <string name="safety_and_serenity">Safety &amp; Serenity</string>
     <string name="safety_serenity_desc">Crime rate, personal safety, and peaceful atmosphere</string>
-    <string name="landscape_and_vibe">Landscape &amp; Vibe</string>
+    <string name="landscape_and_vibe">Landscape &amp; Aesthetics</string>
     <string name="landscape_vibe_desc">City architecture, urban planning, and general atmosphere</string>
     <string name="nature_and_climate">Nature &amp; Climate</string>
     <string name="nature_climate_desc">Green spaces, weather conditions, and natural surroundings</string>
@@ -136,11 +136,11 @@
     <string name="email_or_phone">Email or Phone</string>
     <string name="password">Password</string>
     <string name="forgot_password">Forgot Password?</string>
-    <string name="login">Login</string>
+    <string name="login">LOGIN</string>
     <string name="or">or</string>
-    <string name="create_an_account">Create an account</string>
+    <string name="create_an_account">CREATE AN ACCOUNT</string>
     <string name="google_icon">Google Icon</string>
-    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_google">CONTINUE WITH GOOGLE</string>
     <string name="full_name">Full Name</string>
     <string name="email_address">Email Address</string>
     <string name="retype_password">Retype Password</string>
@@ -162,7 +162,7 @@
     <string name="please_agree_terms">Please agree to the terms and privacy policy</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_to_login">Back to Login</string>
-    <string name="for_travellers">FOR TRAVELLERS</string>
+    <string name="for_travellers">Rate cities you visited!</string>
     <string name="default_web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -196,6 +196,8 @@
     <string name="subscription_expiry">Your subscription expires on %1$s</string>
     <string name="renew_subscription">Renew Subscription</string>
     <string name="pro_subscription">Pro Subscription</string>
+    <string name="accept_terms_and_conditions">Accept terms and conditions</string>
+
 
 
 

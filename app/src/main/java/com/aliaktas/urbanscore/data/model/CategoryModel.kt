@@ -16,14 +16,14 @@ data class CategoryModel(
         fun getDefaultCategories(): List<CategoryModel> = listOf(
             CategoryModel(
                 id = "environment",
-                title = "Landscapes & City Vibe",
+                title = "Aesthetics",
                 description = "City architecture, green spaces, cleanliness, and overall beauty",
                 imageUrl = "https://example.com/environment.jpg",
                 ratingType = "environment"
             ),
             CategoryModel(
                 id = "safety",
-                title = "Safety & Tranquility",
+                title = "Safety",
                 description = "Crime rates, security, traffic safety, and general feeling of peace",
                 imageUrl = "https://example.com/safety.jpg",
                 ratingType = "safety"
@@ -44,7 +44,7 @@ data class CategoryModel(
             ),
             CategoryModel(
                 id = "social",
-                title = "Social & Cultural Life",
+                title = "Social Life",
                 description = "Museums, galleries, nightlife, events, local hospitality, and social activities",
                 imageUrl = "https://example.com/social.jpg",
                 ratingType = "social"

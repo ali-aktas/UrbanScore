@@ -47,8 +47,8 @@ class RegisterFragment : Fragment() {
 
     private fun setupClickListeners() {
         // Register button
-        binding.btnRegister.setOnClickListener {
-            val name = binding.etName.text.toString().trim()
+        binding.btnSignUp.setOnClickListener {
+            val name = binding.etFullName.text.toString().trim()
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
@@ -59,25 +59,25 @@ class RegisterFragment : Fragment() {
         }
 
         // Sign in button
-        binding.tvLogin.setOnClickListener {
+        binding.tvBackToLogin.setOnClickListener {
             // Use MainActivity's custom navigation
             (requireActivity() as MainActivity).handleBackPressed()
         }
 
-        // Back button
-        binding.btnBack.setOnClickListener {
-            // Use MainActivity's custom navigation
-            (requireActivity() as MainActivity).handleBackPressed()
+        // Google Sign In button
+        binding.btnGoogleSignIn.setOnClickListener {
+            // Implement Google sign-in functionality
+            Snackbar.make(binding.root, "Google Sign-in functionality to be implemented", Snackbar.LENGTH_SHORT).show()
         }
     }
 
     private fun setupInputValidation() {
         // Name validation
-        binding.etName.addTextChangedListener(object : TextWatcher {
+        binding.etFullName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                binding.tilName.error = if (s.toString().trim().isEmpty()) "Name is required" else null
+                binding.tilFullName.error = if (s.toString().trim().isEmpty()) "Name is required" else null
             }
         })
 
@@ -92,6 +92,15 @@ class RegisterFragment : Fragment() {
                     !isValidEmail(email) -> "Invalid email format"
                     else -> null
                 }
+            }
+        })
+
+        // Phone validation (optional)
+        binding.etPhone.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                // Phone is optional so no validation needed
             }
         })
 
@@ -138,7 +147,7 @@ class RegisterFragment : Fragment() {
         var isValid = true
 
         if (name.isEmpty()) {
-            binding.tilName.error = "Name is required"
+            binding.tilFullName.error = "Name is required"
             isValid = false
         }
 
@@ -192,7 +201,7 @@ class RegisterFragment : Fragment() {
         when (state) {
             is AuthState.Loading -> {
                 binding.progressBar.visibility = View.VISIBLE
-                binding.btnRegister.isEnabled = false
+                binding.btnSignUp.isEnabled = false
             }
             is AuthState.Authenticated -> {
                 binding.progressBar.visibility = View.GONE
@@ -205,11 +214,11 @@ class RegisterFragment : Fragment() {
             }
             is AuthState.Unauthenticated -> {
                 binding.progressBar.visibility = View.GONE
-                binding.btnRegister.isEnabled = true
+                binding.btnSignUp.isEnabled = true
             }
             is AuthState.Error -> {
                 binding.progressBar.visibility = View.GONE
-                binding.btnRegister.isEnabled = true
+                binding.btnSignUp.isEnabled = true
                 Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
                 viewModel.clearError()
             }

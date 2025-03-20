@@ -5,7 +5,7 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_rating"
+    android:background="#23B168"
     tools:context=".MainActivity">
 
     <FrameLayout
@@ -20,8 +20,8 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="0dp"
-        android:layout_height="90dp"
-        android:background="@color/rating_color"
+        android:layout_height="70dp"
+        android:background="@drawable/bottom_nav_background"
         app:itemIconSize="26dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
