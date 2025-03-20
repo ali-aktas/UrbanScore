@@ -2,211 +2,241 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="8dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:paddingTop="12dp"
+    android:paddingStart="12dp">
 
-    <!-- Üst kısımdaki sabit görsel alanı -->
-    <FrameLayout
-        android:id="@+id/chartContainer"
-        android:layout_width="match_parent"
-        android:layout_marginTop="-15dp"
-        android:layout_height="250dp"
-        android:layout_gravity="center_horizontal">
-
-        <!-- Yeni radar grafiği -->
-        <com.github.mikephil.charting.charts.RadarChart
-            android:id="@+id/radarChart"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
-
-    <ImageButton
-        android:id="@+id/toolbar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back button"
-        android:src="@drawable/ic_back"
-        app:tint="#DF21F398" />
-
-    <!-- Şehir Bilgileri Alanı -->
+    <!-- Üst kısım - Sabit kalacak -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cityInfoLayout"
+        android:id="@+id/topContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="230dp"
-        android:padding="16dp">
+        android:paddingHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="12dp"
+        android:paddingTop="8dp">
 
-        <!-- Flag, City Name and Rating Row -->
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/imgFlag"
-            android:layout_width="48dp"
-            android:layout_height="32dp"
-            android:contentDescription="@string/country_flag"
-            android:scaleType="centerCrop"
+        <!-- Çıkış Butonu - Sağ Üst Köşede -->
+        <ImageButton
+            android:id="@+id/toolbar"
+            android:layout_width="24dp"
+            android:layout_height="28dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Close button"
+            android:src="@drawable/ic_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-            tools:src="@color/black" />
+            app:layout_constraintBottom_toTopOf="@+id/cityInfoLayout"
+            app:tint="#6D706F" />
 
-        <TextView
-            android:id="@+id/textCityName"
-            android:layout_width="wrap_content"
+        <!-- Şehir Bilgileri - Sol Taraf -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cityInfoLayout"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:textColor="@color/white"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/imgFlag"
-            app:layout_constraintBottom_toBottomOf="@id/imgFlag"
-            app:layout_constraintTop_toTopOf="@id/imgFlag"
-            tools:text="Istanbul" />
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.45">
 
-        <View
-            app:layout_constraintEnd_toStartOf="@+id/txtAverageRating"
-            app:layout_constraintBottom_toBottomOf="@+id/txtAverageRating"
-            app:layout_constraintTop_toTopOf="@+id/txtAverageRating"
-            android:background="@drawable/baseline_star_purple500_24"
-            android:layout_width="36dp"
-            android:layout_height="36dp"/>
+            <!-- Ana Puan -->
+            <TextView
+                android:id="@+id/txtAverageRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="#FFB500"
+                android:textSize="42sp"
+                android:gravity="center"
+                app:layout_constraintBottom_toTopOf="@id/textCityName"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="7.87" />
 
-        <TextView
-            android:id="@+id/txtAverageRating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/geologicablack"
-            android:gravity="center_vertical"
-            android:textColor="#FFB500"
-            android:layout_marginBottom="8dp"
-            android:textSize="42sp"
-            app:layout_constraintBottom_toBottomOf="@+id/txtPopulationLabel"
+            <ImageView
+                android:id="@+id/ratingSymbol"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_star"
+                android:layout_marginStart="4dp"
+                app:tint="#FFB500"
+                app:layout_constraintBottom_toBottomOf="@id/txtAverageRating"
+                app:layout_constraintStart_toEndOf="@id/txtAverageRating"
+                app:layout_constraintTop_toTopOf="@id/txtAverageRating"
+                app:layout_constraintVertical_bias="0.4" />
+
+            <!-- Şehir Adı -->
+            <TextView
+                android:id="@+id/textCityName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_black"
+                android:textColor="@color/white"
+                android:layout_marginTop="-8dp"
+                android:textSize="32sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtAverageRating"
+                tools:text="London" />
+
+            <!-- Bayrak -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/imgFlag"
+                android:layout_width="28dp"
+                android:layout_height="20dp"
+                android:contentDescription="@string/country_flag"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textCityName"
+                app:layout_constraintBottom_toBottomOf="@id/txtCountry"
+                app:layout_constraintTop_toTopOf="@id/txtCountry"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
+                tools:src="@color/black" />
+
+            <!-- Ülke Adı -->
+            <TextView
+                android:id="@+id/txtCountry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/montserrat_medium"
+                android:textColor="#D4D3BB"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/imgFlag"
+                app:layout_constraintTop_toBottomOf="@id/textCityName"
+                tools:text="England" />
+
+            <!-- Bölge Ayırıcı / Sembolü -->
+            <TextView
+                android:id="@+id/txtSeparator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="/"
+                android:fontFamily="@font/montserrat_medium"
+                android:textColor="#D4D3BB"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/txtCountry"
+                app:layout_constraintStart_toEndOf="@id/txtCountry"
+                app:layout_constraintTop_toTopOf="@id/txtCountry" />
+
+            <!-- Bölge Adı -->
+            <TextView
+                android:id="@+id/txtRegion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/montserrat_medium"
+                android:textColor="#D4D3BB"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/txtSeparator"
+                app:layout_constraintStart_toEndOf="@id/txtSeparator"
+                app:layout_constraintTop_toTopOf="@id/txtSeparator"
+                tools:text="Europe" />
+
+            <!-- Nüfus -->
+            <TextView
+                android:id="@+id/txtPopulationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Population: "
+                android:fontFamily="@font/montserrat_medium"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtCountry" />
+
+            <TextView
+                android:id="@+id/txtPopulation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_medium"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@id/txtPopulationLabel"
+                app:layout_constraintStart_toEndOf="@id/txtPopulationLabel"
+                app:layout_constraintTop_toTopOf="@id/txtPopulationLabel"
+                tools:text="4.25M" />
+
+            <!-- Oy Sayısı -->
+            <TextView
+                android:id="@+id/txtRatingCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/montserrat_light"
+                android:textColor="#CCAEAEAE"
+                android:textSize="12sp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/txtPopulationLabel"
+                tools:text="Rated by 66 travelers" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- Radar Grafiği - Sağ Taraf -->
+        <FrameLayout
+            android:id="@+id/chartContainer"
+            android:layout_width="260dp"
+            android:layout_height="270dp"
+            android:layout_marginTop="-10dp"
+            android:layout_marginEnd="-38dp"
+            app:layout_constraintBottom_toBottomOf="@id/cityInfoLayout"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:text="8.64" />
+            app:layout_constraintTop_toTopOf="@id/cityInfoLayout"
+            app:layout_constraintWidth_percent="0.75">
 
-        <!-- Ratings Count -->
-        <TextView
-            android:id="@+id/txtRatingCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="#CCAEAEAE"
-            android:textSize="12sp"
-            android:layout_marginTop="-5dp"
-            app:layout_constraintStart_toStartOf="@id/txtAverageRating"
-            app:layout_constraintEnd_toEndOf="@id/txtAverageRating"
-            app:layout_constraintTop_toBottomOf="@id/txtAverageRating"
-            tools:text="1.2B rated" />
-
-        <!-- Country and Region Information in one row -->
-        <TextView
-            android:id="@+id/txtCountry"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="@color/white"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imgFlag"
-            tools:text="Turkiye" />
-
-        <TextView
-            android:id="@+id/txtSeparator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:text="/"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/txtCountry"
-            app:layout_constraintStart_toEndOf="@id/txtCountry"
-            app:layout_constraintTop_toTopOf="@id/txtCountry" />
-
-        <TextView
-            android:id="@+id/txtRegion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="4dp"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/txtSeparator"
-            app:layout_constraintStart_toEndOf="@id/txtSeparator"
-            app:layout_constraintTop_toTopOf="@id/txtSeparator"
-            tools:text="Europe &amp; Asia" />
-
-        <!-- Population Information below country/region -->
-        <TextView
-            android:id="@+id/txtPopulationLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Population: "
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="@color/white"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/txtCountry" />
-
-        <TextView
-            android:id="@+id/txtPopulation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_semicondensed_medium"
-            android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/txtPopulationLabel"
-            app:layout_constraintStart_toEndOf="@id/txtPopulationLabel"
-            app:layout_constraintTop_toTopOf="@id/txtPopulationLabel"
-            tools:text="15.5M" />
-
+            <com.github.mikephil.charting.charts.RadarChart
+                android:id="@+id/radarChart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:visibility="gone"
+        android:layout_gravity="center" />
 
-    <!-- Ana İçerik için NestedScrollView -->
+    <!-- Aşağı Kaydırılabilir İçerik -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:layout_marginTop="335dp"
+        android:layout_marginTop="240dp"
         android:overScrollMode="never"
+        android:paddingTop="8dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="22dp">
+            android:padding="12dp">
 
             <!-- Butonlar: Rate City ve Add to Wishlist -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="24dp"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRateCity"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
                     android:layout_marginEnd="8dp"
-                    android:gravity="center"
                     android:backgroundTint="#052023"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:fontFamily="@font/roboto_semicondensed_medium"
                     android:text="@string/rate_this_city"
                     android:textAllCaps="false"
@@ -217,15 +247,13 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAddToWishlist"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:backgroundTint="#D7D9DCDB"
-                    android:textSize="16sp"
-                    android:fontFamily="@font/roboto_semicondensed_medium"
                     android:layout_marginStart="8dp"
+                    android:backgroundTint="#D7D9DCDB"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/roboto_semicondensed_medium"
                     android:text="@string/add_to_wishlist"
                     android:textAllCaps="false"
                     android:textColor="@color/black"
@@ -234,356 +262,420 @@
                     app:icon="@drawable/ic_wishlist" />
             </LinearLayout>
 
-            <!-- Environment & Aesthetics -->
+            <!-- Kategori Kartları - Ilk Satır -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@drawable/category_landscape_bg"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/environment_title"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.7"
-                        android:fontFamily="@font/poppins_lightitalic"
-                        android:textColor="@color/white"
-                        android:text="@string/environment_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtEnvironmentRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/auth_accent"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="9.94" />
-            </LinearLayout>
-
-            <!-- Kategorileri ayırmak için hafif divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
-                android:background="#20FFFFFF" />
-
-            <!-- Safety & Tranquility -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/category_safety_bg"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/safety_title"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.7"
-                        android:fontFamily="@font/poppins_lightitalic"
-                        android:textColor="@color/white"
-                        android:text="@string/safety_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtSafetyRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/auth_accent"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="8.7" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
-                android:background="#20FFFFFF" />
-
-            <!-- Livability -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@drawable/category_livability_bg"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/livability_title"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.7"
-                        android:fontFamily="@font/poppins_lightitalic"
-                        android:textColor="@color/white"
-                        android:text="@string/livability_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtLivabilityRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/auth_accent"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="8.9" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
-                android:background="#20FFFFFF" />
-
-            <!-- Cost of Living -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@drawable/category_cost_bg"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/cost_title"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.7"
-                        android:fontFamily="@font/poppins_lightitalic"
-                        android:textColor="@color/white"
-                        android:text="@string/cost_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtCostRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/auth_accent"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="7.5" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
-                android:background="#20FFFFFF" />
-
-            <!-- Social & Cultural Life -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:background="@drawable/category_social_bg"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/social_title"
-                        android:fontFamily="@font/poppins_medium"
-                        android:textColor="@color/white"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:alpha="0.7"
-                        android:fontFamily="@font/poppins_lightitalic"
-                        android:textColor="@color/white"
-                        android:text="@string/social_desc"
-                        android:textSize="13sp" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/txtSocialRating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="@color/rating_color"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    tools:text="9.1" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="8dp"
-                android:background="#20FFFFFF" />
-
-
-            <!-- Explore Butonları -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExploreYouTube"
-                android:layout_width="250dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:backgroundTint="#ABB10000"
-                android:fontFamily="@font/roboto_extralight"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="Watch travel guides on YouTube"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_youtube"
-                app:iconTint="@color/white" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
 
+                <!-- Environment & Aesthetics -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:layout_marginEnd="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:strokeWidth="0dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_landscape_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/environment_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtEnvironmentRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="7.37" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Safety -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    app:strokeWidth="0dp"
+                    android:clickable="true"
+                    android:layout_marginStart="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_safety_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/safety_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtSafetyRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="6.72" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Kategori Kartları - İkinci Satır -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <!-- Cost of Living -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    app:strokeWidth="0dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_cost_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/cost_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtCostRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="7.75" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Social & Cultural -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    app:strokeWidth="0dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_social_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/social_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtSocialRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/rating_color"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="9.72" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/rating_color" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Kategori Kartları - Üçüncü Satır -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <!-- Livability -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    app:strokeWidth="0dp"
+                    android:clickable="true"
+                    android:layout_marginEnd="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_livability_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/livability_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtLivabilityRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="8.21" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Boş Kart veya Ekstra Kategori -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    app:strokeWidth="0dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_landscape_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="BOS"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Yorumlar Kısmı -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btnShowComments"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#2196F3"
+                    android:fontFamily="@font/roboto_extralight"
+                    android:text="@string/show_comments"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:layout_gravity="center"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_comment"
+                    app:iconTint="@color/white" />
+
+                <Button
+                    android:id="@+id/btnAddComment"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:layout_gravity="center"
+                    android:backgroundTint="#4CAF50"
+                    android:fontFamily="@font/roboto_extralight"
+                    android:text="@string/add_comment"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_add_comment"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
+
+
+
+            <!-- Explore This City Başlık -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="or"
-                android:gravity="center"
-                android:layout_gravity="center"
-                android:layout_margin="2dp"
+                android:text="Explore This City"
+                android:textColor="@color/white"
+                android:textSize="20sp"
                 android:fontFamily="@font/poppins_medium"
-                android:textColor="@color/white"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnExploreGoogle"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:backgroundTint="#B0000000"
-                android:fontFamily="@font/roboto_extralight"
                 android:gravity="center"
-                android:padding="10dp"
-                android:text="Explore 4k views on Google"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_google"
-                app:iconTint="@color/white" />
-
-            <!-- app/src/main/res/layout/fragment_city_detail.xml -->
-            <!-- btnExploreGoogle butonundan sonra ekleyin -->
-
-            <Button
-                android:id="@+id/btnShowComments"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="#2196F3"
-                android:fontFamily="@font/roboto_extralight"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="@string/show_comments"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_comment"
-                app:iconTint="@color/white" />
+                android:layout_marginBottom="16dp"/>
 
-            <Button
-                android:id="@+id/btnAddComment"
-                android:layout_width="250dp"
+            <!-- Explore Butonları -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="#4CAF50"
-                android:fontFamily="@font/roboto_extralight"
-                android:gravity="center"
-                android:padding="10dp"
-                android:text="@string/add_comment"
-                android:textAllCaps="false"
-                android:textColor="@color/white"
-                app:cornerRadius="8dp"
-                app:icon="@drawable/ic_add_comment"
-                app:iconTint="@color/white" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExploreYouTube"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#ABB10000"
+                    android:fontFamily="@font/roboto_extralight"
+                    android:text="On YouTube"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_youtube"
+                    app:iconTint="@color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExploreGoogle"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="#B0000000"
+                    android:fontFamily="@font/roboto_extralight"
+                    android:text="On Google"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    app:cornerRadius="8dp"
+                    app:icon="@drawable/ic_google"
+                    app:iconTint="@color/white" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

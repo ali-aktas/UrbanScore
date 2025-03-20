@@ -278,12 +278,12 @@ class CityDetailFragment : Fragment() {
             viewModel.loadMoreComments()
         }
 
-        // Layout'a ekle (comments butonu altına)
-        val linearLayout = binding.nestedScrollView.getChildAt(0) as ViewGroup
+        // Daha güvenli bir çözüm - yorumları ve explore butonlarını içeren container'ı bul
+        val commentsButtonsContainer = binding.btnShowComments.parent as ViewGroup
+        val parentLayout = commentsButtonsContainer.parent as ViewGroup
+        val containerIndex = parentLayout.indexOfChild(commentsButtonsContainer)
 
-        // Buttons container index'ini bul ve sonrasına ekle
-        val btnExploreGoogleIndex = linearLayout.indexOfChild(binding.btnExploreGoogle)
-        linearLayout.addView(commentsSection, btnExploreGoogleIndex + 1)
+        parentLayout.addView(commentsSection, containerIndex + 1)
 
         // Başlangıçta gizle
         commentsSection.visibility = View.GONE
