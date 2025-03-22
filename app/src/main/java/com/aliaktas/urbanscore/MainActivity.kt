@@ -1,6 +1,8 @@
 package com.aliaktas.urbanscore
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -166,32 +168,37 @@ class MainActivity : AppCompatActivity() {
 
     // Within MainActivity.kt, update this method:
     fun navigateToHomeAfterLogin() {
+        Log.d(TAG, "Navigating to home after login")
         try {
-            Log.d(TAG, "Navigating to home after login")
             // Clear back stack to prevent returning to login screens
             backStackManager.clearBackStack()
 
             // Show bottom navigation
             bottomNavigationManager.showBottomNavigation()
 
-            // Navigate to home fragment
-            bottomNavigationManager.showBottomNavFragment(R.id.homeFragment)
+            // Önce var olan fragmentları kontrol et
+            val existingFragment = supportFragmentManager.findFragmentByTag("HOME_FRAGMENT")
+
+            if (existingFragment == null) {
+                // Navigate to home fragment
+                navigationManager.showFragment(HomeFragment(), false, "HOME_FRAGMENT")
+            } else if (!existingFragment.isVisible) {
+                // Fragment var ama görünür değilse göster
+                Log.d(TAG, "HomeFragment zaten eklenmiş, gösteriliyor")
+                supportFragmentManager.beginTransaction()
+                    .show(existingFragment)
+                    .commit()
+            }
+
+            // Bottom navigation'da home tab'ı seçili hale getir
+            binding.bottomNavigation.selectedItemId = R.id.homeFragment
         } catch (e: Exception) {
             Log.e(TAG, "Navigation error in navigateToHomeAfterLogin", e)
-
-            // Fallback in case of errors
-            try {
-                // Try direct fragment replacement as fallback
-                navigationManager.showFragment(HomeFragment(), false, "HOME_FRAGMENT")
-                bottomNavigationManager.showBottomNavigation()
-            } catch (e2: Exception) {
-                Log.e(TAG, "Critical navigation error", e2)
-
-                // Last resort: recreate activity
+            // Ciddi hata durumunda basit bir yeniden başlatma
+            Handler(Looper.getMainLooper()).postDelayed({
                 recreate()
-            }
+            }, 200)
         }
-
     }
 
 

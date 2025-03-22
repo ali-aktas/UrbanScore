@@ -3,6 +3,8 @@ package com.aliaktas.urbanscore.ui.detail
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -76,26 +78,35 @@ class CityDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val shouldShowAd = adManager.recordCityVisit()
-        if (shouldShowAd) {
-            adManager.showInterstitialAd(requireActivity()) {
-                // Reklam kapandıktan sonra yapılacak işlemler (gerekirse)
-                Log.d(TAG, "Interstitial ad closed")
-            }
-        }
-
-        if (adManager.shouldSuggestProSubscription()) {
-            showProSubscriptionSuggestion()
-        }
-
         binding.toolbar.transitionName = "city_${args.cityId}"
 
-
+        // Hemen UI setup
         initializeUiStateManager()
-        setupRadarChart()
         setupClickListeners()
+
+        // Gerekli ViewModel'i hemen gözlemleyelim (veriler arka planda yüklenecek)
         observeViewModel()
-        setupComments()
+
+        // UI hazır olduğunda ağır işlemleri biraz geciktirerek yapalım
+        view.post {
+            // Radar grafiğini biraz gecikmeli kur
+            setupRadarChart()
+            setupComments()
+
+            // Reklam işlemlerini biraz gecikmeli başlat
+            Handler(Looper.getMainLooper()).postDelayed({
+                val shouldShowAd = adManager.recordCityVisit()
+                if (shouldShowAd) {
+                    adManager.showInterstitialAd(requireActivity()) {
+                        Log.d(TAG, "Interstitial ad closed")
+                    }
+                }
+
+                if (adManager.shouldSuggestProSubscription()) {
+                    showProSubscriptionSuggestion()
+                }
+            }, 300) // Kullanıcı UI'ı görmeden kısa bir gecikme
+        }
     }
 
     private fun showProSubscriptionSuggestion() {
@@ -245,8 +256,6 @@ class CityDetailFragment : Fragment() {
             ).show()
         }
     }
-
-
 
     private fun setupComments() {
         // Comments adapter

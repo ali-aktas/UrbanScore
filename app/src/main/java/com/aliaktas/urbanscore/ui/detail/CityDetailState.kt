@@ -27,7 +27,8 @@ sealed class CityDetailState {
         val commentsCount: Int = 0, // Ekle
         val hasMoreComments: Boolean = false,
         val isLoadingComments: Boolean = false,
-        val showComments: Boolean = false
+        val showComments: Boolean = false,
+        val isPartialUpdate: Boolean = false
     ) : CityDetailState()
 
     /**

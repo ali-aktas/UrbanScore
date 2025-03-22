@@ -1,7 +1,10 @@
 package com.aliaktas.urbanscore.ui.detail
 
+import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import androidx.annotation.ColorInt
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryRatings
@@ -54,6 +57,7 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
      * Setup the radar chart with initial configuration.
      * This should be called once when the chart is first initialized.
      */
+    @SuppressLint("NewApi")
     suspend fun setupRadarChart(chart: RadarChart) = withContext(Dispatchers.Main) {
         chart.apply {
             // Chart configuration
@@ -101,7 +105,15 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
      * @param chart The RadarChart instance to update
      * @param ratings The category ratings data to display
      */
+    // RadarChartHelper.kt içinde updateChartData metodunu güncelleyelim
     suspend fun updateChartData(chart: RadarChart, ratings: CategoryRatings) {
+        // Eğer grafiğin hali hazırda verileri varsa ve güncellenmesi gerekmiyorsa atlayalım
+        if (chart.data != null &&
+            !hasRatingsChanged(chart.data as RadarData, ratings)) {
+            Log.d(TAG, "Radar chart verileri değişmemiş, güncelleme atlanıyor")
+            return
+        }
+
         // Calculate chart data on IO thread
         val chartData = withContext(Dispatchers.Default) {
             createChartData(ratings)
@@ -114,6 +126,35 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
             chart.invalidate()
             chart.animateXY(ANIMATION_DURATION, ANIMATION_DURATION)
         }
+    }
+
+    // Radar verilerinin değişip değişmediğini kontrol eden yardımcı metod
+    // Radar verilerinin değişip değişmediğini kontrol eden yardımcı metod
+    private fun hasRatingsChanged(existingData: RadarData, newRatings: CategoryRatings): Boolean {
+        if (existingData.dataSetCount == 0) return true
+
+        val dataSet = existingData.getDataSetByIndex(0) as? RadarDataSet ?: return true
+        if (dataSet.entryCount < 5) return true
+
+        // Önceki değerleri yeni değerlerle karşılaştır
+        val currentValues = listOf(
+            dataSet.getEntryForIndex(0).value, // environment
+            dataSet.getEntryForIndex(1).value, // safety
+            dataSet.getEntryForIndex(2).value, // livability
+            dataSet.getEntryForIndex(3).value, // cost
+            dataSet.getEntryForIndex(4).value  // social
+        )
+
+        val newValues = listOf(
+            newRatings.environment.toFloat(),
+            newRatings.safety.toFloat(),
+            newRatings.livability.toFloat(),
+            newRatings.cost.toFloat(),
+            newRatings.social.toFloat()
+        )
+
+        // Değerler aynıysa false döndür (güncelleme gerekmez)
+        return currentValues != newValues
     }
 
     /**

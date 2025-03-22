@@ -48,12 +48,19 @@ class CityDetailUiStateManager @Inject constructor(
     /**
      * Show content with city data
      */
+    // CityDetailUiStateManager.kt içinde showContent metodunu değiştirelim
     private fun showContent(state: CityDetailState.Success) {
         binding.progressBar.isVisible = false
         binding.cityInfoLayout.isVisible = true
 
         updateCityInfo(state.city)
-        updateRatingData(state.city)
+
+        // Şehir bilgileri ilk kez yüklendiğinde veya farklı bir şehire geçildiğinde
+        // radar grafiğini güncelle
+        if (!state.isPartialUpdate) {
+            updateRatingData(state.city)
+        }
+
         updateWishlistButton(state.isInWishlist)
         updateRateButton(state.hasUserRated)
     }

@@ -41,11 +41,11 @@ class AdManager @Inject constructor(
     // Pro kullanıcı durumu için değişken - başlangıçta false
     private var isPro: Boolean = false
 
-    /**
-     * AdMob'u başlatır ve temel yapılandırmayı yapar.
-     */
+
+    // AdManager.kt içinde initialize metodunu değiştirelim
     fun initialize() {
         try {
+            Log.d(TAG, "AdManager başlatılıyor")
             val testDeviceIds = listOf("ABCDEF012345", "123456ABCDEF")
             val configuration = RequestConfiguration.Builder()
                 .setTestDeviceIds(testDeviceIds)
@@ -53,41 +53,88 @@ class AdManager @Inject constructor(
 
             MobileAds.setRequestConfiguration(configuration)
             MobileAds.initialize(context) { status ->
-                Log.d(TAG, "AdMob initialization completed. Status: $status")
+                Log.d(TAG, "AdMob başlatma tamamlandı. Durum: $status")
 
-                // Önceden reklamları yükle
+                // Başlangıçta reklamları yükle
                 preloadAds()
             }
 
+            // Başlangıç Pro durumunu logla
+            Log.d(TAG, "Başlangıç isPro değeri: $isPro")
+
             // Premium durumunu dinle
             CoroutineScope(Dispatchers.Main).launch {
-                revenueCatManager.isPremium.collect { premiumStatus ->
-                    isPro = premiumStatus
-                    Log.d(TAG, "Premium status updated: $isPro")
+                Log.d(TAG, "isPremium akışı dinleniyor")
+                try {
+                    revenueCatManager.isPremium.collect { premiumStatus ->
+                        Log.d(TAG, "Premium durum güncellendi: $premiumStatus")
+                        isPro = premiumStatus
+                        Log.d(TAG, "AdManager'da premium durum güncellendi: $isPro")
+
+                        // Eğer Pro durumu false ise reklamları yükle
+                        if (!isPro) {
+                            preloadAds()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Premium durum dinlenirken hata", e)
                 }
             }
 
         } catch (e: Exception) {
-            Log.e(TAG, "AdMob initialization failed", e)
+            Log.e(TAG, "AdMob başlatma hatası", e)
         }
     }
+
+    // recordCityVisit metodunu güncelleyelim
+    fun recordCityVisit(): Boolean {
+        Log.d(TAG, "recordCityVisit çağrıldı, isPro: $isPro, mevcut sayaç: $cityVisitCount")
+        if (isPro) {
+            Log.d(TAG, "Kullanıcı Pro, şehir ziyareti kaydı atlanıyor")
+            return false
+        }
+
+        cityVisitCount++
+        Log.d(TAG, "Şehir ziyaret sayacı artırıldı: $cityVisitCount")
+        if (cityVisitCount >= CITY_VISIT_THRESHOLD) {
+            Log.d(TAG, "Şehir ziyareti eşiğine ulaşıldı, sayaç sıfırlanıyor ve true dönülüyor")
+            cityVisitCount = 0
+            return true
+        }
+        return false
+    }
+
+    // showInterstitialAd metodunu güncelleyelim
+    fun showInterstitialAd(activity: android.app.Activity, onAdClosed: () -> Unit) {
+        Log.d(TAG, "showInterstitialAd çağrıldı, isPro: $isPro")
+        if (isPro) {
+            Log.d(TAG, "Kullanıcı Pro, reklam gösterimi atlanıyor ve onAdClosed çağrılıyor")
+            onAdClosed()
+            return
+        }
+
+        Log.d(TAG, "Interstitial reklam gösteriliyor")
+        interstitialAdHelper.showAd(activity, onAdClosed)
+    }
+
+    // preloadAds metodunu güncelleyelim
+    private fun preloadAds() {
+        Log.d(TAG, "preloadAds çağrıldı, isPro: $isPro")
+        if (isPro) {
+            Log.d(TAG, "Kullanıcı Pro, reklam ön yüklemesi atlanıyor")
+            return
+        }
+
+        Log.d(TAG, "Interstitial ve ödüllü reklamlar ön yükleniyor")
+        interstitialAdHelper.loadAd()
+        rewardedAdHelper.loadAd()
+    }
+
 
     /**
      * Banner reklam döndürür.
      */
     fun getBannerAd() = if (!isPro) bannerAdHelper.getBannerAd() else null
-
-    /**
-     * Interstitial reklamı gösterir.
-     */
-    fun showInterstitialAd(activity: android.app.Activity, onAdClosed: () -> Unit) {
-        if (isPro) {
-            onAdClosed()
-            return
-        }
-
-        interstitialAdHelper.showAd(activity, onAdClosed)
-    }
 
     /**
      * Ödüllü reklamı gösterir.
@@ -106,29 +153,6 @@ class AdManager @Inject constructor(
         rewardedAdHelper.showAd(activity, onRewarded, onAdClosed)
     }
 
-    /**
-     * Şehir ziyaretini kaydeder ve belirli sayıya ulaşıldığında true döner.
-     */
-    fun recordCityVisit(): Boolean {
-        if (isPro) return false
-
-        cityVisitCount++
-        if (cityVisitCount >= CITY_VISIT_THRESHOLD) {
-            cityVisitCount = 0
-            return true
-        }
-        return false
-    }
-
-    /**
-     * Reklamları önceden yükler.
-     */
-    private fun preloadAds() {
-        if (isPro) return
-
-        interstitialAdHelper.loadAd()
-        rewardedAdHelper.loadAd()
-    }
 
     /**
      * Pro abonelik sayfasına gitme önerisi gösterilmeli mi?

@@ -21,8 +21,12 @@ class InterstitialAdHelper(private val context: Context) {
      * Interstitial reklamı yükler.
      */
     fun loadAd() {
-        if (interstitialAd != null) return
+        if (interstitialAd != null) {
+            Log.d(TAG, "Interstitial reklam zaten yüklü, yükleme atlanıyor")
+            return
+        }
 
+        Log.d(TAG, "Interstitial reklam yükleniyor")
         val adRequest = AdRequest.Builder().build()
 
         InterstitialAd.load(
@@ -31,13 +35,13 @@ class InterstitialAdHelper(private val context: Context) {
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
+                    Log.d(TAG, "Interstitial reklam başarıyla yüklendi")
                     interstitialAd = ad
-                    Log.d(TAG, "Interstitial ad loaded successfully")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.e(TAG, "Interstitial reklam yüklenemedi: ${error.message}")
                     interstitialAd = null
-                    Log.e(TAG, "Interstitial ad failed to load: ${error.message}")
                 }
             }
         )
@@ -47,27 +51,37 @@ class InterstitialAdHelper(private val context: Context) {
      * Interstitial reklamı gösterir.
      */
     fun showAd(activity: Activity, onAdClosed: () -> Unit) {
+        Log.d(TAG, "showAd çağrıldı, interstitialAd ${if (interstitialAd != null) "yüklü" else "yüklü değil"}")
+
         if (interstitialAd == null) {
+            Log.d(TAG, "Gösterilecek interstitial reklam yok, yeni reklam yükleniyor ve onAdClosed çağrılıyor")
             loadAd()
             onAdClosed()
             return
         }
 
+        // Reklam gösterilmeden önce callback'i ayarla
         interstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
+                Log.d(TAG, "Interstitial reklam kapatıldı")
                 interstitialAd = null
-                loadAd()  // Bir sonraki gösterim için yeni reklam yükle
+                loadAd()  // Sonraki kullanım için yeni reklam yükle
                 onAdClosed()
             }
 
             override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                Log.e(TAG, "Interstitial reklam gösterilemedi: ${adError.message}")
                 interstitialAd = null
-                loadAd()
+                loadAd()  // Başka bir reklam yüklemeyi dene
                 onAdClosed()
-                Log.e(TAG, "Interstitial ad failed to show: ${adError.message}")
+            }
+
+            override fun onAdShowedFullScreenContent() {
+                Log.d(TAG, "Interstitial reklam başarıyla gösterildi")
             }
         }
 
+        Log.d(TAG, "Interstitial reklam gösterme girişimi")
         interstitialAd?.show(activity)
     }
 

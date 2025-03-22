@@ -170,6 +170,7 @@ class CityDetailViewModel @Inject constructor(
     /**
      * Toggle wishlist status for current city
      */
+    // CityDetailViewModel.kt içinde toggleWishlist metodunu güncelleyelim
     fun toggleWishlist() {
         val currentState = _detailState.value
         if (currentState !is CityDetailState.Success) return
@@ -178,8 +179,8 @@ class CityDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // Optimistic update
-                updateSuccessState { copy(isInWishlist = !isInWishlist) }
+                // Optimistic update - isPartialUpdate=true ile
+                updateSuccessState { copy(isInWishlist = !isInWishlist, isPartialUpdate = true) }
 
                 val result = if (isCurrentlyInWishlist) {
                     userRepository.removeFromWishlist(cityId)
@@ -197,14 +198,14 @@ class CityDetailViewModel @Inject constructor(
                         _detailEvents.emit(CityDetailEvent.ShowMessage(message))
                     },
                     onFailure = { e ->
-                        // Revert optimistic update
-                        updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist) }
+                        // Revert optimistic update - isPartialUpdate=true ile
+                        updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist, isPartialUpdate = true) }
                         _detailEvents.emit(CityDetailEvent.ShowMessage("Error: ${e.message}"))
                     }
                 )
             } catch (e: Exception) {
-                // Revert optimistic update
-                updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist) }
+                // Revert optimistic update - isPartialUpdate=true ile
+                updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist, isPartialUpdate = true) }
                 handleError(e)
             }
         }
