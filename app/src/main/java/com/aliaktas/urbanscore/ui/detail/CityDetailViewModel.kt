@@ -167,10 +167,7 @@ class CityDetailViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Toggle wishlist status for current city
-     */
-    // CityDetailViewModel.kt içinde toggleWishlist metodunu güncelleyelim
+    // CityDetailViewModel.kt içindeki bu metodu güncelleyin
     fun toggleWishlist() {
         val currentState = _detailState.value
         if (currentState !is CityDetailState.Success) return
@@ -210,6 +207,7 @@ class CityDetailViewModel @Inject constructor(
             }
         }
     }
+
 
     /**
      * Show rating dialog to rate the city

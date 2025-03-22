@@ -1,7 +1,5 @@
 package com.aliaktas.urbanscore.ui.detail
 
-import android.annotation.SuppressLint
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
@@ -26,6 +24,7 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
 
     // Chart appearance constants
     companion object {
+        private const val TAG = "RadarChartHelper"
         private val CATEGORIES = arrayOf("View", "Safety", "Livability", "Cost", "Social")
 
         @ColorInt private val PRIMARY_COLOR = Color.parseColor("#DF21F398")
@@ -57,38 +56,66 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
      * Setup the radar chart with initial configuration.
      * This should be called once when the chart is first initialized.
      */
-    @SuppressLint("NewApi")
-    suspend fun setupRadarChart(chart: RadarChart) = withContext(Dispatchers.Main) {
+    suspend fun setupRadarChart(chart: RadarChart) = withContext(Dispatchers.Default) {
+        // Chart konfigürasyonlarını arka planda hazırla
+        val config = prepareChartConfig()
+
+        // UI güncellemesini ana thread'de yap
+        withContext(Dispatchers.Main) {
+            applyChartConfig(chart, config)
+        }
+    }
+
+    // Chart konfigürasyonunu hazırla (arka plan thread'inde çalışacak)
+    private fun prepareChartConfig(): ChartConfig {
+        return ChartConfig(
+            webLineWidth = WEB_LINE_WIDTH,
+            webColor = WEB_COLOR,
+            webLineWidthInner = WEB_LINE_WIDTH_INNER,
+            webColorInner = WEB_COLOR_INNER,
+            webAlpha = WEB_ALPHA,
+            minOffset = CHART_MIN_OFFSET,
+            axisTextSize = AXIS_TEXT_SIZE,
+            axisValueTextSize = AXIS_VALUE_TEXT_SIZE,
+            axisTextColor = TEXT_COLOR,
+            axisMin = AXIS_MIN,
+            axisMax = AXIS_MAX,
+            categories = CATEGORIES
+        )
+    }
+
+    // Hazırlanan konfigürasyonu chart'a uygula (ana thread'de çalışacak)
+    private fun applyChartConfig(chart: RadarChart, config: ChartConfig) {
         chart.apply {
             // Chart configuration
             description.isEnabled = false
-            webLineWidth = WEB_LINE_WIDTH
-            webColor = WEB_COLOR
-            webLineWidthInner = WEB_LINE_WIDTH_INNER
-            webColorInner = WEB_COLOR_INNER
-            webAlpha = WEB_ALPHA
+            webLineWidth = config.webLineWidth
+            webColor = config.webColor
+            webLineWidthInner = config.webLineWidthInner
+            webColorInner = config.webColorInner
+            webAlpha = config.webAlpha
 
             // Layout configuration
-            minOffset = CHART_MIN_OFFSET
+            minOffset = config.minOffset
             setExtraOffsets(0f, 0f, 0f, 0f)
 
             // X axis labels
             xAxis.apply {
-                textSize = AXIS_TEXT_SIZE
-                textColor = TEXT_COLOR
+                textSize = config.axisTextSize
+                textColor = config.axisTextColor
                 yOffset = 1f
                 xOffset = 0f
                 typeface = context.resources.getFont(R.font.poppins_medium)
-                valueFormatter = IndexAxisValueFormatter(CATEGORIES)
+                valueFormatter = IndexAxisValueFormatter(config.categories)
             }
 
             // Y axis (values axis)
             yAxis.apply {
                 setLabelCount(6, true)
-                textColor = TEXT_COLOR
-                textSize = AXIS_VALUE_TEXT_SIZE
-                axisMinimum = AXIS_MIN
-                axisMaximum = AXIS_MAX
+                textColor = config.axisTextColor
+                textSize = config.axisValueTextSize
+                axisMinimum = config.axisMin
+                axisMaximum = config.axisMax
                 setDrawLabels(false)
                 typeface = context.resources.getFont(R.font.poppins_medium)
             }
@@ -105,11 +132,9 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
      * @param chart The RadarChart instance to update
      * @param ratings The category ratings data to display
      */
-    // RadarChartHelper.kt içinde updateChartData metodunu güncelleyelim
     suspend fun updateChartData(chart: RadarChart, ratings: CategoryRatings) {
         // Eğer grafiğin hali hazırda verileri varsa ve güncellenmesi gerekmiyorsa atlayalım
-        if (chart.data != null &&
-            !hasRatingsChanged(chart.data as RadarData, ratings)) {
+        if (chart.data != null && !hasRatingsChanged(chart.data as RadarData, ratings)) {
             Log.d(TAG, "Radar chart verileri değişmemiş, güncelleme atlanıyor")
             return
         }
@@ -129,32 +154,18 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
     }
 
     // Radar verilerinin değişip değişmediğini kontrol eden yardımcı metod
-    // Radar verilerinin değişip değişmediğini kontrol eden yardımcı metod
     private fun hasRatingsChanged(existingData: RadarData, newRatings: CategoryRatings): Boolean {
         if (existingData.dataSetCount == 0) return true
 
         val dataSet = existingData.getDataSetByIndex(0) as? RadarDataSet ?: return true
         if (dataSet.entryCount < 5) return true
 
-        // Önceki değerleri yeni değerlerle karşılaştır
-        val currentValues = listOf(
-            dataSet.getEntryForIndex(0).value, // environment
-            dataSet.getEntryForIndex(1).value, // safety
-            dataSet.getEntryForIndex(2).value, // livability
-            dataSet.getEntryForIndex(3).value, // cost
-            dataSet.getEntryForIndex(4).value  // social
-        )
-
-        val newValues = listOf(
-            newRatings.environment.toFloat(),
-            newRatings.safety.toFloat(),
-            newRatings.livability.toFloat(),
-            newRatings.cost.toFloat(),
-            newRatings.social.toFloat()
-        )
-
-        // Değerler aynıysa false döndür (güncelleme gerekmez)
-        return currentValues != newValues
+        // Değerleri tek tek karşılaştır
+        return dataSet.getEntryForIndex(0).value != newRatings.environment.toFloat() ||
+                dataSet.getEntryForIndex(1).value != newRatings.safety.toFloat() ||
+                dataSet.getEntryForIndex(2).value != newRatings.livability.toFloat() ||
+                dataSet.getEntryForIndex(3).value != newRatings.cost.toFloat() ||
+                dataSet.getEntryForIndex(4).value != newRatings.social.toFloat()
     }
 
     /**
@@ -194,4 +205,20 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
         // Return radar data
         return RadarData(dataSet)
     }
+
+    // Chart konfigürasyonu için veri sınıfı
+    private data class ChartConfig(
+        val webLineWidth: Float,
+        val webColor: Int,
+        val webLineWidthInner: Float,
+        val webColorInner: Int,
+        val webAlpha: Int,
+        val minOffset: Float,
+        val axisTextSize: Float,
+        val axisValueTextSize: Float,
+        val axisTextColor: Int,
+        val axisMin: Float,
+        val axisMax: Float,
+        val categories: Array<String>
+    )
 }

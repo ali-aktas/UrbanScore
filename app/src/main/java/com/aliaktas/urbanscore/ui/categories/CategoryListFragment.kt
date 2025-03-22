@@ -28,12 +28,12 @@ class CategoryListFragment : Fragment() {
 
     private val viewModel: CategoryListViewModel by viewModels()
     private val citiesAdapter = CitiesAdapter()
-    private val args: CategoryListFragmentArgs by navArgs()
     private lateinit var categoryId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        categoryId = args.categoryId
+        // NavArgs yerine doğrudan arguments bundle'ından değeri alın
+        categoryId = arguments?.getString("categoryId", "averageRating") ?: "averageRating"
         Log.d("CategoryListFragment", "Created with category ID: $categoryId")
     }
 

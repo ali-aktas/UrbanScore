@@ -24,11 +24,11 @@ sealed class CityDetailState {
         val isShareInProgress: Boolean = false,
         val showRatingSheet: Boolean = false,
         val comments: List<CommentModel> = emptyList(),
-        val commentsCount: Int = 0, // Ekle
+        val commentsCount: Int = 0,
         val hasMoreComments: Boolean = false,
         val isLoadingComments: Boolean = false,
         val showComments: Boolean = false,
-        val isPartialUpdate: Boolean = false
+        val isPartialUpdate: Boolean = false // Yeni eklenen parametre
     ) : CityDetailState()
 
     /**
