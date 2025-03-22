@@ -12,6 +12,7 @@ import com.aliaktas.urbanscore.data.repository.CityRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.data.repository.UserRepositoryImpl
 import com.aliaktas.urbanscore.util.PreferenceManager
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -97,6 +98,12 @@ object AppModule {
     @Singleton
     fun providePreferenceManager(@ApplicationContext context: Context): PreferenceManager {
         return PreferenceManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRevenueCatManager(): RevenueCatManager {
+        return RevenueCatManager.getInstance()
     }
 
 }

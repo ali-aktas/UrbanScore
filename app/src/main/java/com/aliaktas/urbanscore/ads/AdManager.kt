@@ -3,9 +3,14 @@ package com.aliaktas.urbanscore.ads
 import android.content.Context
 import android.util.Log
 import com.aliaktas.urbanscore.util.PreferenceManager
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -30,9 +35,11 @@ class AdManager @Inject constructor(
     // Ziyaret edilen şehir sayısı
     private var cityVisitCount = 0
 
-    // Pro kullanıcı durumu
+    // RevenueCat manager'a referans
+    private val revenueCatManager by lazy { RevenueCatManager.getInstance() }
+
+    // Pro kullanıcı durumu için değişken - başlangıçta false
     private var isPro: Boolean = false
-        get() = preferenceManager.isProUser()
 
     /**
      * AdMob'u başlatır ve temel yapılandırmayı yapar.
@@ -51,6 +58,15 @@ class AdManager @Inject constructor(
                 // Önceden reklamları yükle
                 preloadAds()
             }
+
+            // Premium durumunu dinle
+            CoroutineScope(Dispatchers.Main).launch {
+                revenueCatManager.isPremium.collect { premiumStatus ->
+                    isPro = premiumStatus
+                    Log.d(TAG, "Premium status updated: $isPro")
+                }
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "AdMob initialization failed", e)
         }
