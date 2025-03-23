@@ -18,8 +18,6 @@ class ProSubscriptionViewModel @Inject constructor(
     private val revenueCat: RevenueCatManager
 ) : ViewModel() {
 
-    //private val revenueCat = RevenueCatManager.getInstance()
-
     private val _uiState = MutableStateFlow<ProSubscriptionState>(ProSubscriptionState.Loading)
     val uiState: StateFlow<ProSubscriptionState> = _uiState.asStateFlow()
 
@@ -39,10 +37,30 @@ class ProSubscriptionViewModel @Inject constructor(
         revenueCat.fetchSubscriptionStatus()
     }
 
-    fun purchaseMonthlySubscription(activity: Activity) {
+    /**
+     * RevenueCat Paywall UI'ını gösterir
+     */
+    fun showPaywall(activity: Activity) {
         _uiState.value = ProSubscriptionState.Processing
 
-        revenueCat.purchaseMonthlySubscription(
+        try {
+            revenueCat.showPaywall(activity) {
+                // Paywall kapatıldığında premium durumu kontrol et
+                refreshSubscriptionStatus()
+            }
+        } catch (e: Exception) {
+            Log.e("ProSubscriptionVM", "Error showing paywall", e)
+            _uiState.value = ProSubscriptionState.Error("Could not show subscription options: ${e.message}")
+        }
+    }
+
+    /**
+     * Programatik satın alma
+     */
+    fun purchaseSubscription(activity: Activity) {
+        _uiState.value = ProSubscriptionState.Processing
+
+        revenueCat.purchasePackage(
             activity = activity,
             onSuccess = {
                 _uiState.value = ProSubscriptionState.SubscriptionActive
@@ -52,6 +70,67 @@ class ProSubscriptionViewModel @Inject constructor(
                 _uiState.value = ProSubscriptionState.Error(errorMessage)
             }
         )
+    }
+
+    /**
+     * Satın almaları geri yükleme
+     */
+    fun restorePurchases() {
+        _uiState.value = ProSubscriptionState.Processing
+
+        revenueCat.restorePurchases(
+            onSuccess = {
+                _uiState.value = if (revenueCat.isPremium.value) {
+                    ProSubscriptionState.SubscriptionActive
+                } else {
+                    ProSubscriptionState.NotSubscribed
+                }
+            },
+            onError = { errorMessage ->
+                Log.e("ProSubscriptionVM", "Restore error: $errorMessage")
+                _uiState.value = ProSubscriptionState.Error(errorMessage)
+            }
+        )
+    }
+
+    /**
+     * Abonelik yönetimi
+     */
+    fun openSubscriptionManagement(activity: Activity) {
+        revenueCat.openSubscriptionManagement(activity)
+    }
+
+    /**
+     * Bitiş tarihini elde etme
+     */
+    fun getExpiryDate(): String {
+        return revenueCat.getExpiryDateFormatted() ?: "Unknown expiry date"
+    }
+
+    /**
+     * Abonelik durumunu yenileme
+     */
+    private fun refreshSubscriptionStatus() {
+        viewModelScope.launch {
+            try {
+                revenueCat.fetchSubscriptionStatus()
+                // Abonelik durumunu kontrol et
+                _uiState.value = if (revenueCat.isPremium.value) {
+                    ProSubscriptionState.SubscriptionActive
+                } else {
+                    ProSubscriptionState.NotSubscribed
+                }
+            } catch (e: Exception) {
+                Log.e("ProSubscriptionVM", "Error refreshing premium status", e)
+            }
+        }
+    }
+
+    /**
+     * RevenueCat Offerings'leri elde etme (Paywall Fragment ile kullanım için)
+     */
+    fun getOfferings(callback: (offerings: com.revenuecat.purchases.Offerings?) -> Unit) {
+        revenueCat.getOfferings(callback)
     }
 
     override fun onCleared() {

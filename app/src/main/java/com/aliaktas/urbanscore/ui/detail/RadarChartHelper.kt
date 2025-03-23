@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.detail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
@@ -85,6 +86,7 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
     }
 
     // Hazırlanan konfigürasyonu chart'a uygula (ana thread'de çalışacak)
+    @SuppressLint("NewApi")
     private fun applyChartConfig(chart: RadarChart, config: ChartConfig) {
         chart.apply {
             // Chart configuration

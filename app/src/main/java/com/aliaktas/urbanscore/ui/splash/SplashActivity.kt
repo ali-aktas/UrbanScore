@@ -43,7 +43,7 @@ class SplashActivity : AppCompatActivity() {
         // 2 saniye sonra ana aktiviteye geç
         Handler(Looper.getMainLooper()).postDelayed({
             navigateToMainActivity()
-        }, 2000)
+        }, 2500)
     }
 
     private fun navigateToMainActivity() {

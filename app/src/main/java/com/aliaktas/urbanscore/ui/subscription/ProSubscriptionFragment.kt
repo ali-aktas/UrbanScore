@@ -1,6 +1,9 @@
 package com.aliaktas.urbanscore.ui.subscription
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,13 +14,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.MainActivity
-import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentProSubscriptionBinding
+import com.revenuecat.purchases.ui.revenuecatui.ExperimentalPreviewRevenueCatUIPurchasesAPI
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @AndroidEntryPoint
 class ProSubscriptionFragment : Fragment() {
@@ -26,6 +26,7 @@ class ProSubscriptionFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: ProSubscriptionViewModel by viewModels()
+    private val TAG = "ProSubscriptionFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,23 +50,45 @@ class ProSubscriptionFragment : Fragment() {
             (requireActivity() as MainActivity).handleBackPressed()
         }
 
-        // Aylık abonelik butonu
-        binding.btnMonthlySubscription.setOnClickListener {
-            viewModel.purchaseMonthlySubscription(requireActivity())
+        // RevenueCat Paywall gösterme butonu
+        binding.btnShowPaywall.setOnClickListener {
+            showRevenueCatPaywall()
         }
 
-        // Yıllık abonelik butonu (şimdilik pasif)
-        binding.btnYearlySubscription.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Yearly subscription coming soon!",
-                Toast.LENGTH_SHORT
-            ).show()
+        // Restore butonları
+        binding.btnRestorePurchases.setOnClickListener {
+            viewModel.restorePurchases()
         }
 
-        // Abonelik yenileme butonu
-        binding.btnRenewSubscription.setOnClickListener {
-            viewModel.purchaseMonthlySubscription(requireActivity())
+        binding.btnRestoreProPurchases.setOnClickListener {
+            viewModel.restorePurchases()
+        }
+
+        // Abonelik yönetim butonu
+        binding.btnManageSubscription.setOnClickListener {
+            viewModel.openSubscriptionManagement(requireActivity())
+        }
+
+        // Gizlilik politikası
+        binding.tvPrivacyPolicy.setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://aliaktasapp.blogspot.com/p/urbanrate-privacy-policy.html")
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Could not open privacy policy", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalPreviewRevenueCatUIPurchasesAPI::class)
+    private fun showRevenueCatPaywall() {
+        try {
+            viewModel.showPaywall(requireActivity())
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing RevenueCat paywall", e)
+            Toast.makeText(requireContext(), "Could not show subscription options", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -94,6 +117,10 @@ class ProSubscriptionFragment : Fragment() {
             is ProSubscriptionState.SubscriptionActive -> {
                 showLoading(false)
                 showActiveSubscription()
+
+                // Bitiş tarihi
+                val expiryDate = viewModel.getExpiryDate()
+                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
             }
             is ProSubscriptionState.Error -> {
                 showLoading(false)
@@ -116,19 +143,18 @@ class ProSubscriptionFragment : Fragment() {
     private fun showActiveSubscription() {
         binding.subscriptionOptionsLayout.visibility = View.GONE
         binding.proStatusLayout.visibility = View.VISIBLE
-
-        // 30 gün sonrası için geçici bir bitiş tarihi göster
-        // Gerçek implementasyonda, RevenueCat'den gerçek bitiş tarihini almalısınız
-        val expiryDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-            .format(Date(System.currentTimeMillis() + (30 * 24 * 60 * 60 * 1000L)))
-
-        binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
     }
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
         // Hata sonrası abonelik seçeneklerini göster
         showSubscriptionOptions()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Premium durumunu yenile
+        viewModel.getOfferings { /* Offerings'leri alıp, UI'ı güncellemek isterseniz kullanabilirsiniz */ }
     }
 
     override fun onDestroyView() {

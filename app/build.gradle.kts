@@ -112,4 +112,5 @@ dependencies {
     implementation(libs.billing)
     //RevenueCat
     implementation(libs.revenuecat)
+    implementation(libs.revenuecat.purchases.ui)
 }
