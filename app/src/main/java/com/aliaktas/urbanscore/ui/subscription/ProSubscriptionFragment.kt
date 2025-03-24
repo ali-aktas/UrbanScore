@@ -8,14 +8,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentProSubscriptionBinding
-import com.revenuecat.purchases.ui.revenuecatui.ExperimentalPreviewRevenueCatUIPurchasesAPI
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -50,9 +52,23 @@ class ProSubscriptionFragment : Fragment() {
             (requireActivity() as MainActivity).handleBackPressed()
         }
 
-        // RevenueCat Paywall gösterme butonu
-        binding.btnShowPaywall.setOnClickListener {
-            showRevenueCatPaywall()
+        // Abonelik planı seçimi
+        binding.cardMonthlyPlan.setOnClickListener {
+            viewModel.selectPackage(RevenueCatManager.PLAN_MONTHLY)
+            updateSubscriptionSelection(RevenueCatManager.PLAN_MONTHLY)
+        }
+
+        binding.cardYearlyPlan.setOnClickListener {
+            viewModel.selectPackage(RevenueCatManager.PLAN_YEARLY)
+            updateSubscriptionSelection(RevenueCatManager.PLAN_YEARLY)
+        }
+
+        // Varsayılan olarak aylık plan seçili
+        updateSubscriptionSelection(RevenueCatManager.PLAN_MONTHLY)
+
+        // Abonelik butonu
+        binding.btnSubscribe.setOnClickListener {
+            viewModel.purchaseSelectedPlan(requireActivity())
         }
 
         // Restore butonları
@@ -82,21 +98,38 @@ class ProSubscriptionFragment : Fragment() {
         }
     }
 
-    @OptIn(ExperimentalPreviewRevenueCatUIPurchasesAPI::class)
-    private fun showRevenueCatPaywall() {
-        try {
-            viewModel.showPaywall(requireActivity())
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing RevenueCat paywall", e)
-            Toast.makeText(requireContext(), "Could not show subscription options", Toast.LENGTH_SHORT).show()
-        }
+    private fun updateSubscriptionSelection(packageId: String) {
+        // Kartların stroke rengini güncelle
+        binding.cardMonthlyPlan.strokeColor = ContextCompat.getColor(
+            requireContext(),
+            if (packageId == RevenueCatManager.PLAN_MONTHLY) R.color.auth_accent else R.color.rating_color
+        )
+
+        binding.cardYearlyPlan.strokeColor = ContextCompat.getColor(
+            requireContext(),
+            if (packageId == RevenueCatManager.PLAN_YEARLY) R.color.auth_accent else R.color.accent
+        )
+
+        // Radyo butonları güncelle (görünmez olsalar bile state'i güncel tut)
+        binding.radioMonthly.isChecked = packageId == RevenueCatManager.PLAN_MONTHLY
+        binding.radioYearly.isChecked = packageId == RevenueCatManager.PLAN_YEARLY
     }
 
     private fun observeViewModel() {
+        // UI state'i gözlemle
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     updateUI(state)
+                }
+            }
+        }
+
+        // Paket bilgilerini gözlemle
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.packagesState.collect { state ->
+                    updatePackageInfo(state)
                 }
             }
         }
@@ -117,16 +150,47 @@ class ProSubscriptionFragment : Fragment() {
             is ProSubscriptionState.SubscriptionActive -> {
                 showLoading(false)
                 showActiveSubscription()
-
-                // Bitiş tarihi
-                val expiryDate = viewModel.getExpiryDate()
-                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
             }
             is ProSubscriptionState.Error -> {
                 showLoading(false)
                 showError(state.message)
             }
         }
+    }
+
+    private fun updatePackageInfo(state: ProSubscriptionViewModel.PackageUIState) {
+        // Aylık fiyat
+        state.monthlyPackage?.let { pkg ->
+            binding.tvMonthlyPrice.text = pkg.product.price.formatted
+        }
+
+        // Yıllık fiyat ve tasarruf hesaplaması
+        state.yearlyPackage?.let { pkg ->
+            binding.tvYearlyPrice.text = pkg.product.price.formatted
+
+            // Tasarruf hesaplaması
+            if (state.monthlyPackage != null) {
+                val monthlyPrice = state.monthlyPackage.product.price.amountMicros
+                val yearlyPrice = pkg.product.price.amountMicros
+                val monthlyPricePerYear = monthlyPrice * 12
+
+                val savingsPercent = if (monthlyPricePerYear > 0) {
+                    ((monthlyPricePerYear - yearlyPrice) * 100.0 / monthlyPricePerYear).toInt()
+                } else {
+                    0
+                }
+
+                if (savingsPercent > 0) {
+                    binding.tvSavings.visibility = View.VISIBLE
+                    binding.tvSavings.text = " (Save $savingsPercent%)"
+                } else {
+                    binding.tvSavings.visibility = View.GONE
+                }
+            }
+        }
+
+        // Seçili planı güncelle
+        updateSubscriptionSelection(state.selectedPackageId)
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -143,18 +207,32 @@ class ProSubscriptionFragment : Fragment() {
     private fun showActiveSubscription() {
         binding.subscriptionOptionsLayout.visibility = View.GONE
         binding.proStatusLayout.visibility = View.VISIBLE
+
+        // Bitiş tarihini al
+        viewModel.getExpiryDate { expiryDate ->
+            if (expiryDate != null) {
+                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
+            } else {
+                binding.tvExpiryDate.text = "Active subscription"
+            }
+        }
     }
 
     private fun showError(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-        // Hata sonrası abonelik seçeneklerini göster
+
+        // Hata durumunda abonelik seçeneklerini göster
         showSubscriptionOptions()
     }
 
     override fun onResume() {
         super.onResume()
-        // Premium durumunu yenile
-        viewModel.getOfferings { /* Offerings'leri alıp, UI'ı güncellemek isterseniz kullanabilirsiniz */ }
+        // Abonelik durumunu yenile
+        viewModel.getExpiryDate { expiryDate ->
+            if (expiryDate != null && binding.proStatusLayout.visibility == View.VISIBLE) {
+                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
+            }
+        }
     }
 
     override fun onDestroyView() {

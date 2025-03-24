@@ -102,24 +102,144 @@
         app:layout_constraintTop_toBottomOf="@id/tvProDescription"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Paywall Fragment Container -->
-        <FrameLayout
-            android:id="@+id/paywallContainer"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginBottom="16dp"
-            android:visibility="gone"/>
-
-        <!-- Show RevenueCat Paywall Button -->
-        <Button
-            android:id="@+id/btnShowPaywall"
+        <!-- Subscription Plan Cards -->
+        <RadioGroup
+            android:id="@+id/subscriptionRadioGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Subscription Options"
+            android:orientation="vertical">
+
+            <!-- Monthly Plan Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardMonthlyPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/auth_accent"
+                android:checkable="true">
+
+                <RadioButton
+                    android:id="@+id/radioMonthly"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monthly Plan"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/auth_accent" />
+
+                    <TextView
+                        android:id="@+id/tvMonthlyPrice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Loading price..."
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• No ads\n• Full access to all features\n• Pay monthly"
+                        android:textSize="14sp"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Yearly Plan Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardYearlyPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="#80FFFFFF"
+                android:checkable="true">
+
+                <RadioButton
+                    android:id="@+id/radioYearly"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yearly Plan"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/auth_accent" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <TextView
+                            android:id="@+id/tvYearlyPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Loading price..."
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tvSavings"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" (Save 20%)"
+                            android:textSize="16sp"
+                            android:textStyle="italic"
+                            android:textColor="#4CAF50"
+                            android:layout_marginStart="8dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="• No ads\n• Full access to all features\n• Pay once for a full year\n• Best value"
+                        android:textSize="14sp"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </RadioGroup>
+
+        <!-- Subscribe Button -->
+        <Button
+            android:id="@+id/btnSubscribe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subscribe Now"
             android:textAllCaps="false"
             android:backgroundTint="@color/auth_accent"
             android:fontFamily="@font/poppins_medium"
-            android:padding="12dp"/>
+            android:padding="12dp"
+            android:layout_marginTop="16dp"/>
 
         <!-- Restore Purchases Button -->
         <Button

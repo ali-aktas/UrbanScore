@@ -16,11 +16,6 @@ import com.revenuecat.purchases.getOfferingsWith
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
-import com.revenuecat.purchases.ui.revenuecatui.ExperimentalPreviewRevenueCatUIPurchasesAPI
-import com.revenuecat.purchases.ui.revenuecatui.PaywallDialog
-import com.revenuecat.purchases.ui.revenuecatui.PaywallOptions
-import com.revenuecat.purchases.ui.revenuecatui.fonts.PaywallFontFamily
-import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,6 +34,13 @@ class RevenueCatManager private constructor(application: Application) {
         private const val API_KEY = "goog_WVsSgMhECzHIssMxfcjkQZxWEpa"
         private const val ENTITLEMENT_PREMIUM = "Premium"
         private const val OFFERING_DEFAULT = "default"
+
+        // Plan ID'leri
+        const val PLAN_MONTHLY = "monthly"
+        const val PLAN_YEARLY = "yearly"
+
+        // Abonelik ürün ID'si
+        const val SUBSCRIPTION_PRODUCT_ID = "appsubscription"
 
         @Volatile
         private var INSTANCE: RevenueCatManager? = null
@@ -107,92 +109,22 @@ class RevenueCatManager private constructor(application: Application) {
     }
 
     /**
-     * Offerings'leri getirir ve callback fonksiyonunu çağırır
+     * Belirli bir paket ID'sine göre satın alma işlemi yapar.
+     *
+     * @param activity Satın alma için Activity referansı
+     * @param packageId Paket ID'si ("monthly" veya "yearly")
+     * @param onSuccess Başarılı olduğunda çalışacak callback
+     * @param onError Hata durumunda çalışacak callback
      */
-    fun getOfferings(callback: (offerings: com.revenuecat.purchases.Offerings?) -> Unit) {
-        Purchases.sharedInstance.getOfferingsWith(
-            onError = { error ->
-                Log.e(TAG, "Error fetching offerings: ${error.message}")
-                callback(null)
-            },
-            onSuccess = { offerings ->
-                callback(offerings)
-            }
-        )
-    }
-
-    // RevenueCatManager.kt'deki showPaywall metodunu tamamen değiştirin
-    fun showPaywall(activity: Activity, onDismissed: () -> Unit) {
-        // UI yok, doğrudan mevcut satın alma metodunu kullan
-        Purchases.sharedInstance.getOfferingsWith(
-            onError = { error ->
-                Log.e(TAG, "Error fetching offerings: ${error.message}")
-                onDismissed()
-            },
-            onSuccess = { offerings ->
-                val currentOffering = offerings.current
-                if (currentOffering == null) {
-                    Log.e(TAG, "No current offering found")
-                    onDismissed()
-                    return@getOfferingsWith
-                }
-
-                // Manuel akışa geç - Bu kısım zaten çalışıyor
-                purchaseViaManualFlow(activity, currentOffering, onDismissed)
-            }
-        )
-    }
-
-    /**
-     * Manuel satın alma süreci - Paywall UI çalışmazsa yedek yöntem
-     */
-    private fun purchaseViaManualFlow(activity: Activity, offering: Offering, onDismissed: () -> Unit) {
-        try {
-            // Package kontrolü
-            val monthlyPackage = offering.availablePackages.find {
-                it.identifier.contains("monthly", ignoreCase = true)
-            }
-
-            if (monthlyPackage == null) {
-                Log.e(TAG, "No monthly package found in offering")
-                onDismissed()
-                return
-            }
-
-            // Manuel olarak satın alma işlemini başlat
-            val purchaseParams = PurchaseParams.Builder(activity, monthlyPackage).build()
-
-            Purchases.sharedInstance.purchaseWith(
-                purchaseParams = purchaseParams,
-                onError = { error, userCancelled ->
-                    if (userCancelled) {
-                        Log.d(TAG, "User cancelled purchase")
-                    } else {
-                        Log.e(TAG, "Error purchasing package: ${error.message}")
-                    }
-                    onDismissed()
-                },
-                onSuccess = { storeTransaction, customerInfo ->
-                    Log.d(TAG, "Purchase successful!")
-                    updatePremiumStatus(customerInfo)
-                    onDismissed()
-                }
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in manual purchase flow", e)
-            onDismissed()
-        }
-    }
-
-    /**
-     * Satın alma işlemi - Programatik olarak
-     */
-    fun purchasePackage(
+    fun purchasePackageById(
         activity: Activity,
+        packageId: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         try {
+            Log.d(TAG, "Starting purchase for package ID: $packageId")
+
             // Get offerings from RevenueCat
             Purchases.sharedInstance.getOfferingsWith(
                 onError = { error ->
@@ -208,20 +140,20 @@ class RevenueCatManager private constructor(application: Application) {
                         return@getOfferingsWith
                     }
 
-                    // Get the monthly package
-                    val monthlyPackage = offering.availablePackages.find {
-                        it.identifier.contains("monthly", ignoreCase = true)
+                    // Get the package by ID
+                    val selectedPackage = offering.availablePackages.find {
+                        it.identifier.contains(packageId, ignoreCase = true)
                     }
 
-                    if (monthlyPackage == null) {
-                        Log.e(TAG, "Monthly package not found")
+                    if (selectedPackage == null) {
+                        Log.e(TAG, "Package with ID $packageId not found")
                         Log.e(TAG, "Available packages: ${offering.availablePackages.map { it.identifier }}")
-                        onError("Monthly subscription option not found")
+                        onError("Selected subscription option not found")
                         return@getOfferingsWith
                     }
 
                     // Purchase the package
-                    val purchaseParams = PurchaseParams.Builder(activity, monthlyPackage).build()
+                    val purchaseParams = PurchaseParams.Builder(activity, selectedPackage).build()
 
                     Purchases.sharedInstance.purchaseWith(
                         purchaseParams = purchaseParams,
@@ -246,6 +178,43 @@ class RevenueCatManager private constructor(application: Application) {
             Log.e(TAG, "Error during purchase process", e)
             onError("Unexpected error: ${e.message}")
         }
+    }
+
+    /**
+     * Tüm paket bilgilerini getir.
+     *
+     * @param callback Paket bilgileri ile çağrılacak callback
+     */
+    fun getPackageInfo(callback: (monthlyPackage: Package?, yearlyPackage: Package?) -> Unit) {
+        Purchases.sharedInstance.getOfferingsWith(
+            onError = { error ->
+                Log.e(TAG, "Error fetching offerings: ${error.message}")
+                callback(null, null)
+            },
+            onSuccess = { offerings ->
+                val currentOffering = offerings.current
+                if (currentOffering == null) {
+                    Log.e(TAG, "No current offering found")
+                    callback(null, null)
+                    return@getOfferingsWith
+                }
+
+                // Aylık ve yıllık paketleri bul
+                val monthlyPackage = currentOffering.availablePackages.find {
+                    it.identifier.contains(PLAN_MONTHLY, ignoreCase = true)
+                }
+
+                val yearlyPackage = currentOffering.availablePackages.find {
+                    it.identifier.contains(PLAN_YEARLY, ignoreCase = true)
+                }
+
+                // Logla
+                Log.d(TAG, "Available packages: ${currentOffering.availablePackages.map { it.identifier }}")
+                Log.d(TAG, "Monthly package: ${monthlyPackage?.identifier}, Yearly package: ${yearlyPackage?.identifier}")
+
+                callback(monthlyPackage, yearlyPackage)
+            }
+        )
     }
 
     /**
@@ -290,9 +259,9 @@ class RevenueCatManager private constructor(application: Application) {
     }
 
     /**
-     * Abonelik bitiş tarihini döndürür (güncellendi - asenkron)
+     * Abonelik bitiş tarihini döndürür
      */
-    fun getExpiryDateFormatted(callback: (String?) -> Unit = {}) {
+    fun getExpiryDateFormatted(callback: (String?) -> Unit) {
         try {
             Purchases.sharedInstance.getCustomerInfoWith(
                 onError = { error ->
@@ -318,28 +287,6 @@ class RevenueCatManager private constructor(application: Application) {
         } catch (e: Exception) {
             Log.e(TAG, "Error getting expiry date", e)
             callback(null)
-        }
-    }
-
-    /**
-     * Abonelik bitiş tarihini döndürür (senkron yardımcı metod)
-     * ViewModel için daha kullanışlı
-     */
-    fun getExpiryDateFormatted(): String? {
-        try {
-            // En son bilinen tarih bilgisini hemen döndür, arka planda güncelleme yapılır
-            var result: String? = null
-
-            // Asenkron fonksiyonu çağır, sonucu doğrudan kullanılamaz
-            getExpiryDateFormatted { formattedDate ->
-                result = formattedDate
-            }
-
-            // Geçici sonuç döndür
-            return result ?: "Fetching expiry date..."
-        } catch (e: Exception) {
-            Log.e(TAG, "Error in synchronous getExpiryDateFormatted", e)
-            return null
         }
     }
 

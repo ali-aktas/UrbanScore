@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.util.RevenueCatManager
+import com.revenuecat.purchases.Package
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +19,19 @@ class ProSubscriptionViewModel @Inject constructor(
     private val revenueCat: RevenueCatManager
 ) : ViewModel() {
 
+    // UI State için State Flow
     private val _uiState = MutableStateFlow<ProSubscriptionState>(ProSubscriptionState.Loading)
     val uiState: StateFlow<ProSubscriptionState> = _uiState.asStateFlow()
+
+    // Paket bilgileri için State
+    data class PackageUIState(
+        val monthlyPackage: Package? = null,
+        val yearlyPackage: Package? = null,
+        val selectedPackageId: String = RevenueCatManager.PLAN_MONTHLY // Varsayılan olarak aylık seçili
+    )
+
+    private val _packagesState = MutableStateFlow(PackageUIState())
+    val packagesState: StateFlow<PackageUIState> = _packagesState.asStateFlow()
 
     init {
         // Pro durumunu dinle
@@ -35,33 +47,48 @@ class ProSubscriptionViewModel @Inject constructor(
 
         // Başlangıçta abonelik durumunu kontrol et
         revenueCat.fetchSubscriptionStatus()
+
+        // Paket bilgilerini yükle
+        loadPackages()
     }
 
     /**
-     * RevenueCat Paywall UI'ını gösterir
+     * Paket bilgilerini yükler
      */
-    fun showPaywall(activity: Activity) {
-        _uiState.value = ProSubscriptionState.Processing
-
-        try {
-            revenueCat.showPaywall(activity) {
-                // Paywall kapatıldığında premium durumu kontrol et
-                refreshSubscriptionStatus()
-            }
-        } catch (e: Exception) {
-            Log.e("ProSubscriptionVM", "Error showing paywall", e)
-            _uiState.value = ProSubscriptionState.Error("Could not show subscription options: ${e.message}")
+    private fun loadPackages() {
+        revenueCat.getPackageInfo { monthlyPackage, yearlyPackage ->
+            _packagesState.value = PackageUIState(
+                monthlyPackage = monthlyPackage,
+                yearlyPackage = yearlyPackage,
+                selectedPackageId = _packagesState.value.selectedPackageId
+            )
         }
     }
 
     /**
-     * Programatik satın alma
+     * Seçilen paketi günceller
+     *
+     * @param packageId Paket ID ("monthly" veya "yearly")
      */
-    fun purchaseSubscription(activity: Activity) {
+    fun selectPackage(packageId: String) {
+        _packagesState.value = _packagesState.value.copy(selectedPackageId = packageId)
+    }
+
+    /**
+     * Seçili planı satın alır
+     *
+     * @param activity Satın alma için gerekli Activity
+     */
+    fun purchaseSelectedPlan(activity: Activity) {
         _uiState.value = ProSubscriptionState.Processing
 
-        revenueCat.purchasePackage(
+        val packageId = _packagesState.value.selectedPackageId
+
+        Log.d("ProSubscriptionVM", "Purchasing plan: $packageId")
+
+        revenueCat.purchasePackageById(
             activity = activity,
+            packageId = packageId,
             onSuccess = {
                 _uiState.value = ProSubscriptionState.SubscriptionActive
             },
@@ -103,34 +130,8 @@ class ProSubscriptionViewModel @Inject constructor(
     /**
      * Bitiş tarihini elde etme
      */
-    fun getExpiryDate(): String {
-        return revenueCat.getExpiryDateFormatted() ?: "Unknown expiry date"
-    }
-
-    /**
-     * Abonelik durumunu yenileme
-     */
-    private fun refreshSubscriptionStatus() {
-        viewModelScope.launch {
-            try {
-                revenueCat.fetchSubscriptionStatus()
-                // Abonelik durumunu kontrol et
-                _uiState.value = if (revenueCat.isPremium.value) {
-                    ProSubscriptionState.SubscriptionActive
-                } else {
-                    ProSubscriptionState.NotSubscribed
-                }
-            } catch (e: Exception) {
-                Log.e("ProSubscriptionVM", "Error refreshing premium status", e)
-            }
-        }
-    }
-
-    /**
-     * RevenueCat Offerings'leri elde etme (Paywall Fragment ile kullanım için)
-     */
-    fun getOfferings(callback: (offerings: com.revenuecat.purchases.Offerings?) -> Unit) {
-        revenueCat.getOfferings(callback)
+    fun getExpiryDate(callback: (String?) -> Unit) {
+        revenueCat.getExpiryDateFormatted(callback)
     }
 
     override fun onCleared() {
