@@ -247,17 +247,18 @@
                 </com.google.android.material.card.MaterialCardView>
             </RadioGroup>
 
-            <!-- Subscribe Button -->
-            <Button
+            <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/btnSubscribe"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/subscribe_now"
-                android:textAllCaps="false"
-                android:backgroundTint="@color/auth_accent"
-                android:fontFamily="@font/poppins_medium"
-                android:padding="12dp"
-                android:layout_marginTop="16dp"/>
+                android:layout_height="56dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
+                app:lottie_rawRes="@raw/button_animation_subs"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_gravity="center"/>
 
             <!-- Restore Purchases Button -->
             <Button

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "93543473476-5ul32a4ph8ume5hoar1uecat1q3hm88t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aliaktas.urbanscore",
+            "certificate_hash": "2a016303230e638d815cc7094d47595d92f4e519"
+          }
+        },
+        {
           "client_id": "93543473476-kpreaqq0h2riiicj3gimciuo2312p6rt.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.subscription
 
+import android.animation.Animator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -218,11 +219,20 @@ class ProSubscriptionFragment : Fragment() {
             binding.tvSavings.visibility = View.GONE
         }
 
-        // Satın al butonu aktifleştirme
-        binding.btnSubscribe.isEnabled = when (state.selectedPackageId) {
-            RevenueCatManager.PLAN_MONTHLY -> state.monthlyPackage != null
-            RevenueCatManager.PLAN_YEARLY -> state.yearlyPackage != null
-            else -> false
+        // Satın alma butonu
+        binding.btnSubscribe.setOnClickListener {
+            Log.d(TAG, "Satın al butonu tıklandı")
+
+            // Lottie animasyonunu başlat
+            binding.btnSubscribe.playAnimation()
+
+            // Continue Butonu
+            binding.btnSubscribe.setOnClickListener {
+                Log.d(TAG, "Satın al butonu tıklandı")
+
+                // Direkt olarak satın alma işlemini başlat
+                viewModel.purchaseSelectedPlan(requireActivity())
+            }
         }
     }
 
