@@ -141,11 +141,7 @@ class CityDetailFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Puanlama bottom sheet'inden dönülürse verileri yenile
-        if (ratingBottomSheet?.isAdded == true && !ratingBottomSheet?.isVisible!!) {
-            viewModel.refreshAfterRating()
-            ratingBottomSheet = null
-        }
+
     }
 
     override fun onDestroyView() {

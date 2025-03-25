@@ -7,6 +7,7 @@ import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
+import com.aliaktas.urbanscore.util.RatingEventBus
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,7 @@ class RateCityViewModel @Inject constructor(
     private val _ratingState = MutableStateFlow<RateCityState>(RateCityState.Initial)
     val ratingState: StateFlow<RateCityState> = _ratingState.asStateFlow()
 
+    // RateCityViewModel.kt içindeki submitRating fonksiyonunun tam hali:
     fun submitRating(cityId: String, ratings: CategoryRatings) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -68,6 +70,10 @@ class RateCityViewModel @Inject constructor(
 
                                 // 4. Başarılı state'i ayarla
                                 _ratingState.value = RateCityState.Success
+
+                                // 5. Event'i yayınla (YENİ EKLENDİ)
+                                RatingEventBus.emitRatingSubmitted(cityId)
+
                             } catch (e: Exception) {
                                 Log.e("RateCityViewModel", "Error in adding to visited cities: ${e.message}", e)
                                 _ratingState.value = RateCityState.Error("Error updating profile: ${e.message}")

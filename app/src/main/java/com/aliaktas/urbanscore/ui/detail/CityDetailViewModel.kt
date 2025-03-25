@@ -9,6 +9,7 @@ import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
+import com.aliaktas.urbanscore.util.RatingEventBus
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,14 +61,23 @@ class CityDetailViewModel @Inject constructor(
     // Yorum gösterme durum değişkeni
     private val _showComments = MutableStateFlow(false)
 
+
+    // CityDetailViewModel.kt içindeki init bloğunun tam hali
     init {
         loadCityDetails()
+
+        // Rating event'lerini dinle (YENİ EKLENDİ)
+        viewModelScope.launch {
+            RatingEventBus.events.collect { event ->
+                if (event.cityId == cityId) {
+                    Log.d("CityDetailViewModel", "Rating event received, refreshing data")
+                    loadCityDetails() // Verileri yenile
+                }
+            }
+        }
     }
 
-    /**
-     * Load city details from repository.
-     * Also checks if city is in wishlist and if user has rated it.
-     */
+
     fun loadCityDetails() {
         if (!networkUtil.isNetworkAvailable()) {
             _detailState.value = CityDetailState.Error("No internet connection. Please check your connection and try again.")
