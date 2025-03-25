@@ -31,7 +31,8 @@ class InterstitialAdHelper(private val context: Context) {
 
         InterstitialAd.load(
             context,
-            if (BuildConfig.DEBUG) TEST_INTERSTITIAL_AD_UNIT_ID else INTERSTITIAL_AD_UNIT_ID,
+            // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
+            TEST_INTERSTITIAL_AD_UNIT_ID,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {

@@ -27,7 +27,8 @@ class RewardedAdHelper(private val context: Context) {
 
         RewardedAd.load(
             context,
-            if (BuildConfig.DEBUG) TEST_REWARDED_AD_UNIT_ID else REWARDED_AD_UNIT_ID,
+            // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
+            TEST_REWARDED_AD_UNIT_ID,
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {

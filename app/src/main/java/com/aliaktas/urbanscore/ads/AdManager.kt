@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
+import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,8 +46,11 @@ class AdManager @Inject constructor(
     // AdManager.kt içinde initialize metodunu değiştirelim
     fun initialize() {
         try {
+
+            logTestDeviceId()
+
             Log.d(TAG, "AdManager başlatılıyor")
-            val testDeviceIds = listOf("ABCDEF012345", "123456ABCDEF")
+            val testDeviceIds = listOf("B61A84F9F07EDF07D5D6F290DD880708", "123456ABCDEF")
             val configuration = RequestConfiguration.Builder()
                 .setTestDeviceIds(testDeviceIds)
                 .build()
@@ -83,6 +87,23 @@ class AdManager @Inject constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "AdMob başlatma hatası", e)
+        }
+    }
+
+    private fun logTestDeviceId() {
+        try {
+            // Bu kısmı mevcut initialize() metodunuza ekleyin
+            val adRequest = AdRequest.Builder().build()
+            Log.d(TAG, "Test Device ID için logları kontrol edin. 'Test device ID:' ifadesini arayın")
+
+            // Bu satır, cihazınızın test ID'sini loglar
+            MobileAds.setRequestConfiguration(
+                RequestConfiguration.Builder()
+                    .setTestDeviceIds(listOf(AdRequest.DEVICE_ID_EMULATOR))
+                    .build()
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Test cihaz ID'si alınamadı", e)
         }
     }
 
