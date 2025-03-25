@@ -62,17 +62,58 @@ class CityDetailViewModel @Inject constructor(
     private val _showComments = MutableStateFlow(false)
 
 
-    // CityDetailViewModel.kt içindeki init bloğunun tam hali
+    // CityDetailViewModel.kt içindeki init bloğuna şu güncellemeyi yap
     init {
         loadCityDetails()
 
-        // Rating event'lerini dinle (YENİ EKLENDİ)
+        // Rating event'lerini dinle (güncellendi)
         viewModelScope.launch {
             RatingEventBus.events.collect { event ->
                 if (event.cityId == cityId) {
-                    Log.d("CityDetailViewModel", "Rating event received, refreshing data")
-                    loadCityDetails() // Verileri yenile
+                    Log.d("CityDetailViewModel", "Rating event received, refreshing data silently: ${event.silentRefresh}")
+
+                    if (event.silentRefresh) {
+                        // Sessiz yenileme yap (Loading state göstermeden)
+                        loadCityDetailsSilently()
+                    } else {
+                        // Normal yenileme yap (Loading state göstererek)
+                        loadCityDetails()
+                    }
                 }
+            }
+        }
+    }
+
+    // Yeni metot ekle - sessiz yenileme için
+    private fun loadCityDetailsSilently() {
+        viewModelScope.launch {
+            try {
+                // Loading state olmadan doğrudan city repository'ye erişim
+                cityRepository.getCityById(cityId)
+                    .catch { e ->
+                        handleError(e)
+                    }
+                    .collectLatest { city ->
+                        if (city != null) {
+                            currentCity = city
+
+                            // Başarılı state'i al, ancak isPartialUpdate=true ile
+                            val currentState = _detailState.value
+                            if (currentState is CityDetailState.Success) {
+                                _detailState.value = currentState.copy(
+                                    city = city,
+                                    isPartialUpdate = true // Önemli: animasyon yok, sadece veri güncelleniyor
+                                )
+                            } else {
+                                _detailState.value = CityDetailState.Success(
+                                    city = city,
+                                    isPartialUpdate = true // Önemli: animasyon yok, sadece veri güncelleniyor
+                                )
+                            }
+                        }
+                    }
+            } catch (e: Exception) {
+                handleError(e)
             }
         }
     }

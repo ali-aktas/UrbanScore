@@ -17,7 +17,10 @@ import com.aliaktas.urbanscore.navigation.BackStackManager
 import com.aliaktas.urbanscore.navigation.BottomNavigationManager
 import com.aliaktas.urbanscore.navigation.NavigationManager
 import com.aliaktas.urbanscore.ui.auth.ForgotPasswordFragment
+import com.aliaktas.urbanscore.ui.auth.LoginFragment
 import com.aliaktas.urbanscore.ui.auth.RegisterFragment
+import com.aliaktas.urbanscore.ui.categories.CategoryListFragment
+import com.aliaktas.urbanscore.ui.detail.CityDetailFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
 import com.aliaktas.urbanscore.ui.subscription.ProSubscriptionFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -53,8 +56,6 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        //FirebaseApp.initializeApp(this)
-
         adManager.initialize()
 
         // Yönetici sınıfları başlat
@@ -84,6 +85,37 @@ class MainActivity : AppCompatActivity() {
             } else {
                 showLoginFragment()
             }
+        }
+    }
+
+    /**
+     * Standart navigasyon yardımcı metodu.
+     * Tüm navigasyon işlemleri bu metot üzerinden yapılmalıdır.
+     *
+     * @param fragment Gösterilecek fragment
+     * @param tag Fragment için tag (null geçilirse fragment sınıf adı kullanılır)
+     * @param addToBackStack Fragment'ı backstack'e ekleyip eklemeyeceği
+     * @return Gösterilen fragment örneği
+     */
+    private fun navigateTo(
+        fragment: Fragment,
+        tag: String? = null,
+        addToBackStack: Boolean = true
+    ): Fragment {
+        try {
+            Log.d(TAG, "Navigating to ${fragment.javaClass.simpleName}, tag=$tag, addToBackStack=$addToBackStack")
+
+            // Fragment'ı göster
+            val displayedFragment = navigationManager.showFragment(fragment, addToBackStack, tag)
+
+            // Bottom nav görünürlüğünü güncelle
+            bottomNavigationManager.updateBottomNavVisibility(displayedFragment)
+
+            return displayedFragment
+        } catch (e: Exception) {
+            Log.e(TAG, "Navigation error in navigateTo: ${e.message}", e)
+            // Kullanıcıya hata gösterme işlemi buraya eklenebilir
+            return fragment
         }
     }
 
@@ -129,8 +161,6 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
-    // Public API for Fragments
-
     /**
      * Fragment'lerdeki UI geri butonları için kullanılacak yardımcı metot
      */
@@ -146,27 +176,49 @@ class MainActivity : AppCompatActivity() {
         // Bottom navigation'ı gizle
         bottomNavigationManager.hideBottomNavigation()
 
-        // Login fragment'ini göster
-        navigationManager.showLoginFragment()
+        // Login fragment'ini göster (özel işlem)
+        try {
+            val loginFragment = LoginFragment()
+
+            // Backstack'i temizle
+            backStackManager.clearBackStack()
+
+            // Login fragment'ini göster
+            navigationManager.showFragment(loginFragment, false, "LOGIN_FRAGMENT")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing login fragment: ${e.message}", e)
+        }
     }
 
     /**
      * Şehir detay ekranına geçiş için public API
      */
     fun navigateToCityDetail(cityId: String) {
-        val fragment = navigationManager.navigateToCityDetail(cityId)
-        bottomNavigationManager.updateBottomNavVisibility(fragment)
+        val fragment = CityDetailFragment().apply {
+            arguments = Bundle().apply {
+                putString("cityId", cityId)
+            }
+        }
+        val tag = "CITY_DETAIL_$cityId"
+        navigateTo(fragment, tag, true)
     }
 
     /**
      * Kategori listesi ekranına geçiş için public API
      */
     fun navigateToCategoryList(categoryId: String) {
-        val fragment = navigationManager.navigateToCategoryList(categoryId)
-        bottomNavigationManager.updateBottomNavVisibility(fragment)
+        val fragment = CategoryListFragment().apply {
+            arguments = Bundle().apply {
+                putString("categoryId", categoryId)
+            }
+        }
+        val tag = "CATEGORY_LIST_$categoryId"
+        navigateTo(fragment, tag, true)
     }
 
-    // Within MainActivity.kt, update this method:
+    /**
+     * Login sonrası ana ekrana geçiş
+     */
     fun navigateToHomeAfterLogin() {
         Log.d(TAG, "Navigating to home after login")
         try {
@@ -176,24 +228,13 @@ class MainActivity : AppCompatActivity() {
             // Show bottom navigation
             bottomNavigationManager.showBottomNavigation()
 
-            // Önce var olan fragmentları kontrol et
-            val existingFragment = supportFragmentManager.findFragmentByTag("HOME_FRAGMENT")
-
-            if (existingFragment == null) {
-                // Navigate to home fragment
-                navigationManager.showFragment(HomeFragment(), false, "HOME_FRAGMENT")
-            } else if (!existingFragment.isVisible) {
-                // Fragment var ama görünür değilse göster
-                Log.d(TAG, "HomeFragment zaten eklenmiş, gösteriliyor")
-                supportFragmentManager.beginTransaction()
-                    .show(existingFragment)
-                    .commit()
-            }
+            // Navigate to home fragment (NavigationManager üzerinden)
+            navigateTo(HomeFragment(), "HOME_FRAGMENT", false)
 
             // Bottom navigation'da home tab'ı seçili hale getir
             binding.bottomNavigation.selectedItemId = R.id.homeFragment
         } catch (e: Exception) {
-            Log.e(TAG, "Navigation error in navigateToHomeAfterLogin", e)
+            Log.e(TAG, "Critical navigation error in navigateToHomeAfterLogin", e)
             // Ciddi hata durumunda basit bir yeniden başlatma
             Handler(Looper.getMainLooper()).postDelayed({
                 recreate()
@@ -201,26 +242,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    /**
+     * Pro abonelik ekranına geçiş
+     */
     fun navigateToProSubscription() {
         val proFragment = ProSubscriptionFragment()
-        navigationManager.showFragment(proFragment, true, "PRO_SUBSCRIPTION_FRAGMENT")
-    }
-
-
-    fun showRegisterFragment() {
-        val registerFragment = RegisterFragment()
-        navigationManager.showFragment(registerFragment, true, "REGISTER_FRAGMENT")
-        bottomNavigationManager.hideBottomNavigation()
+        navigateTo(proFragment, "PRO_SUBSCRIPTION_FRAGMENT", true)
     }
 
     /**
-     * Shows the ForgotPasswordFragment
+     * Kayıt ekranını göster
+     */
+    fun showRegisterFragment() {
+        val registerFragment = RegisterFragment()
+
+        // Bottom navigation'ı gizle
+        bottomNavigationManager.hideBottomNavigation()
+
+        // Fragment'i göster
+        navigateTo(registerFragment, "REGISTER_FRAGMENT", true)
+    }
+
+    /**
+     * Şifre sıfırlama ekranını göster
      */
     fun showForgotPasswordFragment() {
         val forgotPasswordFragment = ForgotPasswordFragment()
-        navigationManager.showFragment(forgotPasswordFragment, true, "FORGOT_PASSWORD_FRAGMENT")
+
+        // Bottom navigation'ı gizle
         bottomNavigationManager.hideBottomNavigation()
+
+        // Fragment'i göster
+        navigateTo(forgotPasswordFragment, "FORGOT_PASSWORD_FRAGMENT", true)
     }
 
     // State'i kaydet
