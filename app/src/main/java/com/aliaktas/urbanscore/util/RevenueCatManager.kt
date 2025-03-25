@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.revenuecat.purchases.CustomerInfo
-import com.revenuecat.purchases.Offering
 import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.PurchasesConfiguration
 import com.revenuecat.purchases.Purchases
@@ -14,33 +13,33 @@ import com.revenuecat.purchases.PurchaseParams
 import com.revenuecat.purchases.getCustomerInfoWith
 import com.revenuecat.purchases.getOfferingsWith
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
+import com.revenuecat.purchases.models.StoreProduct
 import com.revenuecat.purchases.purchaseWith
 import com.revenuecat.purchases.restorePurchasesWith
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 /**
  * RevenueCat abonelik yönetimi için merkezi sınıf.
- * Singleton pattern kullanılmıştır.
+ * "identifier" kullanımına bağlı olmayan, güvenli versiyonu.
  */
 class RevenueCatManager private constructor(application: Application) {
 
     companion object {
         private const val TAG = "RevenueCatManager"
-        private const val API_KEY = "goog_WVsSgMhECzHIssMxfcjkQZxWEpa"
-        private const val ENTITLEMENT_PREMIUM = "Premium"
-        private const val OFFERING_DEFAULT = "default"
 
-        // Plan ID'leri
+        // API Key
+        private const val API_KEY = "goog_WVsSgMhECzHIssMxfcjkQZxWEpa"
+
+        // Premium entitlement ismi
+        private const val ENTITLEMENT_PREMIUM = "Premium"
+
+        // Plan türleri - Bunlar iç kullanım için sembolik isimler
         const val PLAN_MONTHLY = "monthly"
         const val PLAN_YEARLY = "yearly"
-
-        // Abonelik ürün ID'si
-        const val SUBSCRIPTION_PRODUCT_ID = "appsubscription"
 
         @Volatile
         private var INSTANCE: RevenueCatManager? = null
@@ -60,191 +59,312 @@ class RevenueCatManager private constructor(application: Application) {
         }
     }
 
-    // Abonelik durumu için StateFlow
+    // Abonelik durumu
     private val _isPremium = MutableStateFlow(false)
     val isPremium: StateFlow<Boolean> = _isPremium.asStateFlow()
 
+    // Paketler
+    private val _monthlyPackage = MutableStateFlow<Package?>(null)
+    val monthlyPackage: StateFlow<Package?> = _monthlyPackage.asStateFlow()
+
+    private val _yearlyPackage = MutableStateFlow<Package?>(null)
+    val yearlyPackage: StateFlow<Package?> = _yearlyPackage.asStateFlow()
+
+    // Hata ve yükleme
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     init {
-        // RevenueCat'i yapılandır
-        val configuration = PurchasesConfiguration.Builder(application, API_KEY)
-            .observerMode(false)
-            .build()
+        try {
+            Log.d(TAG, "RevenueCat başlatılıyor")
 
-        Purchases.configure(configuration)
-        Purchases.debugLogsEnabled = true
+            // RevenueCat yapılandırma
+            val configuration = PurchasesConfiguration.Builder(application, API_KEY)
+                .observerMode(false)
+                .build()
 
-        // Abonelik durumunu kontrol et
-        fetchSubscriptionStatus()
+            Purchases.configure(configuration)
+            Purchases.debugLogsEnabled = true
 
-        // RevenueCat yapılandırma bilgilerini logla
-        Log.d(TAG, "RevenueCat initialized with API key: ${API_KEY.take(5)}...")
-        Log.d(TAG, "Checking if user is Premium...")
+            // Purchase listener
+            setupPurchaseListener()
+
+            // Başlangıç kontrolleri
+            checkPremiumStatus()
+            refreshPackages()
+
+        } catch (e: Exception) {
+            Log.e(TAG, "RevenueCat başlatma hatası", e)
+            _error.value = "RevenueCat başlatılamadı: ${e.message}"
+        }
     }
 
     /**
-     * Kullanıcının abonelik durumunu kontrol eder ve isPremium state'ini günceller
+     * Satın alma durumundaki değişiklikleri dinler
      */
-    fun fetchSubscriptionStatus() {
+    private fun setupPurchaseListener() {
+        try {
+            Purchases.sharedInstance.updatedCustomerInfoListener = UpdatedCustomerInfoListener { customerInfo ->
+                Log.d(TAG, "CustomerInfo güncellendi")
+                updatePremiumStatus(customerInfo)
+            }
+            Log.d(TAG, "Satın alma listener'ı kuruldu")
+        } catch (e: Exception) {
+            Log.e(TAG, "Listener kurulumu hatası", e)
+        }
+    }
+
+    /**
+     * Premium durumunu kontrol eder
+     */
+    fun checkPremiumStatus() {
+        _isLoading.value = true
+        Log.d(TAG, "Premium durumu kontrol ediliyor")
+
         try {
             Purchases.sharedInstance.getCustomerInfoWith(
                 onError = { error ->
-                    Log.e(TAG, "Error fetching customer info: ${error.message}")
+                    Log.e(TAG, "CustomerInfo alınamadı: ${error.message}")
+                    _error.value = "Abonelik bilgisi alınamadı: ${error.message}"
+                    _isLoading.value = false
                 },
                 onSuccess = { customerInfo ->
+                    Log.d(TAG, "CustomerInfo alındı")
                     updatePremiumStatus(customerInfo)
+                    _isLoading.value = false
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking subscription status", e)
+            Log.e(TAG, "Premium kontrol hatası", e)
+            _error.value = "Abonelik durumu kontrolü başarısız: ${e.message}"
+            _isLoading.value = false
         }
     }
 
     /**
-     * Kullanıcı bilgisine göre premium durumunu günceller
+     * Premium durumunu günceller
      */
     private fun updatePremiumStatus(customerInfo: CustomerInfo) {
-        val isPremiumActive = customerInfo.entitlements[ENTITLEMENT_PREMIUM]?.isActive == true
-        _isPremium.value = isPremiumActive
-        Log.d(TAG, "Premium status updated: $isPremiumActive")
+        try {
+            val entitlement = customerInfo.entitlements[ENTITLEMENT_PREMIUM]
+            val isActive = entitlement?.isActive == true
+
+            if (_isPremium.value != isActive) {
+                Log.d(TAG, "Premium durumu değişti: $isActive")
+                _isPremium.value = isActive
+            }
+
+            if (isActive) {
+                val expirationDate = entitlement?.expirationDate
+                Log.d(TAG, "Premium aktif, bitiş: ${expirationDate ?: "belirsiz"}")
+            } else {
+                Log.d(TAG, "Premium aktif değil")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Premium durum güncelleme hatası", e)
+        }
     }
 
     /**
-     * Belirli bir paket ID'sine göre satın alma işlemi yapar.
-     *
-     * @param activity Satın alma için Activity referansı
-     * @param packageId Paket ID'si ("monthly" veya "yearly")
-     * @param onSuccess Başarılı olduğunda çalışacak callback
-     * @param onError Hata durumunda çalışacak callback
+     * Paketleri yeniler
      */
-    fun purchasePackageById(
+    fun refreshPackages() {
+        _isLoading.value = true
+        Log.d(TAG, "Paketler yükleniyor")
+
+        try {
+            Purchases.sharedInstance.getOfferingsWith(
+                onError = { error ->
+                    Log.e(TAG, "Offerings alınamadı: ${error.message}")
+                    _error.value = "Abonelik seçenekleri yüklenemedi: ${error.message}"
+                    _isLoading.value = false
+                },
+                onSuccess = { offerings ->
+                    Log.d(TAG, "Offerings başarıyla alındı")
+
+                    // Şu anda kullanılan offering
+                    val currentOffering = offerings.current
+
+                    if (currentOffering == null) {
+                        Log.e(TAG, "Hiçbir offering bulunamadı!")
+                        _error.value = "Abonelik paketi bulunamadı"
+                        _isLoading.value = false
+                        return@getOfferingsWith
+                    }
+
+                    // Paketleri işle
+                    val allPackages = currentOffering.availablePackages
+                    Log.d(TAG, "Paket sayısı: ${allPackages.size}")
+
+                    // Her paketi logla - identifier kullanımı yok!
+                    allPackages.forEachIndexed { index, pkg ->
+                        try {
+                            val price = pkg.product.price.formatted
+                            val packageType = pkg.packageType.toString()
+                            Log.d(TAG, "Paket $index: Tür=$packageType, Fiyat=$price")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Paket bilgisi loglama hatası", e)
+                        }
+                    }
+
+                    // Aylık ve yıllık paketleri bul
+                    var foundMonthly = false
+                    var foundYearly = false
+
+                    // İçerik tabanlı arama - identifier'a dayanmıyor
+                    for (pkg in allPackages) {
+                        try {
+                            val packageType = pkg.packageType.toString().lowercase()
+
+                            if (!foundMonthly && packageType.contains("month")) {
+                                _monthlyPackage.value = pkg
+                                foundMonthly = true
+                                Log.d(TAG, "Aylık paket bulundu: Tür=$packageType")
+                            }
+
+                            if (!foundYearly && (packageType.contains("year") ||
+                                        packageType.contains("annual"))) {
+                                _yearlyPackage.value = pkg
+                                foundYearly = true
+                                Log.d(TAG, "Yıllık paket bulundu: Tür=$packageType")
+                            }
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Paket inceleme hatası", e)
+                        }
+                    }
+
+                    // Hala bulunamadıysa ilk paketleri kullan
+                    if (!foundMonthly && allPackages.isNotEmpty()) {
+                        _monthlyPackage.value = allPackages[0]
+                        Log.d(TAG, "Aylık paket için ilk paket kullanılıyor")
+                    }
+
+                    if (!foundYearly && allPackages.size > 1) {
+                        _yearlyPackage.value = allPackages[1]
+                        Log.d(TAG, "Yıllık paket için ikinci paket kullanılıyor")
+                    }
+
+                    // Sonuç
+                    Log.d(TAG, "Aylık paket bulundu: ${_monthlyPackage.value != null}")
+                    Log.d(TAG, "Yıllık paket bulundu: ${_yearlyPackage.value != null}")
+
+                    _isLoading.value = false
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Paket yenileme hatası", e)
+            _error.value = "Abonelik seçenekleri yüklenirken hata: ${e.message}"
+            _isLoading.value = false
+        }
+    }
+
+    /**
+     * Planı satın alır
+     */
+    fun purchasePlan(
         activity: Activity,
-        packageId: String,
+        planId: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        Log.d(TAG, "Satın alma başlatılıyor: $planId")
+        _isLoading.value = true
+
         try {
-            Log.d(TAG, "Starting purchase for package ID: $packageId")
+            // Paket bulma
+            val packageToUse = when (planId) {
+                PLAN_MONTHLY -> _monthlyPackage.value
+                PLAN_YEARLY -> _yearlyPackage.value
+                else -> null
+            }
 
-            // Get offerings from RevenueCat
-            Purchases.sharedInstance.getOfferingsWith(
-                onError = { error ->
-                    Log.e(TAG, "Error fetching offerings: ${error.message}")
-                    onError("Could not load subscription options: ${error.message}")
+            if (packageToUse == null) {
+                val errorMsg = "Seçilen paket bulunamadı: $planId"
+                Log.e(TAG, errorMsg)
+                _error.value = errorMsg
+                onError(errorMsg)
+                _isLoading.value = false
+                return
+            }
+
+            Log.d(TAG, "Satın alınacak paket: ${packageToUse.packageType}")
+
+            // Satın alma işlemi
+            val purchaseParams = PurchaseParams.Builder(activity, packageToUse).build()
+
+            Purchases.sharedInstance.purchaseWith(
+                purchaseParams = purchaseParams,
+                onError = { error, userCancelled ->
+                    if (userCancelled) {
+                        val msg = "Satın alma iptal edildi"
+                        Log.d(TAG, msg)
+                        onError(msg)
+                    } else {
+                        val errorMsg = "Satın alma hatası: ${error.message}"
+                        Log.e(TAG, errorMsg)
+                        _error.value = errorMsg
+                        onError(errorMsg)
+                    }
+                    _isLoading.value = false
                 },
-                onSuccess = { offerings ->
-                    // Get the default offering
-                    val offering = offerings.current
-                    if (offering == null) {
-                        Log.e(TAG, "No offerings available")
-                        onError("No subscription options available")
-                        return@getOfferingsWith
-                    }
-
-                    // Get the package by ID
-                    val selectedPackage = offering.availablePackages.find {
-                        it.identifier.contains(packageId, ignoreCase = true)
-                    }
-
-                    if (selectedPackage == null) {
-                        Log.e(TAG, "Package with ID $packageId not found")
-                        Log.e(TAG, "Available packages: ${offering.availablePackages.map { it.identifier }}")
-                        onError("Selected subscription option not found")
-                        return@getOfferingsWith
-                    }
-
-                    // Purchase the package
-                    val purchaseParams = PurchaseParams.Builder(activity, selectedPackage).build()
-
-                    Purchases.sharedInstance.purchaseWith(
-                        purchaseParams = purchaseParams,
-                        onError = { error, userCancelled ->
-                            if (userCancelled) {
-                                Log.d(TAG, "User cancelled purchase")
-                                onError("Purchase cancelled")
-                            } else {
-                                Log.e(TAG, "Error purchasing package: ${error.message}")
-                                onError("Purchase failed: ${error.message}")
-                            }
-                        },
-                        onSuccess = { storeTransaction, customerInfo ->
-                            Log.d(TAG, "Purchase successful!")
-                            updatePremiumStatus(customerInfo)
-                            onSuccess()
-                        }
-                    )
+                onSuccess = { storeTransaction, customerInfo ->
+                    val successMsg = "Satın alma başarılı!"
+                    Log.d(TAG, successMsg)
+                    updatePremiumStatus(customerInfo)
+                    onSuccess()
+                    _isLoading.value = false
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error during purchase process", e)
-            onError("Unexpected error: ${e.message}")
+            val errorMsg = "Satın alma başlatılamadı: ${e.message}"
+            Log.e(TAG, errorMsg, e)
+            _error.value = errorMsg
+            onError(errorMsg)
+            _isLoading.value = false
         }
     }
 
     /**
-     * Tüm paket bilgilerini getir.
-     *
-     * @param callback Paket bilgileri ile çağrılacak callback
-     */
-    fun getPackageInfo(callback: (monthlyPackage: Package?, yearlyPackage: Package?) -> Unit) {
-        Purchases.sharedInstance.getOfferingsWith(
-            onError = { error ->
-                Log.e(TAG, "Error fetching offerings: ${error.message}")
-                callback(null, null)
-            },
-            onSuccess = { offerings ->
-                val currentOffering = offerings.current
-                if (currentOffering == null) {
-                    Log.e(TAG, "No current offering found")
-                    callback(null, null)
-                    return@getOfferingsWith
-                }
-
-                // Aylık ve yıllık paketleri bul
-                val monthlyPackage = currentOffering.availablePackages.find {
-                    it.identifier.contains(PLAN_MONTHLY, ignoreCase = true)
-                }
-
-                val yearlyPackage = currentOffering.availablePackages.find {
-                    it.identifier.contains(PLAN_YEARLY, ignoreCase = true)
-                }
-
-                // Logla
-                Log.d(TAG, "Available packages: ${currentOffering.availablePackages.map { it.identifier }}")
-                Log.d(TAG, "Monthly package: ${monthlyPackage?.identifier}, Yearly package: ${yearlyPackage?.identifier}")
-
-                callback(monthlyPackage, yearlyPackage)
-            }
-        )
-    }
-
-    /**
-     * Satın almaları geri yükleme
+     * Satın almaları geri yükler
      */
     fun restorePurchases(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
+        Log.d(TAG, "Satın almaları geri yükleme")
+        _isLoading.value = true
+
         try {
-            Log.d(TAG, "Attempting to restore purchases...")
             Purchases.sharedInstance.restorePurchasesWith(
                 onError = { error ->
-                    Log.e(TAG, "Error restoring purchases: ${error.message}")
-                    onError("Error restoring purchases: ${error.message}")
+                    val errorMsg = "Geri yükleme hatası: ${error.message}"
+                    Log.e(TAG, errorMsg)
+                    _error.value = errorMsg
+                    onError(errorMsg)
+                    _isLoading.value = false
                 },
                 onSuccess = { customerInfo ->
-                    Log.d(TAG, "Purchases restored successfully")
+                    val successMsg = "Satın almalar başarıyla geri yüklendi"
+                    Log.d(TAG, successMsg)
                     updatePremiumStatus(customerInfo)
                     onSuccess()
+                    _isLoading.value = false
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Exception during restore purchases", e)
-            onError("Error: ${e.message}")
+            val errorMsg = "Geri yükleme başlatılamadı: ${e.message}"
+            Log.e(TAG, errorMsg, e)
+            _error.value = errorMsg
+            onError(errorMsg)
+            _isLoading.value = false
         }
     }
 
     /**
-     * Abonelik yönetimi için Google Play'i açar
+     * Google Play abonelik yönetimi sayfasını açar
      */
     fun openSubscriptionManagement(activity: Activity) {
         try {
@@ -253,19 +373,21 @@ class RevenueCatManager private constructor(application: Application) {
                 setPackage("com.android.vending") // Google Play Store package
             }
             activity.startActivity(intent)
+            Log.d(TAG, "Abonelik yönetimi sayfası açıldı")
         } catch (e: Exception) {
-            Log.e(TAG, "Could not open Google Play Store", e)
+            Log.e(TAG, "Abonelik yönetimi sayfası açılamadı", e)
+            _error.value = "Abonelik yönetimi açılamadı: ${e.message}"
         }
     }
 
     /**
-     * Abonelik bitiş tarihini döndürür
+     * Bitiş tarihini döndürür
      */
     fun getExpiryDateFormatted(callback: (String?) -> Unit) {
         try {
             Purchases.sharedInstance.getCustomerInfoWith(
                 onError = { error ->
-                    Log.e(TAG, "Error getting customer info for expiry date: ${error.message}")
+                    Log.e(TAG, "Bitiş tarihi alma hatası: ${error.message}")
                     callback(null)
                 },
                 onSuccess = { customerInfo ->
@@ -275,34 +397,34 @@ class RevenueCatManager private constructor(application: Application) {
                         if (expirationDate != null) {
                             // Format: "15 Apr 2025"
                             val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                            callback(dateFormat.format(expirationDate))
+                            val formatted = dateFormat.format(expirationDate)
+                            Log.d(TAG, "Bitiş tarihi: $formatted")
+                            callback(formatted)
                         } else {
+                            Log.d(TAG, "Bitiş tarihi bulunamadı")
                             callback(null)
                         }
                     } else {
+                        Log.d(TAG, "Entitlement aktif değil")
                         callback(null)
                     }
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error getting expiry date", e)
+            Log.e(TAG, "Bitiş tarihi alma hatası", e)
             callback(null)
         }
     }
 
     /**
-     * Satın alma durumunu dinler
-     */
-    fun observePurchases() {
-        Purchases.sharedInstance.updatedCustomerInfoListener = UpdatedCustomerInfoListener { customerInfo ->
-            updatePremiumStatus(customerInfo)
-        }
-    }
-
-    /**
-     * RevenueCat dinleyicisini temizler
+     * RevenueCat listener'ını temizler
      */
     fun cleanup() {
-        Purchases.sharedInstance.updatedCustomerInfoListener = null
+        try {
+            Log.d(TAG, "RevenueCat listener'ı temizleniyor")
+            Purchases.sharedInstance.updatedCustomerInfoListener = null
+        } catch (e: Exception) {
+            Log.e(TAG, "Cleanup hatası", e)
+        }
     }
 }

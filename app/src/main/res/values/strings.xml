@@ -197,6 +197,18 @@
     <string name="renew_subscription">Renew Subscription</string>
     <string name="pro_subscription">Pro Subscription</string>
     <string name="accept_terms_and_conditions">Accept terms and conditions</string>
+    <string name="pro_subscription_icon">Pro subscription icon</string>
+    <string name="pro_active_icon">Pro active icon</string>
+    <string name="monthly_plan">Monthly Plan</string>
+    <string name="yearly_plan">Yearly Plan</string>
+    <string name="loading_price">Loading price…</string>
+    <string name="monthly_plan_benefits">• No ads\n• Full access to all features\n• Pay monthly</string>
+    <string name="yearly_plan_benefits">• No ads\n• Full access to all features\n• Pay once for a full year\n• Best value</string>
+    <string name="subscribe_now">Subscribe Now</string>
+    <string name="restore_purchases">Restore Purchases</string>
+    <string name="subscription_disclaimer">By subscribing, you agree to our Terms of Service. Your subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period.</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="manage_subscription">Manage Subscription</string>
 
 
 

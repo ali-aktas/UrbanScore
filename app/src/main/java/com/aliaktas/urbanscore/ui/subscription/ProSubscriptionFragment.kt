@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,6 +17,7 @@ import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentProSubscriptionBinding
 import com.aliaktas.urbanscore.util.RevenueCatManager
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -41,160 +41,219 @@ class ProSubscriptionFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "Fragment oluşturuldu")
 
         setupUI()
         observeViewModel()
+
+        // Başlangıçta verileri yenileme
+        viewModel.refreshSubscriptionData()
     }
 
     private fun setupUI() {
+        Log.d(TAG, "UI ayarları yapılıyor")
+
         // Geri butonu
         binding.btnBack.setOnClickListener {
+            Log.d(TAG, "Geri butonu tıklandı")
             (requireActivity() as MainActivity).handleBackPressed()
         }
 
-        // Abonelik planı seçimi
+        // Plan seçim butonları
         binding.cardMonthlyPlan.setOnClickListener {
+            Log.d(TAG, "Aylık plan seçildi")
             viewModel.selectPackage(RevenueCatManager.PLAN_MONTHLY)
             updateSubscriptionSelection(RevenueCatManager.PLAN_MONTHLY)
         }
 
         binding.cardYearlyPlan.setOnClickListener {
+            Log.d(TAG, "Yıllık plan seçildi")
             viewModel.selectPackage(RevenueCatManager.PLAN_YEARLY)
             updateSubscriptionSelection(RevenueCatManager.PLAN_YEARLY)
         }
 
-        // Varsayılan olarak aylık plan seçili
-        updateSubscriptionSelection(RevenueCatManager.PLAN_MONTHLY)
-
-        // Abonelik butonu
+        // Satın alma butonu
         binding.btnSubscribe.setOnClickListener {
+            Log.d(TAG, "Satın al butonu tıklandı")
             viewModel.purchaseSelectedPlan(requireActivity())
         }
 
-        // Restore butonları
+        // Geri yükleme butonları
         binding.btnRestorePurchases.setOnClickListener {
+            Log.d(TAG, "Geri yükleme butonu tıklandı")
             viewModel.restorePurchases()
         }
 
         binding.btnRestoreProPurchases.setOnClickListener {
+            Log.d(TAG, "Pro geri yükleme butonu tıklandı")
             viewModel.restorePurchases()
         }
 
         // Abonelik yönetim butonu
         binding.btnManageSubscription.setOnClickListener {
+            Log.d(TAG, "Abonelik yönetim butonu tıklandı")
             viewModel.openSubscriptionManagement(requireActivity())
         }
 
         // Gizlilik politikası
         binding.tvPrivacyPolicy.setOnClickListener {
+            Log.d(TAG, "Gizlilik politikası linki tıklandı")
             try {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
                     data = Uri.parse("https://aliaktasapp.blogspot.com/p/urbanrate-privacy-policy.html")
                 }
                 startActivity(intent)
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Could not open privacy policy", Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "Gizlilik politikası açılamadı", e)
+                showSnackbar("Gizlilik politikası açılamadı")
             }
+        }
+    }
+
+    private fun observeViewModel() {
+        Log.d(TAG, "ViewModel gözlemleniyor")
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // Kullanıcı mesajlarını gözlemle
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.userMessage.collect { message ->
+                        showSnackbar(message)
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            // UI state'i gözlemle
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.uiState.collect { state ->
+                        Log.d(TAG, "UI state değişti: ${state.javaClass.simpleName}")
+                        updateUI(state)
+                    }
+                }
+            }
+        }
+
+        // Seçili paket ID'sini gözlemleme
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.selectedPackageId.collect { packageId ->
+                        Log.d(TAG, "Seçili paket değişti: $packageId")
+                        updateSubscriptionSelection(packageId)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateUI(state: SubscriptionUIState) {
+        when (state) {
+            is SubscriptionUIState.Loading -> {
+                Log.d(TAG, "Loading state gösteriliyor")
+                showLoading(true)
+                hideAllContentLayouts()
+            }
+
+            is SubscriptionUIState.PremiumActive -> {
+                Log.d(TAG, "Premium active state gösteriliyor")
+                showLoading(false)
+                showActiveSubscription()
+            }
+
+            is SubscriptionUIState.ReadyForPurchase -> {
+                Log.d(TAG, "Ready for purchase state gösteriliyor")
+                showLoading(false)
+                showSubscriptionOptions()
+                updatePackagesInfo(state)
+            }
+
+            is SubscriptionUIState.PackagesUnavailable -> {
+                Log.d(TAG, "Packages unavailable state gösteriliyor")
+                showLoading(false)
+                showSubscriptionOptions()
+                showSnackbar("Abonelik seçenekleri yüklenemedi. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.")
+
+                // Butonları devre dışı bırak
+                binding.btnSubscribe.isEnabled = false
+                binding.cardMonthlyPlan.isEnabled = false
+                binding.cardYearlyPlan.isEnabled = false
+            }
+        }
+    }
+
+    private fun updatePackagesInfo(state: SubscriptionUIState.ReadyForPurchase) {
+        Log.d(TAG, "Paket bilgileri güncelleniyor")
+        // identifier yerine product.identifier kullanımı
+        Log.d(TAG, "Aylık paket: ${state.monthlyPackage?.packageType ?: "Bulunamadı"}")
+        Log.d(TAG, "Yıllık paket: ${state.yearlyPackage?.packageType ?: "Bulunamadı"}")
+
+        // Aylık fiyat
+        state.monthlyPackage?.let { pkg ->
+            binding.tvMonthlyPrice.text = pkg.product.price.formatted
+            binding.cardMonthlyPlan.isEnabled = true
+        } ?: run {
+            binding.tvMonthlyPrice.text = "Kullanılamıyor"
+            binding.cardMonthlyPlan.isEnabled = false
+        }
+
+        // Yıllık fiyat
+        state.yearlyPackage?.let { pkg ->
+            binding.tvYearlyPrice.text = pkg.product.price.formatted
+            binding.cardYearlyPlan.isEnabled = true
+
+            // Tasarruf hesaplama
+            val savingsPercent = viewModel.calculateSavingsPercentage()
+            if (savingsPercent > 0) {
+                binding.tvSavings.visibility = View.VISIBLE
+                binding.tvSavings.text = " (Save $savingsPercent%)"
+            } else {
+                binding.tvSavings.visibility = View.GONE
+            }
+        } ?: run {
+            binding.tvYearlyPrice.text = "Kullanılamıyor"
+            binding.cardYearlyPlan.isEnabled = false
+            binding.tvSavings.visibility = View.GONE
+        }
+
+        // Satın al butonu aktifleştirme
+        binding.btnSubscribe.isEnabled = when (state.selectedPackageId) {
+            RevenueCatManager.PLAN_MONTHLY -> state.monthlyPackage != null
+            RevenueCatManager.PLAN_YEARLY -> state.yearlyPackage != null
+            else -> false
         }
     }
 
     private fun updateSubscriptionSelection(packageId: String) {
-        // Kartların stroke rengini güncelle
+        Log.d(TAG, "Abonelik seçimi güncelleniyor: $packageId")
+
+        // Renk ID'leri
+        val selectedColor = R.color.auth_accent
+        val unselectedColor = R.color.accent
+
+        // Kartların çerçeve rengini güncelle
         binding.cardMonthlyPlan.strokeColor = ContextCompat.getColor(
             requireContext(),
-            if (packageId == RevenueCatManager.PLAN_MONTHLY) R.color.auth_accent else R.color.rating_color
+            if (packageId == RevenueCatManager.PLAN_MONTHLY) selectedColor else unselectedColor
         )
 
         binding.cardYearlyPlan.strokeColor = ContextCompat.getColor(
             requireContext(),
-            if (packageId == RevenueCatManager.PLAN_YEARLY) R.color.auth_accent else R.color.accent
+            if (packageId == RevenueCatManager.PLAN_YEARLY) selectedColor else unselectedColor
         )
 
-        // Radyo butonları güncelle (görünmez olsalar bile state'i güncel tut)
+        // Radio butonları güncelle (görünür olmasalar bile state'i doğru tutmak için)
         binding.radioMonthly.isChecked = packageId == RevenueCatManager.PLAN_MONTHLY
         binding.radioYearly.isChecked = packageId == RevenueCatManager.PLAN_YEARLY
     }
 
-    private fun observeViewModel() {
-        // UI state'i gözlemle
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    updateUI(state)
-                }
-            }
-        }
-
-        // Paket bilgilerini gözlemle
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.packagesState.collect { state ->
-                    updatePackageInfo(state)
-                }
-            }
-        }
-    }
-
-    private fun updateUI(state: ProSubscriptionState) {
-        when (state) {
-            is ProSubscriptionState.Loading -> {
-                showLoading(true)
-            }
-            is ProSubscriptionState.NotSubscribed -> {
-                showLoading(false)
-                showSubscriptionOptions()
-            }
-            is ProSubscriptionState.Processing -> {
-                showLoading(true)
-            }
-            is ProSubscriptionState.SubscriptionActive -> {
-                showLoading(false)
-                showActiveSubscription()
-            }
-            is ProSubscriptionState.Error -> {
-                showLoading(false)
-                showError(state.message)
-            }
-        }
-    }
-
-    private fun updatePackageInfo(state: ProSubscriptionViewModel.PackageUIState) {
-        // Aylık fiyat
-        state.monthlyPackage?.let { pkg ->
-            binding.tvMonthlyPrice.text = pkg.product.price.formatted
-        }
-
-        // Yıllık fiyat ve tasarruf hesaplaması
-        state.yearlyPackage?.let { pkg ->
-            binding.tvYearlyPrice.text = pkg.product.price.formatted
-
-            // Tasarruf hesaplaması
-            if (state.monthlyPackage != null) {
-                val monthlyPrice = state.monthlyPackage.product.price.amountMicros
-                val yearlyPrice = pkg.product.price.amountMicros
-                val monthlyPricePerYear = monthlyPrice * 12
-
-                val savingsPercent = if (monthlyPricePerYear > 0) {
-                    ((monthlyPricePerYear - yearlyPrice) * 100.0 / monthlyPricePerYear).toInt()
-                } else {
-                    0
-                }
-
-                if (savingsPercent > 0) {
-                    binding.tvSavings.visibility = View.VISIBLE
-                    binding.tvSavings.text = " (Save $savingsPercent%)"
-                } else {
-                    binding.tvSavings.visibility = View.GONE
-                }
-            }
-        }
-
-        // Seçili planı güncelle
-        updateSubscriptionSelection(state.selectedPackageId)
-    }
-
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
+    private fun hideAllContentLayouts() {
         binding.subscriptionOptionsLayout.visibility = View.GONE
         binding.proStatusLayout.visibility = View.GONE
     }
@@ -218,25 +277,31 @@ class ProSubscriptionFragment : Fragment() {
         }
     }
 
-    private fun showError(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
-
-        // Hata durumunda abonelik seçeneklerini göster
-        showSubscriptionOptions()
+    private fun showSnackbar(message: String) {
+        Log.d(TAG, "Snackbar gösteriliyor: $message")
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "Fragment resume oldu, verileri yenileme")
+
         // Abonelik durumunu yenile
-        viewModel.getExpiryDate { expiryDate ->
-            if (expiryDate != null && binding.proStatusLayout.visibility == View.VISIBLE) {
-                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
+        viewModel.refreshSubscriptionData()
+
+        // Eğer aktif abonelik varsa bitiş tarihini güncelle
+        if (binding.proStatusLayout.visibility == View.VISIBLE) {
+            viewModel.getExpiryDate { expiryDate ->
+                if (expiryDate != null) {
+                    binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
+                }
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Log.d(TAG, "Fragment destroy oldu")
         _binding = null
     }
 }
