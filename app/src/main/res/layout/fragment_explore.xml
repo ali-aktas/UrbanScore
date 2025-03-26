@@ -36,18 +36,18 @@
 
     </LinearLayout>
 
-        <!-- Discover Title -->
-        <TextView
-            android:id="@+id/txtDiscover"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:fontFamily="@font/poppins_medium"
-            android:text="@string/discover_new_cities"
-            android:textColor="#FFFFFF"
-            android:textSize="24sp"
-            app:layout_constraintStart_toStartOf="@id/txtAppName"
-            app:layout_constraintTop_toBottomOf="@id/txtAppName" />
+    <!-- Discover Title -->
+    <TextView
+        android:id="@+id/txtDiscover"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_medium"
+        android:text="@string/discover_new_cities"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="@id/txtAppName"
+        app:layout_constraintTop_toBottomOf="@id/txtAppName" />
 
 
     <!-- Search Bar -->
@@ -98,86 +98,132 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Ana İçerik Konteyneri -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/contentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardSearch">
 
-           <androidx.core.widget.NestedScrollView
-               android:layout_width="match_parent"
-               android:layout_height="0dp"
-               android:layout_marginTop="12dp"
-               android:clipToPadding="false"
-               android:padding="12dp"
-               app:layout_constraintBottom_toBottomOf="parent"
-               app:layout_constraintTop_toBottomOf="@id/cardSearch">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-               <LinearLayout
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:orientation="vertical">
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone" />
 
+            <!-- For You Text -->
+            <TextView
+                android:id="@+id/txtForYou"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/for_you_text"
+                android:textColor="#CCFFFFFF"
+                android:textSize="18sp"
+                android:layout_gravity="center"/>
 
-                   <ProgressBar
-                       android:id="@+id/progressBar"
-                       android:layout_width="42dp"
-                       android:layout_height="42dp"
-                       android:layout_gravity="center"
-                       android:layout_marginTop="24dp"
-                       android:layout_marginBottom="24dp"
-                       android:visibility="gone" />
+            <!-- City Carousel -->
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/cityViewPager"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/viewpager_height"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="20dp"
+                android:paddingEnd="30dp"
+                android:paddingStart="10dp"
+                android:layout_gravity="center_horizontal"/>
 
-                   <!-- For You Text -->
-                   <TextView
-                       android:id="@+id/txtForYou"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:layout_marginTop="8dp"
-                       android:fontFamily="@font/poppins_medium"
-                       android:text="@string/for_you_text"
-                       android:textColor="#CCFFFFFF"
-                       android:textSize="18sp"
-                       android:layout_gravity="center"/>
+            <!-- Couldn't Find Text -->
+            <TextView
+                android:id="@+id/txtNotFound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/couldnt_find_city"
+                android:textColor="#CCFFFFFF"
+                android:textSize="18sp"
+                android:layout_gravity="center"/>
 
-                   <!-- City Carousel -->
-                   <androidx.viewpager2.widget.ViewPager2
-                       android:id="@+id/cityViewPager"
-                       android:layout_width="match_parent"
-                       android:layout_height="@dimen/viewpager_height"
-                       android:layout_marginTop="12dp"
-                       android:layout_marginBottom="20dp"
-                       android:paddingEnd="30dp"
-                       android:paddingStart="10dp"
-                       android:layout_gravity="center_horizontal"/>
+            <!-- Let Us Know Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSuggestCity"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="24dp"
+                android:backgroundTint="@color/rating_color"
+                android:fontFamily="@font/poppins_medium"
+                android:text="@string/let_us_know_city"
+                android:textColor="#FFFFFF"
+                app:cornerRadius="18dp"
+                app:icon="@drawable/ic_add"
+                app:iconTint="#FFFFFF"
+                android:layout_gravity="center"/>
 
-                   <!-- Couldn't Find Text -->
-                   <TextView
-                       android:id="@+id/txtNotFound"
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:layout_marginBottom="6dp"
-                       android:fontFamily="@font/poppins_medium"
-                       android:text="@string/couldnt_find_city"
-                       android:textColor="#CCFFFFFF"
-                       android:textSize="18sp"
-                       android:layout_gravity="center"/>
+        </LinearLayout>
 
-                   <!-- Let Us Know Button -->
-                   <com.google.android.material.button.MaterialButton
-                       android:id="@+id/btnSuggestCity"
-                       android:layout_width="match_parent"
-                       android:layout_height="44dp"
-                       android:layout_marginStart="24dp"
-                       android:layout_marginEnd="24dp"
-                       android:layout_marginBottom="24dp"
-                       android:backgroundTint="@color/rating_color"
-                       android:fontFamily="@font/poppins_medium"
-                       android:text="@string/let_us_know_city"
-                       android:textColor="#FFFFFF"
-                       app:cornerRadius="18dp"
-                       app:icon="@drawable/ic_add"
-                       app:iconTint="#FFFFFF"
-                       android:layout_gravity="center"/>
+    </androidx.core.widget.NestedScrollView>
 
-               </LinearLayout>
+    <!-- Hata Durumu Konteyneri -->
+    <LinearLayout
+        android:id="@+id/errorContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardSearch"
+        tools:visibility="visible">
 
-           </androidx.core.widget.NestedScrollView>
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationError"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/error_animation" />
+
+        <TextView
+            android:id="@+id/textError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_internet_connection"
+            android:textAlignment="center"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/rating_color"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/retry"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
     <!-- fragment_explore.xml dosyasının sonuna eklenecek -->
     <FrameLayout

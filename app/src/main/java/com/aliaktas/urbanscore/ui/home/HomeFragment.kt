@@ -21,10 +21,12 @@ import com.aliaktas.urbanscore.data.model.CategoryModel
 import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
 import com.aliaktas.urbanscore.ui.common.EditorsChoiceAdapter
+import com.aliaktas.urbanscore.util.NetworkUtil
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -37,6 +39,9 @@ class HomeFragment : Fragment() {
     private val citiesAdapter = CitiesAdapter()
     private val categoriesAdapter = CategoriesAdapter()
     private val editorsChoiceAdapter = EditorsChoiceAdapter() // Yeni adaptör
+
+    @Inject
+    lateinit var networkUtil: NetworkUtil
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +60,7 @@ class HomeFragment : Fragment() {
         setupAnimations()
         setupSwipeRefresh() // SwipeRefresh setup'ı gözlemcilerden önce yapılmalı
         observeViewModel()
+        observeNetworkState() // Eklenen ağ durumu gözlemi
     }
 
     override fun onResume() {
@@ -62,11 +68,63 @@ class HomeFragment : Fragment() {
         // Her zaman HomeFragment'a döndüğümüzde top rated cities listesini yeniliyoruz
         // Bu, kategori seçiminden sonra Ana sayfaya döndüğümüzde listenin etkilenmemesini sağlar
         viewModel.refreshOnReturn()
+
+        // Internet durumunu da kontrol et
+        checkInternetConnection()
+    }
+
+    // Ağ durumunu gözlemle
+    private fun observeNetworkState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            networkUtil.observeNetworkState().collect { isConnected ->
+                if (isConnected) {
+                    // İnternet varsa, normal içeriği göster ve verileri yenile
+                    hideErrorUI()
+                    viewModel.loadTopRatedCities(true)
+                } else {
+                    // İnternet yoksa, hata ekranını göster
+                    showErrorUI(getString(R.string.no_internet_connection))
+                }
+            }
+        }
+    }
+
+    // İnternet kontrolü
+    private fun checkInternetConnection(): Boolean {
+        val isConnected = networkUtil.isNetworkAvailable()
+        if (!isConnected) {
+            showErrorUI(getString(R.string.no_internet_connection))
+        }
+        return isConnected
+    }
+
+    // Hata ekranını göster
+    private fun showErrorUI(errorMessage: String) {
+        binding.errorContainer.visibility = View.VISIBLE
+        binding.textError.text = errorMessage
+        binding.animationError.playAnimation()
+
+        // ÖNEMLİ: Ana içeriği gizle - bu NavigationController'ın düzgün çalışması için önemli
+        binding.nestedLayout.visibility = View.GONE
+        binding.swipeRefreshLayout.isEnabled = false
+    }
+
+    // Hata ekranını gizle
+    private fun hideErrorUI() {
+        binding.errorContainer.visibility = View.GONE
+
+        // Ana içeriği göster
+        binding.nestedLayout.visibility = View.VISIBLE
+        binding.swipeRefreshLayout.isEnabled = true
     }
 
     private fun setupSwipeRefresh() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.loadTopRatedCities(true) // Force refresh
+            if (checkInternetConnection()) {
+                viewModel.loadTopRatedCities(true) // Force refresh
+            } else {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
         }
 
         binding.swipeRefreshLayout.setColorSchemeResources(
@@ -86,7 +144,11 @@ class HomeFragment : Fragment() {
         // Kategorileri göster (değişmez veriler)
         categoriesAdapter.submitList(CategoryModel.getDefaultCategories())
         categoriesAdapter.onItemClick = { category ->
-            navigateToCategoryList(category.ratingType)
+            if (checkInternetConnection()) {
+                navigateToCategoryList(category.ratingType)
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Top Rated Cities RecyclerView
@@ -96,7 +158,11 @@ class HomeFragment : Fragment() {
             recycledViewPool.setMaxRecycledViews(0, 15)
         }
         citiesAdapter.onItemClick = { city ->
-            navigateToCityDetail(city.id)
+            if (checkInternetConnection()) {
+                navigateToCityDetail(city.id)
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Editors' Choice RecyclerView (önceki grid layoutu yerine)
@@ -106,20 +172,38 @@ class HomeFragment : Fragment() {
             setHasFixedSize(false)
         }
         editorsChoiceAdapter.onItemClick = { cityId ->
-            navigateToCityDetail(cityId)
+            if (checkInternetConnection()) {
+                navigateToCityDetail(cityId)
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
     private fun setupClickListeners() {
         // "View All" button click - simple navigation to CategoryList
         binding.txtViewListFragment.setOnClickListener {
-            navigateToCategoryList()
+            if (checkInternetConnection()) {
+                navigateToCategoryList()
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
         binding.cardCitiesList.setOnClickListener {
-            navigateToCategoryList()
+            if (checkInternetConnection()) {
+                navigateToCategoryList()
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
         binding.btnRetry.setOnClickListener {
-            viewModel.loadTopRatedCities(true)
+            if (networkUtil.isNetworkAvailable()) {
+                hideErrorUI()
+                viewModel.loadTopRatedCities(true)
+            } else {
+                // Bağlantı hala yoksa animasyonu yeniden oynat
+                binding.animationError.playAnimation()
+            }
         }
     }
 
@@ -211,8 +295,8 @@ class HomeFragment : Fragment() {
                 Log.d("HomeFragment", "UI State: Success with ${state.cities.size} cities")
             }
             is HomeState.Error -> {
-                if (citiesAdapter.itemCount > 0) {
-                    // Eğer daha önce yüklenmiş şehirler varsa, onları göstermeye devam et
+                if (citiesAdapter.itemCount > 0 && networkUtil.isNetworkAvailable()) {
+                    // Eğer daha önce yüklenmiş şehirler varsa VE internet bağlantısı hala varsa, onları göstermeye devam et
                     binding.swipeRefreshLayout.isVisible = true
                     binding.loadingContainer.isVisible = false
                     binding.errorContainer.isVisible = false
@@ -220,7 +304,7 @@ class HomeFragment : Fragment() {
                     Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                     Log.d("HomeFragment", "UI State: Error with existing content")
                 } else {
-                    // Hiç içerik yoksa, hata ekranını göster, içeriği gizle
+                    // İnternet yoksa veya hiç içerik yoksa, hata ekranını göster
                     binding.swipeRefreshLayout.isVisible = false  // SwipeRefresh'i gizle
                     binding.loadingContainer.isVisible = false
                     binding.errorContainer.isVisible = true
@@ -249,8 +333,12 @@ class HomeFragment : Fragment() {
 
     private fun navigateToCategoryList(categoryId: String? = null) {
         try {
-            // Navigation Component yerine MainActivity API'sini kullan
-            (requireActivity() as MainActivity).navigateToCategoryList(categoryId ?: "averageRating")
+            if (checkInternetConnection()) {
+                // Navigation Component yerine MainActivity API'sini kullan
+                (requireActivity() as MainActivity).navigateToCategoryList(categoryId ?: "averageRating")
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Navigation error: ${e.message}", e)
             Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
@@ -259,7 +347,11 @@ class HomeFragment : Fragment() {
 
     private fun navigateToCityDetail(cityId: String) {
         try {
-            (requireActivity() as MainActivity).navigateToCityDetail(cityId)
+            if (checkInternetConnection()) {
+                (requireActivity() as MainActivity).navigateToCityDetail(cityId)
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Navigation error: ${e.message}", e)
             Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()

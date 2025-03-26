@@ -7,15 +7,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentAllCitiesBinding
+import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class AllCitiesFragment : Fragment() {
 
     private var _binding: FragmentAllCitiesBinding? = null
     private val binding get() = _binding!!
+
+    @Inject
+    lateinit var networkUtil: NetworkUtil
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,36 +37,102 @@ class AllCitiesFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupCategoryCards()
+        setupErrorHandling()
+        setupAnimations()
+        observeNetworkState()
+
+        // İlk açılışta internet kontrolü yap
+        checkInternetConnection()
+    }
+
+    private fun setupAnimations() {
+        binding.animationError.apply {
+            setAnimation(R.raw.error_animation)
+        }
+    }
+
+    private fun setupErrorHandling() {
+        binding.btnRetry.setOnClickListener {
+            if (networkUtil.isNetworkAvailable()) {
+                hideErrorUI()
+            } else {
+                // Bağlantı hala yoksa animasyonu yeniden oynat
+                binding.animationError.playAnimation()
+            }
+        }
+    }
+
+    private fun observeNetworkState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            networkUtil.observeNetworkState().collect { isConnected ->
+                if (isConnected) {
+                    hideErrorUI()
+                } else {
+                    showErrorUI(getString(R.string.no_internet_connection))
+                }
+            }
+        }
+    }
+
+    private fun checkInternetConnection(): Boolean {
+        val isConnected = networkUtil.isNetworkAvailable()
+        if (!isConnected) {
+            showErrorUI(getString(R.string.no_internet_connection))
+        }
+        return isConnected
+    }
+
+    private fun showErrorUI(errorMessage: String) {
+        binding.errorContainer.visibility = View.VISIBLE
+        binding.textError.text = errorMessage
+        binding.animationError.playAnimation()
+
+        // Ana içeriği gizle
+        binding.contentScrollView.visibility = View.GONE
+    }
+
+    private fun hideErrorUI() {
+        binding.errorContainer.visibility = View.GONE
+
+        // Ana içeriği göster
+        binding.contentScrollView.visibility = View.VISIBLE
     }
 
     // AllCitiesFragment.kt içerisindeki setupCategoryCards metodunu güncelleyelim
     private fun setupCategoryCards() {
         // Environment & Aesthetics
         binding.cardEnvironment.setOnClickListener {
-            navigateToCategoryList("environment")
+            navigateWithCheck("environment")
         }
 
         // Safety & Tranquility
         binding.cardSafety.setOnClickListener {
-            navigateToCategoryList("safety")
+            navigateWithCheck("safety")
         }
 
         // Livability
         binding.cardLivability.setOnClickListener {
-            navigateToCategoryList("livability")
+            navigateWithCheck("livability")
         }
 
         // Cost of Living
         binding.cardCost.setOnClickListener {
-            navigateToCategoryList("cost")
+            navigateWithCheck("cost")
         }
 
         // Social & Cultural Life
         binding.cardSocial.setOnClickListener {
-            navigateToCategoryList("social")
+            navigateWithCheck("social")
         }
     }
 
+    private fun navigateWithCheck(categoryId: String) {
+        if (checkInternetConnection()) {
+            navigateToCategoryList(categoryId)
+        } else {
+            Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private fun navigateToCategoryList(categoryId: String) {
         try {
@@ -68,7 +142,6 @@ class AllCitiesFragment : Fragment() {
             Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()

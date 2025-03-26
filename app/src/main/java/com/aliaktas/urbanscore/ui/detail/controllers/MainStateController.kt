@@ -1,6 +1,9 @@
 package com.aliaktas.urbanscore.ui.detail.controllers
 
+import android.util.Log
 import android.view.View
+import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.detail.CityDetailState
@@ -54,11 +57,55 @@ class MainStateController(
     }
 
     private fun showErrorDialog(message: String) {
-        MaterialAlertDialogBuilder(binding.root.context)
-            .setTitle(R.string.error)
-            .setMessage(message)
-            .setPositiveButton(R.string.retry) { _, _ -> onRetry() }
-            .setNegativeButton(R.string.cancel) { _, _ -> onGoBack() }
-            .show()
+        val context = binding.root.context
+
+        // Context'in hala geçerli olup olmadığını kontrol et
+        val activity = context as? FragmentActivity
+        if (activity == null || activity.isFinishing || activity.isDestroyed) {
+            return
+        }
+
+        try {
+            MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.error)
+                .setMessage(message)
+                .setPositiveButton(R.string.retry) { dialog, _ ->
+                    dialog.dismiss()
+
+                    // Retry işleminden önce loading state'i göster
+                    binding.loadingOverlay.visibility = View.VISIBLE
+                    binding.animationLoading.playAnimation()
+
+                    // UI thread'de bir gecikme ile retry yaparak animasyonun gösterilmesini sağla
+                    binding.root.postDelayed({
+                        try {
+                            onRetry()
+                        } catch (e: Exception) {
+                            // Retry sırasında hata olursa, kullanıcıya bildir
+                            Toast.makeText(context, "Failed to load: ${e.message}", Toast.LENGTH_SHORT).show()
+                            binding.loadingOverlay.visibility = View.GONE
+                        }
+                    }, 200)
+                }
+                .setNegativeButton(R.string.back) { dialog, _ ->
+                    dialog.dismiss()
+
+                    // UI thread'de bir gecikme ile back işlemini yap
+                    binding.root.post {
+                        try {
+                            onGoBack()
+                        } catch (e: Exception) {
+                            // Geri dönüş sırasında hata olursa, kullanıcıya bildir
+                            // Bu durumda daha fazla bir şey yapamayız, uygulamanın çökmesini engelledik
+                            Toast.makeText(context, "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                .setCancelable(false) // Kullanıcının dışarı tıklayarak dialogu kapatmasını engelle
+                .show()
+        } catch (e: Exception) {
+            // Dialog oluşturma hatası durumunda, sessionla ilgili bir çökme olmaması için sessizce geç
+            Log.e("MainStateController", "Error showing dialog: ${e.message}", e)
+        }
     }
 }

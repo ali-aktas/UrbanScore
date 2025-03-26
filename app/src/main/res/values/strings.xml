@@ -31,6 +31,8 @@
     <string name="error_loading_data">Could not load data. Please try again.</string>
     <string name="error_loading_cities">Could not load cities. Please try again.</string>
     <string name="error">Error</string>
+    <string name="no_internet_connection">No internet connection. Please try again.</string>
+    <string name="dismiss">Dismiss</string>
 
 
     <!-- Category names and descriptions -->
