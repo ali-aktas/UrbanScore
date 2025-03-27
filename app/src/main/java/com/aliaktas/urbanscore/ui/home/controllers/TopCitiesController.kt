@@ -62,7 +62,13 @@ class TopCitiesController(
         // Sadece başarılı durumda şehirler listesini güncelle
         if (state is HomeState.Success) {
             Log.d(TAG, "Updating cities list with ${state.cities.size} cities")
-            citiesAdapter.submitList(state.cities)
+
+            // Yeni bir liste oluştur - bu, DiffUtil'e tam bir refresh sinyali verir
+            val newList = state.cities.toList()
+            citiesAdapter.submitList(newList)
+
+            // Alternatif olarak, görünümü tamamen yenilemek için:
+            binding.recyclerViewCities.post { citiesAdapter.notifyDataSetChanged() }
         }
     }
 

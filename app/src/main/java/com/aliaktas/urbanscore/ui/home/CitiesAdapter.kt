@@ -25,7 +25,7 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
     }
 
     override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position), position)
     }
 
     inner class CityViewHolder(
@@ -41,11 +41,14 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
             }
         }
 
-        fun bind(city: CityModel) {
+        // Burada position parametresini ekledik ve kullanıyoruz
+        fun bind(city: CityModel, position: Int) {
             with(binding) {
                 textCityName.text = "${city.cityName}, ${city.country}"
                 textRating.text = String.format("%.2f", city.averageRating)
-                textRatingCount.text = (adapterPosition + 1).toString()
+
+                // ÖNEMLİ DEĞİŞİKLİK: adapterPosition yerine direkt verilen position kullanılıyor
+                textRatingCount.text = (position + 1).toString()
 
                 // Loading Flag URL with Glide
                 Glide.with(root)
