@@ -8,7 +8,6 @@ import com.aliaktas.urbanscore.util.ResourceProvider
 import com.aliaktas.urbanscore.data.repository.CityRecommendationRepository
 import com.aliaktas.urbanscore.data.repository.CityRecommendationRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.CityRepository
-import com.aliaktas.urbanscore.data.repository.CityRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
@@ -65,14 +64,6 @@ object AppModule {
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth {
         return FirebaseAuth.getInstance()
-    }
-
-    @Provides
-    @Singleton
-    fun provideCityRepository(
-        firestore: FirebaseFirestore
-    ): CityRepository {
-        return CityRepositoryImpl(firestore)
     }
 
     @Provides
