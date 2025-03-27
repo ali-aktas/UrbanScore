@@ -29,7 +29,7 @@ class CategoryListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: CategoryListViewModel by viewModels()
-    private val citiesAdapter = CitiesAdapter()
+    private lateinit var citiesAdapter: CitiesAdapter
     private lateinit var categoryId: String
     private var noInternetSnackbar: Snackbar? = null
 
@@ -121,6 +121,8 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        // Burada CitiesAdapter'a categoryId'yi iletiyoruz
+        citiesAdapter = CitiesAdapter(categoryId)
         binding.recyclerViewCategoryList.adapter = citiesAdapter
 
         citiesAdapter.onItemClick = { city ->

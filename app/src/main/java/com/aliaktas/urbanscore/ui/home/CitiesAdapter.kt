@@ -1,3 +1,5 @@
+// app/src/main/java/com/aliaktas/urbanscore/ui/home/CitiesAdapter.kt dosyasını aç
+
 package com.aliaktas.urbanscore.ui.home
 
 import android.view.LayoutInflater
@@ -10,10 +12,16 @@ import com.aliaktas.urbanscore.databinding.ItemCityBinding
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 
-// ListAdapter kullanarak DiffUtil implementasyonu
-class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityDiffCallback()) {
+class CitiesAdapter(private val categoryId: String = "averageRating") : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityDiffCallback()) {
 
     var onItemClick: ((CityModel) -> Unit)? = null
+
+    // Constructor olmadan kategori ID'sini ayarlamak için
+    private var _categoryId = categoryId
+
+    fun setCategoryId(categoryId: String) {
+        _categoryId = categoryId
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
         val binding = ItemCityBinding.inflate(
@@ -41,13 +49,21 @@ class CitiesAdapter : ListAdapter<CityModel, CitiesAdapter.CityViewHolder>(CityD
             }
         }
 
-        // Burada position parametresini ekledik ve kullanıyoruz
         fun bind(city: CityModel, position: Int) {
             with(binding) {
                 textCityName.text = "${city.cityName}, ${city.country}"
-                textRating.text = String.format("%.2f", city.averageRating)
 
-                // ÖNEMLİ DEĞİŞİKLİK: adapterPosition yerine direkt verilen position kullanılıyor
+                // Kategori ID'sine göre doğru puanı al
+                val rating = when (_categoryId) {
+                    "environment" -> city.ratings.environment
+                    "safety" -> city.ratings.safety
+                    "livability" -> city.ratings.livability
+                    "cost" -> city.ratings.cost
+                    "social" -> city.ratings.social
+                    else -> city.averageRating
+                }
+
+                textRating.text = String.format("%.2f", rating)
                 textRatingCount.text = (position + 1).toString()
 
                 // Loading Flag URL with Glide
