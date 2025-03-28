@@ -79,7 +79,6 @@ androidx-baselibrary = { group = "androidx.databinding", name = "baseLibrary", v
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "play-services-ads" }
 billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 revenuecat = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
-revenuecat-purchases-ui = { module = "com.revenuecat.purchases:purchases-ui", version.ref = "revenuecat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

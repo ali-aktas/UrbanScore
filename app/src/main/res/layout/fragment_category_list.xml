@@ -47,8 +47,9 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginStart="12dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_back"
             android:contentDescription="Back"
@@ -78,9 +79,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:padding="4dp"
-        android:layout_margin="8dp"
-        android:background="@drawable/category_livability_bg"
+        android:layout_margin="12dp"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/titleLayout"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -91,6 +90,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
+            android:background="@drawable/category_gradient_overlay"
             android:clipToPadding="false"
             android:padding="4dp"
             android:layout_marginTop="8dp"

@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import com.aliaktas.urbanscore.BuildConfig
 import com.revenuecat.purchases.CustomerInfo
 import com.revenuecat.purchases.Package
 import com.revenuecat.purchases.PurchasesConfiguration
@@ -87,7 +88,7 @@ class RevenueCatManager private constructor(application: Application) {
                 .build()
 
             Purchases.configure(configuration)
-            Purchases.debugLogsEnabled = true
+            Purchases.debugLogsEnabled = BuildConfig.DEBUG
 
             // Purchase listener
             setupPurchaseListener()

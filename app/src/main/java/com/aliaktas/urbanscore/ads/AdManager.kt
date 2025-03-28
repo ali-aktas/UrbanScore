@@ -2,6 +2,7 @@ package com.aliaktas.urbanscore.ads
 
 import android.content.Context
 import android.util.Log
+import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.android.gms.ads.AdRequest
@@ -43,37 +44,57 @@ class AdManager @Inject constructor(
     private var isPro: Boolean = false
 
 
-    // AdManager.kt içinde initialize metodunu değiştirelim
     fun initialize() {
         try {
-
-            logTestDeviceId()
-
             Log.d(TAG, "AdManager başlatılıyor")
-            val testDeviceIds = listOf("B61A84F9F07EDF07D5D6F290DD880708", "123456ABCDEF")
-            val configuration = RequestConfiguration.Builder()
-                .setTestDeviceIds(testDeviceIds)
-                .build()
 
-            MobileAds.setRequestConfiguration(configuration)
+            // Debug modda test cihazlarını kullan, release modda kullanma
+            if (BuildConfig.DEBUG) {
+                // Sadece debug build'de test cihazlarını ekle ve logla
+                logTestDeviceId()
+                val testDeviceIds = listOf("B61A84F9F07EDF07D5D6F290DD880708", "123456ABCDEF")
+                val configuration = RequestConfiguration.Builder()
+                    .setTestDeviceIds(testDeviceIds)
+                    .build()
+                MobileAds.setRequestConfiguration(configuration)
+            } else {
+                // Release modda test cihazları kullanma
+                val configuration = RequestConfiguration.Builder().build()
+                MobileAds.setRequestConfiguration(configuration)
+            }
+
             MobileAds.initialize(context) { status ->
-                Log.d(TAG, "AdMob başlatma tamamlandı. Durum: $status")
+                // Debug modda log kaydı tut
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "AdMob başlatma tamamlandı. Durum: $status")
+                }
 
                 // Başlangıçta reklamları yükle
                 preloadAds()
             }
 
-            // Başlangıç Pro durumunu logla
-            Log.d(TAG, "Başlangıç isPro değeri: $isPro")
+            // Başlangıç Pro durumunu logla (sadece debug modda)
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "Başlangıç isPro değeri: $isPro")
+            }
 
             // Premium durumunu dinle
             CoroutineScope(Dispatchers.Main).launch {
-                Log.d(TAG, "isPremium akışı dinleniyor")
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "isPremium akışı dinleniyor")
+                }
+
                 try {
                     revenueCatManager.isPremium.collect { premiumStatus ->
-                        Log.d(TAG, "Premium durum güncellendi: $premiumStatus")
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "Premium durum güncellendi: $premiumStatus")
+                        }
+
                         isPro = premiumStatus
-                        Log.d(TAG, "AdManager'da premium durum güncellendi: $isPro")
+
+                        if (BuildConfig.DEBUG) {
+                            Log.d(TAG, "AdManager'da premium durum güncellendi: $isPro")
+                        }
 
                         // Eğer Pro durumu false ise reklamları yükle
                         if (!isPro) {

@@ -22,7 +22,7 @@
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:background="@drawable/bottom_nav_background"
-        app:itemIconSize="26dp"
+        app:itemIconSize="22dp"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
         app:labelVisibilityMode="auto"

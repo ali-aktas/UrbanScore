@@ -218,7 +218,7 @@ class CityDetailViewModel @Inject constructor(
         }
     }
 
-    // CityDetailViewModel.kt içindeki bu metodu güncelleyin
+    // CityDetailViewModel.kt içinde toggleWishlist metodunu güncelleyelim:
     fun toggleWishlist() {
         val currentState = _detailState.value
         if (currentState !is CityDetailState.Success) return
@@ -227,7 +227,7 @@ class CityDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // Optimistic update - isPartialUpdate=true ile
+                // Optimistic update
                 updateSuccessState { copy(isInWishlist = !isInWishlist, isPartialUpdate = true) }
 
                 val result = if (isCurrentlyInWishlist) {
@@ -246,26 +246,44 @@ class CityDetailViewModel @Inject constructor(
                         _detailEvents.emit(CityDetailEvent.ShowMessage(message))
                     },
                     onFailure = { e ->
-                        // Revert optimistic update - isPartialUpdate=true ile
+                        // Revert optimistic update
                         updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist, isPartialUpdate = true) }
+
+                        // Sadece mesaj göster, fragment'a etki etmesini engelle
                         _detailEvents.emit(CityDetailEvent.ShowMessage("Error: ${e.message}"))
+
+                        // BaseViewModel'ın handleError metodunu ÇAĞIRMA - bu navigasyonu bozabilir
+                        // handleError(e) -> Bu satırı kaldır/yorum satırına çevir
+
+                        // Log ekleyelim
+                        Log.e("CityDetailViewModel", "Wishlist toggle error: ${e.message}", e)
                     }
                 )
             } catch (e: Exception) {
-                // Revert optimistic update - isPartialUpdate=true ile
+                // Revert optimistic update
                 updateSuccessState { copy(isInWishlist = isCurrentlyInWishlist, isPartialUpdate = true) }
-                handleError(e)
+
+                // Sadece mesaj göster, fragment'a etki etmesini engelle
+                _detailEvents.emit(CityDetailEvent.ShowMessage("Error: ${e.message}"))
+
+                // BaseViewModel'ın handleError metodunu ÇAĞIRMA - bu navigasyonu bozabilir
+                // handleError(e) -> Bu satırı kaldır/yorum satırına çevir
+
+                // Log ekleyelim
+                Log.e("CityDetailViewModel", "Wishlist toggle unexpected error: ${e.message}", e)
             }
         }
     }
 
-
-    /**
-     * Show rating dialog to rate the city
-     */
     fun showRatingSheet() {
         viewModelScope.launch {
-            _detailEvents.emit(CityDetailEvent.ShowRatingSheet(cityId))
+            try {
+                _detailEvents.emit(CityDetailEvent.ShowRatingSheet(cityId))
+            } catch (e: Exception) {
+                // Sadece log, fragment'ı etkileme
+                Log.e("CityDetailViewModel", "Error showing rating sheet: ${e.message}", e)
+                _detailEvents.emit(CityDetailEvent.ShowMessage("Could not open rating sheet: ${e.message}"))
+            }
         }
     }
 

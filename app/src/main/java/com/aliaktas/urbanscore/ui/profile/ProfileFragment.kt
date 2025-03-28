@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -60,6 +61,10 @@ class ProfileFragment : Fragment() {
         observeViewModel()
         setupMenuButton()
 
+        binding.btnDeleteAccount.setOnClickListener {
+            deleteUserAccount()
+        }
+
         // ViewModel'in Flow'larının düzgün çalıştığından emin olmak için
         Log.d("ProfileFragment", "onViewCreated: Starting to observe ViewModel")
     }
@@ -76,6 +81,41 @@ class ProfileFragment : Fragment() {
 
         // Manual refresh - bağlantı durumundan bağımsız olarak yenileme yapmayı dene
         viewModel.refreshUserProfile()
+    }
+
+    private fun deleteUserAccount() {
+        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+
+        // Kullanıcıya onay sor
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Delete account")
+            .setMessage("Are you sure you want to delete your account? This action cannot be reversed.")
+            .setPositiveButton("Yes, delete.") { _, _ ->
+                // Hesabı sil
+                currentUser.delete()
+                    .addOnSuccessListener {
+                        // Firestore'daki kullanıcı verilerini temizle
+                        val userRef = FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(currentUser.uid)
+
+                        userRef.delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Your account has been successfully deleted", Toast.LENGTH_SHORT).show()
+                                // Çıkış yap ve giriş ekranına yönlendir
+                                FirebaseAuth.getInstance().signOut()
+                                (requireActivity() as MainActivity).showLoginFragment()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(context, "Data cleaning error: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(context, "Deleting error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
 

@@ -21,19 +21,19 @@
 #-renamesourcefileattribute SourceFile
 
 # Firestore
+-keep class com.aliaktas.urbanscore.data.model.CityModel { *; }
+-keep class com.aliaktas.urbanscore.data.model.CategoryRatings { *; }
+-keep class com.aliaktas.urbanscore.data.model.UserModel { *; }
+-keep class com.aliaktas.urbanscore.data.model.UserRatingModel { *; }
+-keep class com.github.mikephil.charting.** { *; }
 
+# RevenueCat
+-keep class com.revenuecat.** { *; }
+
+# Firebase
 -keep class com.google.firebase.** { *; }
-
 -keep class com.google.android.gms.** { *; }
 
-# Firestore model sınıflarınız
-
--keep class com.aliaktas.urbanscore.data.model.CityModel { *; }
-
--keep class com.aliaktas.urbanscore.data.model.CategoryRatings { *; }
-
--keep class com.aliaktas.urbanscore.data.model.UserModel { *; }
-
--keep class com.aliaktas.urbanscore.data.model.UserRatingModel { *; }
-
--keep class com.github.mikephil.charting.** { *; }
+# Glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep class * extends com.bumptech.glide.module.AppGlideModule

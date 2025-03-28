@@ -15,8 +15,8 @@ android {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.09"
+        versionCode = 10
+        versionName = "1.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -112,5 +112,5 @@ dependencies {
     implementation(libs.billing)
     //RevenueCat
     implementation(libs.revenuecat)
-    implementation(libs.revenuecat.purchases.ui)
+    //implementation(libs.revenuecat.purchases.ui)
 }

@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
+    android:layout_margin="4dp"
     android:paddingHorizontal="8dp"
-    android:paddingVertical="8dp">
+    android:paddingVertical="4dp">
 
     <TextView
         android:id="@+id/textRatingCount"
@@ -82,8 +83,7 @@
             android:gravity="center"
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/montserrat_bold"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:textSize="15sp"
             tools:text="9.12" />
     </LinearLayout>
 
