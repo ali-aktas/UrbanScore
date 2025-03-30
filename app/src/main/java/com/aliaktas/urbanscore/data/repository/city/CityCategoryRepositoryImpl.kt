@@ -9,6 +9,7 @@ import com.google.firebase.firestore.Query
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import com.google.firebase.firestore.Filter
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -23,6 +24,7 @@ class CityCategoryRepositoryImpl @Inject constructor(
         private const val TAG = "CityCategoryRepository"
     }
 
+    // CityCategoryRepositoryImpl.kt içinde
     override suspend fun getCitiesByCategoryRating(categoryName: String, limit: Int): Flow<List<CityModel>> = callbackFlow {
         // Kategori adını doğrulayalım
         val validCategories = setOf("environment", "safety", "livability", "cost", "social")
@@ -31,19 +33,21 @@ class CityCategoryRepositoryImpl @Inject constructor(
         // Kategori puanlamasına göre alanı ayarlama
         val fieldPath = if (category == "averageRating") "averageRating" else "ratings.$category"
 
+        // Daha fazla veri çek, sonra istemci tarafında filtreleyeceğiz
+        val realLimit = limit * 3 // Daha fazla veri çek, sonra filtreleyeceğiz
+
         val subscription = firestore.collection(CITIES_COLLECTION)
             .orderBy(fieldPath, Query.Direction.DESCENDING)
-            .limit(limit.toLong())
+            .limit(realLimit.toLong())
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     close(error)
                     return@addSnapshotListener
                 }
 
-                val cities = snapshot?.documents?.mapNotNull { doc ->
+                val allCities = snapshot?.documents?.mapNotNull { doc ->
                     try {
                         val model = doc.toObject(CityModel::class.java)
-                        // Döküman ID'sini modele atayalım
                         model?.copy(id = doc.id)
                     } catch (e: Exception) {
                         Log.e(TAG, "Error converting document", e)
@@ -51,7 +55,12 @@ class CityCategoryRepositoryImpl @Inject constructor(
                     }
                 } ?: emptyList()
 
-                trySend(cities)
+                // İSTEMCİ TARAFINDA FİLTRELEME
+                val filteredCities = allCities.filter { city ->
+                    city.ratingCount >= 20
+                }.take(limit) // Orijinal limit kadar göster
+
+                trySend(filteredCities)
             }
 
         awaitClose { subscription.remove() }
@@ -69,6 +78,9 @@ class CityCategoryRepositoryImpl @Inject constructor(
         // Kategori puanlamasına göre alanı ayarlama
         val fieldPath = if (category == "averageRating") "averageRating" else "ratings.$category"
 
+        // Daha fazla veri çek
+        val realLimit = limit * 3
+
         // Sorgu oluştur
         var query = firestore.collection(CITIES_COLLECTION)
             .orderBy(fieldPath, Query.Direction.DESCENDING)
@@ -79,14 +91,14 @@ class CityCategoryRepositoryImpl @Inject constructor(
         }
 
         // Limit uygula
-        query = query.limit(limit.toLong())
+        query = query.limit(realLimit.toLong())
 
         try {
             // Verileri al
             val querySnapshot = query.get().await()
 
             // Şehir listesini dönüştür
-            val cities = querySnapshot.documents.mapNotNull { document ->
+            val allCities = querySnapshot.documents.mapNotNull { document ->
                 try {
                     val city = document.toObject(CityModel::class.java)
                     city?.copy(id = document.id)
@@ -96,14 +108,24 @@ class CityCategoryRepositoryImpl @Inject constructor(
                 }
             }
 
-            // Son belgeyi al
-            val lastDoc = querySnapshot.documents.lastOrNull()
+            // İSTEMCİ TARAFINDA FİLTRELEME
+            val filteredCities = allCities.filter { city ->
+                city.ratingCount >= 20
+            }.take(limit)
+
+            // Son belgeyi al - filtrelenmiş listedeki son eleman
+            val lastDoc = if (filteredCities.isNotEmpty()) {
+                val lastCity = filteredCities.last()
+                querySnapshot.documents.find { it.id == lastCity.id }
+            } else {
+                null
+            }
 
             // Daha fazla öğe olup olmadığını kontrol et
-            val hasMore = cities.size == limit && cities.isNotEmpty()
+            val hasMore = allCities.size > filteredCities.size || querySnapshot.documents.size == realLimit
 
             // Sonucu gönder
-            trySend(PaginatedResult(cities, lastDoc, hasMore))
+            trySend(PaginatedResult(filteredCities, lastDoc, hasMore))
         } catch (e: Exception) {
             Log.e(TAG, "Error getting paginated cities: ${e.message}")
             close(e)
