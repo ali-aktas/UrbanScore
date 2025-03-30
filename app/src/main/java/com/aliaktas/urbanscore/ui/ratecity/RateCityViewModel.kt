@@ -94,11 +94,13 @@ class RateCityViewModel @Inject constructor(
 
     private fun calculateAverageRating(ratings: CategoryRatings): Double {
         // Weighted average calculation
-        val sum = (ratings.environment * 1.3 +
-                ratings.safety * 1.1 +
+        val sum = (ratings.gastronomy * 1.0 +
+                ratings.aesthetics * 1.1 +
+                ratings.safety * 1.2 +
+                ratings.culture * 1.0 +
                 ratings.livability * 1.0 +
-                ratings.cost * 1.0 +
-                ratings.social * 1.2)
-        return (sum / 5.6).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
+                ratings.social * 0.9 +
+                ratings.hospitality * 0.8)
+        return (sum / 7.0).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
     }
 }

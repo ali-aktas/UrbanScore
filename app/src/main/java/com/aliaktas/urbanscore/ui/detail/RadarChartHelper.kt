@@ -163,10 +163,12 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
         if (dataSet.entryCount < 5) return true
 
         // Değerleri tek tek karşılaştır
-        return dataSet.getEntryForIndex(0).value != newRatings.environment.toFloat() ||
+        return dataSet.getEntryForIndex(0).value != newRatings.aesthetics.toFloat() ||
                 dataSet.getEntryForIndex(1).value != newRatings.safety.toFloat() ||
                 dataSet.getEntryForIndex(2).value != newRatings.livability.toFloat() ||
-                dataSet.getEntryForIndex(3).value != newRatings.cost.toFloat() ||
+                dataSet.getEntryForIndex(3).value != newRatings.gastronomy.toFloat() ||
+                dataSet.getEntryForIndex(3).value != newRatings.culture.toFloat() ||
+                dataSet.getEntryForIndex(3).value != newRatings.hospitality.toFloat() ||
                 dataSet.getEntryForIndex(4).value != newRatings.social.toFloat()
     }
 
@@ -180,10 +182,12 @@ class RadarChartHelper @Inject constructor(private val context: Context) {
     private fun createChartData(ratings: CategoryRatings): RadarData {
         // Convert ratings to radar entries
         val entries = ArrayList<RadarEntry>().apply {
-            add(RadarEntry(ratings.environment.toFloat()))
+            add(RadarEntry(ratings.aesthetics.toFloat()))
             add(RadarEntry(ratings.safety.toFloat()))
             add(RadarEntry(ratings.livability.toFloat()))
-            add(RadarEntry(ratings.cost.toFloat()))
+            add(RadarEntry(ratings.culture.toFloat()))
+            add(RadarEntry(ratings.hospitality.toFloat()))
+            add(RadarEntry(ratings.gastronomy.toFloat()))
             add(RadarEntry(ratings.social.toFloat()))
         }
 

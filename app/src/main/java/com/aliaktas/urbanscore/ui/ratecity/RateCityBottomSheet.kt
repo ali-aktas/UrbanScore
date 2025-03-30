@@ -69,9 +69,14 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupSliders() {
-        // Environment slider
-        binding.sliderEnvironment.addOnChangeListener { _, value, _ ->
-            binding.tvEnvironmentRating.text = String.format("%.1f", value)
+        // Gastronomy slider
+        binding.sliderGastronomy.addOnChangeListener { _, value, _ ->
+            binding.tvGastronomyRating.text = String.format("%.1f", value)
+        }
+
+        // Aesthetics slider
+        binding.sliderAesthetics.addOnChangeListener { _, value, _ ->
+            binding.tvAestheticsRating.text = String.format("%.1f", value)
         }
 
         // Safety slider
@@ -79,19 +84,24 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
             binding.tvSafetyRating.text = String.format("%.1f", value)
         }
 
+        // Culture slider
+        binding.sliderCulture.addOnChangeListener { _, value, _ ->
+            binding.tvCultureRating.text = String.format("%.1f", value)
+        }
+
         // Livability slider
         binding.sliderLivability.addOnChangeListener { _, value, _ ->
             binding.tvLivabilityRating.text = String.format("%.1f", value)
         }
 
-        // Cost slider
-        binding.sliderCost.addOnChangeListener { _, value, _ ->
-            binding.tvCostRating.text = String.format("%.1f", value)
-        }
-
         // Social slider
         binding.sliderSocial.addOnChangeListener { _, value, _ ->
             binding.tvSocialRating.text = String.format("%.1f", value)
+        }
+
+        // Hospitality slider
+        binding.sliderHospitality.addOnChangeListener { _, value, _ ->
+            binding.tvHospitalityRating.text = String.format("%.1f", value)
         }
     }
 
@@ -101,11 +111,13 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
 
             cityId?.let { id ->
                 val ratings = CategoryRatings(
-                    environment = binding.sliderEnvironment.value.toDouble(),
+                    gastronomy = binding.sliderGastronomy.value.toDouble(),
+                    aesthetics = binding.sliderAesthetics.value.toDouble(),
                     safety = binding.sliderSafety.value.toDouble(),
+                    culture = binding.sliderCulture.value.toDouble(),
                     livability = binding.sliderLivability.value.toDouble(),
-                    cost = binding.sliderCost.value.toDouble(),
-                    social = binding.sliderSocial.value.toDouble()
+                    social = binding.sliderSocial.value.toDouble(),
+                    hospitality = binding.sliderHospitality.value.toDouble()
                 )
 
                 // Gönderim sırasında kapatmayı engelle

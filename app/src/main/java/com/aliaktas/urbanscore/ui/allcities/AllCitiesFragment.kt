@@ -98,31 +98,40 @@ class AllCitiesFragment : Fragment() {
         binding.contentScrollView.visibility = View.VISIBLE
     }
 
-    // AllCitiesFragment.kt içerisindeki setupCategoryCards metodunu güncelleyelim
     private fun setupCategoryCards() {
-        // Environment & Aesthetics
-        binding.cardEnvironment.setOnClickListener {
-            navigateWithCheck("environment")
+        // Gastronomy & Diversity
+        binding.cardGastronomy.setOnClickListener {
+            navigateWithCheck("gastronomy")
         }
 
-        // Safety & Tranquility
+        // City Aesthetics
+        binding.cardAesthetics.setOnClickListener {
+            navigateWithCheck("aesthetics")
+        }
+
+        // Safety & Peace
         binding.cardSafety.setOnClickListener {
             navigateWithCheck("safety")
         }
 
-        // Livability
+        // Cultural Heritage
+        binding.cardCulture.setOnClickListener {
+            navigateWithCheck("culture")
+        }
+
+        // Livability & Nature
         binding.cardLivability.setOnClickListener {
             navigateWithCheck("livability")
         }
 
-        // Cost of Living
-        binding.cardCost.setOnClickListener {
-            navigateWithCheck("cost")
-        }
-
-        // Social & Cultural Life
+        // Social Life & Affordability
         binding.cardSocial.setOnClickListener {
             navigateWithCheck("social")
+        }
+
+        // Local Hospitality
+        binding.cardHospitality.setOnClickListener {
+            navigateWithCheck("hospitality")
         }
     }
 

@@ -21,11 +21,13 @@ class CityRatingRepositoryImpl @Inject constructor(
     override suspend fun rateCity(cityId: String, userId: String, ratings: CategoryRatings): Result<Unit> = try {
         // Öndalık basamakları düzenle
         val formattedRatings = CategoryRatings(
-            environment = (ratings.environment * 100).toInt() / 100.0,
+            gastronomy = (ratings.gastronomy * 100).toInt() / 100.0,
+            aesthetics = (ratings.aesthetics * 100).toInt() / 100.0,
             safety = (ratings.safety * 100).toInt() / 100.0,
+            culture = (ratings.culture * 100).toInt() / 100.0,
             livability = (ratings.livability * 100).toInt() / 100.0,
-            cost = (ratings.cost * 100).toInt() / 100.0,
-            social = (ratings.social * 100).toInt() / 100.0
+            social = (ratings.social * 100).toInt() / 100.0,
+            hospitality = (ratings.hospitality * 100).toInt() / 100.0
         )
 
         // İşlemi bir transaction içinde gerçekleştir
@@ -50,16 +52,20 @@ class CityRatingRepositoryImpl @Inject constructor(
             if (wasRatedBefore) {
                 // Bu bir güncelleme - eski puanlama etkisini kaldır
                 val newRatings = CategoryRatings(
-                    environment = updateRatingForEdit(city.ratings.environment, oldRating!!,
-                        formattedRatings.environment, city.ratingCount),
+                    gastronomy = updateRatingForEdit(city.ratings.gastronomy, oldRating!!,
+                        formattedRatings.gastronomy, city.ratingCount),
+                    aesthetics = updateRatingForEdit(city.ratings.aesthetics, oldRating,
+                        formattedRatings.aesthetics, city.ratingCount),
                     safety = updateRatingForEdit(city.ratings.safety, oldRating,
                         formattedRatings.safety, city.ratingCount),
+                    culture = updateRatingForEdit(city.ratings.culture, oldRating,
+                        formattedRatings.culture, city.ratingCount),
                     livability = updateRatingForEdit(city.ratings.livability, oldRating,
                         formattedRatings.livability, city.ratingCount),
-                    cost = updateRatingForEdit(city.ratings.cost, oldRating,
-                        formattedRatings.cost, city.ratingCount),
                     social = updateRatingForEdit(city.ratings.social, oldRating,
-                        formattedRatings.social, city.ratingCount)
+                        formattedRatings.social, city.ratingCount),
+                    hospitality = updateRatingForEdit(city.ratings.hospitality, oldRating,
+                        formattedRatings.hospitality, city.ratingCount)
                 )
 
                 // Yeni genel ortalamayı ağırlıklı formül kullanarak hesapla
@@ -77,11 +83,13 @@ class CityRatingRepositoryImpl @Inject constructor(
                 // Bu yeni bir puanlama
                 val newRatingCount = city.ratingCount + 1
                 val newRatings = CategoryRatings(
-                    environment = updateAverage(city.ratings.environment, formattedRatings.environment, city.ratingCount),
+                    gastronomy = updateAverage(city.ratings.gastronomy, formattedRatings.gastronomy, city.ratingCount),
+                    aesthetics = updateAverage(city.ratings.aesthetics, formattedRatings.aesthetics, city.ratingCount),
                     safety = updateAverage(city.ratings.safety, formattedRatings.safety, city.ratingCount),
+                    culture = updateAverage(city.ratings.culture, formattedRatings.culture, city.ratingCount),
                     livability = updateAverage(city.ratings.livability, formattedRatings.livability, city.ratingCount),
-                    cost = updateAverage(city.ratings.cost, formattedRatings.cost, city.ratingCount),
-                    social = updateAverage(city.ratings.social, formattedRatings.social, city.ratingCount)
+                    social = updateAverage(city.ratings.social, formattedRatings.social, city.ratingCount),
+                    hospitality = updateAverage(city.ratings.hospitality, formattedRatings.hospitality, city.ratingCount)
                 )
 
                 // Yeni genel ortalamayı ağırlıklı formül kullanarak hesapla
@@ -107,11 +115,13 @@ class CityRatingRepositoryImpl @Inject constructor(
 
     // Calculate weighted average based on your formula
     private fun calculateWeightedAverage(ratings: CategoryRatings): Double {
-        return ((ratings.environment * 1.3) +
-                (ratings.safety * 1.1) +
+        return ((ratings.gastronomy * 1.0) +
+                (ratings.aesthetics * 1.1) +
+                (ratings.safety * 1.2) +
+                (ratings.culture * 1.0) +
                 (ratings.livability * 1.0) +
-                (ratings.cost * 1.0) +
-                (ratings.social * 1.2)) / 5.6
+                (ratings.social * 0.9) +
+                (ratings.hospitality * 0.8)) / 7.0
     }
 
     // Update average for a new rating

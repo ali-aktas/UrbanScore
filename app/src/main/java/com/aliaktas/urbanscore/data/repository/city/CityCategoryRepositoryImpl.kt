@@ -27,7 +27,7 @@ class CityCategoryRepositoryImpl @Inject constructor(
     // CityCategoryRepositoryImpl.kt içinde
     override suspend fun getCitiesByCategoryRating(categoryName: String, limit: Int): Flow<List<CityModel>> = callbackFlow {
         // Kategori adını doğrulayalım
-        val validCategories = setOf("environment", "safety", "livability", "cost", "social")
+        val validCategories = setOf("gastronomy", "aesthetics", "safety", "culture", "livability", "social", "hospitality")
         val category = if (categoryName in validCategories) categoryName else "averageRating"
 
         // Kategori puanlamasına göre alanı ayarlama

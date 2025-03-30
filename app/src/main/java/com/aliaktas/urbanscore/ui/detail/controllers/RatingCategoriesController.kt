@@ -22,10 +22,12 @@ class RatingCategoriesController(
 
         // Kategori puanlarını güncelle
         with(state.city.ratings) {
-            binding.txtEnvironmentRating.text = formatter.formatRating(environment)
+            binding.txtAestheticsRating.text = formatter.formatRating(aesthetics)
             binding.txtSafetyRating.text = formatter.formatRating(safety)
+            binding.txtHospitalityRating.text = formatter.formatRating(hospitality)
+            binding.txtGastronomyRating.text = formatter.formatRating(gastronomy)
             binding.txtLivabilityRating.text = formatter.formatRating(livability)
-            binding.txtCostRating.text = formatter.formatRating(cost)
+            binding.txtCultureRating.text = formatter.formatRating(culture)
             binding.txtSocialRating.text = formatter.formatRating(social)
         }
     }

@@ -38,11 +38,13 @@ class UserRatingRepositoryImpl @Inject constructor(
                 "timestamp" to rating.timestamp,
                 "userAverageRating" to rating.userAverageRating,
                 "ratings" to mapOf(
-                    "environment" to rating.ratings.environment,
+                    "aesthetics" to rating.ratings.aesthetics,
                     "safety" to rating.ratings.safety,
                     "livability" to rating.ratings.livability,
-                    "cost" to rating.ratings.cost,
-                    "social" to rating.ratings.social
+                    "culture" to rating.ratings.culture,
+                    "gastronomy" to rating.ratings.gastronomy,
+                    "social" to rating.ratings.social,
+                    "hospitality" to rating.ratings.hospitality
                 )
             )).await()
 
@@ -89,10 +91,12 @@ class UserRatingRepositoryImpl @Inject constructor(
                         timestamp = (data["timestamp"] as? Long) ?: 0L,
                         userAverageRating = (data["userAverageRating"] as? Double) ?: 0.0,
                         ratings = com.aliaktas.urbanscore.data.model.CategoryRatings(
-                            environment = ratingsMap["environment"] ?: 0.0,
+                            aesthetics = ratingsMap["aesthetics"] ?: 0.0,
                             safety = ratingsMap["safety"] ?: 0.0,
                             livability = ratingsMap["livability"] ?: 0.0,
-                            cost = ratingsMap["cost"] ?: 0.0,
+                            culture = ratingsMap["culture"] ?: 0.0,
+                            gastronomy = ratingsMap["gastronomy"] ?: 0.0,
+                            hospitality = ratingsMap["hospitality"] ?: 0.0,
                             social = ratingsMap["social"] ?: 0.0
                         )
                     )

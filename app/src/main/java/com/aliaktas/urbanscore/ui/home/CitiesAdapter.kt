@@ -55,11 +55,13 @@ class CitiesAdapter(private val categoryId: String = "averageRating") : ListAdap
 
                 // Kategori ID'sine göre doğru puanı al
                 val rating = when (_categoryId) {
-                    "environment" -> city.ratings.environment
+                    "gastronomy" -> city.ratings.gastronomy
+                    "aesthetics" -> city.ratings.aesthetics
                     "safety" -> city.ratings.safety
+                    "culture" -> city.ratings.culture
                     "livability" -> city.ratings.livability
-                    "cost" -> city.ratings.cost
                     "social" -> city.ratings.social
+                    "hospitality" -> city.ratings.hospitality
                     else -> city.averageRating
                 }
 

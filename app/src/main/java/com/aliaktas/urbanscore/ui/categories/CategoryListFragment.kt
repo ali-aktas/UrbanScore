@@ -109,11 +109,13 @@ class CategoryListFragment : Fragment() {
 
     private fun setCategoryTitle() {
         val title = when (categoryId) {
-            "environment" -> "Best Cities for Landscapes & Aesthetics"
-            "safety" -> "Best Cities for Safety & Tranquility"
-            "livability" -> "Best Cities for Livability"
-            "cost" -> "Best Cities for Cost of Living"
-            "social" -> "Best Cities for Social & Cultural Life"
+            "gastronomy" -> "Best Cities for Gastronomy & Diversity"
+            "aesthetics" -> "Best Cities for City Aesthetics"
+            "safety" -> "Best Cities for Safety & Peace"
+            "culture" -> "Best Cities for Cultural Heritage"
+            "livability" -> "Best Cities for Livability & Nature"
+            "social" -> "Best Cities for Social Life & Affordability"
+            "hospitality" -> "Best Cities for Local Hospitality"
             else -> "Top Rated Cities Overall"
         }
         binding.txtTitle.text = title

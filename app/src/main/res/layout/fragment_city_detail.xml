@@ -255,14 +255,14 @@
                     app:icon="@drawable/ic_wishlist" />
             </LinearLayout>
 
-            <!-- Kategori Kartları - Ilk Satır -->
+            <!-- Kategori Kartları - İlk Satır -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="12dp">
 
-                <!-- Environment & Aesthetics -->
+                <!-- Gastronomy & Diversity -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="120dp"
@@ -276,7 +276,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/category_landscape_bg"
+                        android:background="@drawable/category_safety_bg"
                         android:orientation="vertical"
                         android:gravity="center"
                         android:padding="12dp">
@@ -284,7 +284,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/environment_title"
+                            android:text="@string/gastronomy_title"
                             android:fontFamily="@font/poppins_medium"
                             android:textColor="@color/white"
                             android:textSize="18sp" />
@@ -297,7 +297,7 @@
                             android:layout_marginTop="8dp">
 
                             <TextView
-                                android:id="@+id/txtEnvironmentRating"
+                                android:id="@+id/txtGastronomyRating"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_bold"
@@ -316,7 +316,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Safety -->
+                <!-- City Aesthetics -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="120dp"
@@ -324,6 +324,69 @@
                     app:strokeWidth="0dp"
                     android:clickable="true"
                     android:layout_marginStart="6dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_landscape_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/aesthetics_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtAestheticsRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="6.72" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Kategori Kartları - İkinci Satır -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <!-- Safety & Peace -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:strokeWidth="0dp"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp">
 
@@ -358,68 +421,6 @@
                                 android:textColor="@color/auth_accent"
                                 android:textSize="28sp"
                                 android:textStyle="bold"
-                                tools:text="6.72" />
-
-                            <ImageView
-                                android:layout_width="18dp"
-                                android:layout_height="18dp"
-                                android:src="@drawable/ic_star"
-                                android:layout_marginStart="4dp"
-                                app:tint="@color/auth_accent" />
-                        </LinearLayout>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-            </LinearLayout>
-
-            <!-- Kategori Kartları - İkinci Satır -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <!-- Cost of Living -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="0dp"
-                    android:layout_height="120dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:clickable="true"
-                    app:strokeWidth="0dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="0dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/category_cost_bg"
-                        android:orientation="vertical"
-                        android:gravity="center"
-                        android:padding="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/cost_title"
-                            android:fontFamily="@font/poppins_medium"
-                            android:textColor="@color/white"
-                            android:textSize="18sp" />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:layout_marginTop="8dp">
-
-                            <TextView
-                                android:id="@+id/txtCostRating"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/poppins_bold"
-                                android:textColor="@color/auth_accent"
-                                android:textSize="28sp"
-                                android:textStyle="bold"
                                 tools:text="7.75" />
 
                             <ImageView
@@ -432,7 +433,7 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Social & Cultural -->
+                <!-- Cultural Heritage -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="120dp"
@@ -454,7 +455,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/social_title"
+                            android:text="@string/culture_title"
                             android:fontFamily="@font/poppins_medium"
                             android:textColor="@color/white"
                             android:textSize="18sp" />
@@ -467,7 +468,7 @@
                             android:layout_marginTop="8dp">
 
                             <TextView
-                                android:id="@+id/txtSocialRating"
+                                android:id="@+id/txtCultureRating"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/poppins_bold"
@@ -492,9 +493,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="12dp">
 
-                <!-- Livability -->
+                <!-- Livability & Nature -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="120dp"
@@ -548,12 +549,74 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Boş Kart veya Ekstra Kategori -->
+                <!-- Social Life & Affordability -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="120dp"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    app:strokeWidth="0dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/category_social_bg"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:padding="12dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/social_title"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/white"
+                            android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtSocialRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="7.85" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Kategori Kartları - Dördüncü Satır -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <!-- Local Hospitality -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
                     android:clickable="true"
                     app:strokeWidth="0dp"
                     app:cardCornerRadius="16dp"
@@ -570,12 +633,44 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="BOS"
+                            android:text="@string/hospitality_title"
                             android:fontFamily="@font/poppins_medium"
                             android:textColor="@color/white"
                             android:textSize="18sp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="8dp">
+
+                            <TextView
+                                android:id="@+id/txtHospitalityRating"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/auth_accent"
+                                android:textSize="28sp"
+                                android:textStyle="bold"
+                                tools:text="8.32" />
+
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:src="@drawable/ic_star"
+                                android:layout_marginStart="4dp"
+                                app:tint="@color/auth_accent" />
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
+
+                <!-- Boş Kart (İsterseniz daha sonra ekstra bilgi göstermek için kullanılabilir) -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp" />
             </LinearLayout>
 
             <!-- Yorumlar Kısmı -->
@@ -617,8 +712,6 @@
                     app:icon="@drawable/ic_add_comment"
                     app:iconTint="@color/white" />
             </LinearLayout>
-
-
 
             <!-- Explore This City Başlık -->
             <TextView
@@ -671,6 +764,7 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
     <!-- Lottie Animation Overlay -->
     <FrameLayout
         android:id="@+id/loadingOverlay"
