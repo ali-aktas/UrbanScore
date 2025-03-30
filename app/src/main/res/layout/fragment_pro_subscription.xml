@@ -125,11 +125,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    app:cardBackgroundColor="#202030"
+                    android:backgroundTint="@color/rating_color"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="4dp"
                     app:strokeWidth="2dp"
-                    app:strokeColor="@color/auth_accent"
+                    app:strokeColor="@color/auth_primary"
                     android:checkable="true"
                     android:clickable="true"
                     android:focusable="true">
@@ -151,7 +151,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/monthly_plan"
                             android:textSize="18sp"
-                            android:textStyle="bold"
+                            android:fontFamily="@font/poppins_bold"
                             android:textColor="@color/auth_accent" />
 
                         <TextView
@@ -160,8 +160,9 @@
                             android:layout_height="wrap_content"
                             android:text="@string/loading_price"
                             android:textSize="22sp"
-                            android:textStyle="bold"
-                            android:layout_marginTop="8dp"
+                            android:gravity="center"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginTop="4dp"
                             android:textColor="@color/white" />
 
                         <TextView
@@ -169,7 +170,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/monthly_plan_benefits"
                             android:textSize="14sp"
-                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/montserrat_medium"
                             android:textColor="@color/white" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -179,11 +180,11 @@
                     android:id="@+id/cardYearlyPlan"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#202030"
+                    android:backgroundTint="@color/rating_color"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="4dp"
                     app:strokeWidth="2dp"
-                    app:strokeColor="#80FFFFFF"
+                    app:strokeColor="@color/auth_primary"
                     android:checkable="true"
                     android:clickable="true"
                     android:focusable="true">
@@ -205,22 +206,23 @@
                             android:layout_height="wrap_content"
                             android:text="@string/yearly_plan"
                             android:textSize="18sp"
-                            android:textStyle="bold"
+                            android:fontFamily="@font/poppins_bold"
                             android:textColor="@color/auth_accent" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginTop="8dp">
+                            android:layout_marginTop="4dp">
 
                             <TextView
                                 android:id="@+id/tvYearlyPrice"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/loading_price"
+                                android:gravity="center"
                                 android:textSize="22sp"
-                                android:textStyle="bold"
+                                android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/white" />
 
                             <TextView
@@ -230,7 +232,8 @@
                                 tools:text=" (Save 20%)"
                                 android:textSize="16sp"
                                 android:textStyle="italic"
-                                android:textColor="#4CAF50"
+                                android:fontFamily="@font/montserrat_light"
+                                android:textColor="@color/auth_accent"
                                 android:layout_marginStart="8dp"
                                 android:visibility="gone"
                                 tools:visibility="visible" />
@@ -241,7 +244,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/yearly_plan_benefits"
                             android:textSize="14sp"
-                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/montserrat_medium"
                             android:textColor="@color/white" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -253,10 +256,11 @@
                 android:layout_height="56dp"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
+                android:tint="@color/accent"
                 app:lottie_rawRes="@raw/button_animation_subs"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
-                android:clickable="true"
+                android:clickable="false"
                 android:focusable="true"
                 android:layout_gravity="center"/>
 

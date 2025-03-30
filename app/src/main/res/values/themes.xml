@@ -23,9 +23,10 @@
     </style>
 
     <!-- Splash screen theme for Android 12+ -->
+    <!-- Splash screen theme for Android 12+ -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Splash screen arkaplan rengi -->
-        <item name="windowSplashScreenBackground">#23B168</item>
+        <item name="windowSplashScreenBackground">#19513D</item>
 
         <!-- Uygulamanın logosunu kullan -->
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>

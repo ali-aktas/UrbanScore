@@ -19,13 +19,16 @@ import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.databinding.FragmentProfileBinding
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 class ProfileFragment : Fragment() {
@@ -84,38 +87,73 @@ class ProfileFragment : Fragment() {
     }
 
     private fun deleteUserAccount() {
-        val currentUser = FirebaseAuth.getInstance().currentUser ?: return
+        val currentUser = FirebaseAuth.getInstance().currentUser
 
-        // Kullanıcıya onay sor
+        // Pro abonelik kontrolü
+        val revenueCatManager = RevenueCatManager.getInstance()
+
+        if (revenueCatManager.isPremium.value) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Cancel Subscription First")
+                .setMessage("You have an active Pro subscription. Please cancel your subscription in Google Play Store before deleting your account.")
+                .setPositiveButton("Open Subscription Management") { _, _ ->
+                    revenueCatManager.openSubscriptionManagement(requireActivity())
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+            return
+        }
+
         MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Delete account")
-            .setMessage("Are you sure you want to delete your account? This action cannot be reversed.")
-            .setPositiveButton("Yes, delete.") { _, _ ->
-                // Hesabı sil
-                currentUser.delete()
-                    .addOnSuccessListener {
-                        // Firestore'daki kullanıcı verilerini temizle
-                        val userRef = FirebaseFirestore.getInstance()
-                            .collection("users")
-                            .document(currentUser.uid)
-
-                        userRef.delete()
-                            .addOnSuccessListener {
-                                Toast.makeText(context, "Your account has been successfully deleted", Toast.LENGTH_SHORT).show()
-                                // Çıkış yap ve giriş ekranına yönlendir
-                                FirebaseAuth.getInstance().signOut()
-                                (requireActivity() as MainActivity).showLoginFragment()
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(context, "Data cleaning error: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(context, "Deleting error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
+            .setTitle("Delete Account")
+            .setMessage("Are you sure you want to permanently delete your account? This action cannot be undone.")
+            .setPositiveButton("Yes, Delete") { _, _ ->
+                deleteAccountProcess(currentUser)
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun deleteAccountProcess(currentUser: FirebaseUser?) {
+        if (currentUser == null) {
+            showMessage("No user logged in")
+            return
+        }
+
+        // Loading state göster
+        binding.btnDeleteAccount.isEnabled = false
+
+        lifecycleScope.launch {
+            try {
+                // Firestore'daki tüm kullanıcı verilerini sil
+                val userRef = FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(currentUser.uid)
+
+                // Batch işlemi ile tüm alt koleksiyonları da sil
+                val batch = FirebaseFirestore.getInstance().batch()
+
+                // Kullanıcı ana dokümanını sil
+                batch.delete(userRef)
+
+                // Batch işlemini uygula
+                batch.commit().await()
+
+                // Firebase Authentication'dan hesabı sil
+                currentUser.delete().await()
+
+                // Çıkış yap ve giriş ekranına yönlendir
+                FirebaseAuth.getInstance().signOut()
+                (requireActivity() as MainActivity).showLoginFragment()
+
+                showMessage("Your account has been successfully deleted")
+            } catch (e: Exception) {
+                Log.e("AccountDeletion", "Deletion failed", e)
+                showMessage("Account deletion failed: ${e.localizedMessage}")
+            } finally {
+                binding.btnDeleteAccount.isEnabled = true
+            }
+        }
     }
 
 

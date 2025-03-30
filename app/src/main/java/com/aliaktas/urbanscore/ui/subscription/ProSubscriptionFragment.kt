@@ -101,12 +101,12 @@ class ProSubscriptionFragment : Fragment() {
             Log.d(TAG, "Gizlilik politikası linki tıklandı")
             try {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = Uri.parse("https://aliaktasapp.blogspot.com/p/urbanrate-privacy-policy.html")
+                    data = Uri.parse("https://raw.githubusercontent.com/ali-aktas/travelr-privacy-policy/refs/heads/main/TravlR%20Privacy%20Policy.txt")
                 }
                 startActivity(intent)
             } catch (e: Exception) {
                 Log.e(TAG, "Gizlilik politikası açılamadı", e)
-                showSnackbar("Gizlilik politikası açılamadı")
+                showSnackbar("Privacy policy could not be opened")
             }
         }
     }
@@ -214,7 +214,7 @@ class ProSubscriptionFragment : Fragment() {
                 binding.tvSavings.visibility = View.GONE
             }
         } ?: run {
-            binding.tvYearlyPrice.text = "Kullanılamıyor"
+            binding.tvYearlyPrice.text = "Not available"
             binding.cardYearlyPlan.isEnabled = false
             binding.tvSavings.visibility = View.GONE
         }
@@ -240,8 +240,8 @@ class ProSubscriptionFragment : Fragment() {
         Log.d(TAG, "Abonelik seçimi güncelleniyor: $packageId")
 
         // Renk ID'leri
-        val selectedColor = R.color.auth_accent
-        val unselectedColor = R.color.accent
+        val selectedColor = R.color.bottom_nav_item_color
+        val unselectedColor = R.color.rating_color
 
         // Kartların çerçeve rengini güncelle
         binding.cardMonthlyPlan.strokeColor = ContextCompat.getColor(
