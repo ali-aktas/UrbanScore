@@ -72,11 +72,12 @@ class CityCategoryRepositoryImpl @Inject constructor(
         lastVisible: DocumentSnapshot?
     ): Flow<PaginatedResult<CityModel>> = callbackFlow {
         // Kategori adını doğrulayalım
-        val validCategories = setOf("environment", "safety", "livability", "cost", "social")
+        val validCategories = setOf("gastronomy", "aesthetics", "safety", "culture", "livability", "social", "hospitality")
         val category = if (categoryName in validCategories) categoryName else "averageRating"
 
         // Kategori puanlamasına göre alanı ayarlama
         val fieldPath = if (category == "averageRating") "averageRating" else "ratings.$category"
+        Log.d(TAG, "Kategori field path: $fieldPath, kategori adı: $category")
 
         // Daha fazla veri çek
         val realLimit = limit * 3
@@ -116,13 +117,18 @@ class CityCategoryRepositoryImpl @Inject constructor(
             // Son belgeyi al - filtrelenmiş listedeki son eleman
             val lastDoc = if (filteredCities.isNotEmpty()) {
                 val lastCity = filteredCities.last()
-                querySnapshot.documents.find { it.id == lastCity.id }
+                val doc = querySnapshot.documents.find { it.id == lastCity.id }
+                Log.d(TAG, "Son city ID: ${lastCity.id}, lastDoc null mu: ${doc == null}")
+                doc
             } else {
+                Log.d(TAG, "Filtrelenmiş şehirler boş, lastDoc null")
                 null
             }
 
             // Daha fazla öğe olup olmadığını kontrol et
-            val hasMore = allCities.size > filteredCities.size || querySnapshot.documents.size == realLimit
+            val hasMore = querySnapshot.documents.size >= realLimit || allCities.size > filteredCities.size
+            Log.d(TAG, "hasMore: $hasMore, document sayısı: ${querySnapshot.documents.size}, limit: $realLimit")
+
 
             // Sonucu gönder
             trySend(PaginatedResult(filteredCities, lastDoc, hasMore))

@@ -65,7 +65,7 @@ class MainStateController(
                         binding.nestedLayout.isVisible = true
                         binding.cardCitiesList.isVisible = true
                     }
-                }, 2200)  // 2.2 saniye gecikme
+                }, 3000)  // 3 saniye gecikme
             }
             is HomeState.Error -> {
                 // Eğer halihazırda veri gösteriliyorsa ve internet varsa, içeriği tutmaya devam et

@@ -281,4 +281,5 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState.putInt("activeTabId", navigationManager.getActiveTabId())
     }
+
 }
