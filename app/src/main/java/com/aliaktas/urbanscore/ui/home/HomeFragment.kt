@@ -17,9 +17,15 @@ import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
 import com.aliaktas.urbanscore.ui.home.controllers.HomeController
 import com.aliaktas.urbanscore.ui.home.controllers.HomeControllerFactory
+import com.aliaktas.urbanscore.ui.home.controllers.MainStateController
+import com.aliaktas.urbanscore.ui.home.controllers.SwipeRefreshController
+import com.aliaktas.urbanscore.ui.home.controllers.TopCitiesController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -68,21 +74,57 @@ class HomeFragment : Fragment() {
             onRetry = this::retryLoading
         )
 
-        // Her controller'ı başlat
+        // Tüm controller'ları başlat
         controllers.forEach { controller ->
             controller.bind(binding.root)
         }
     }
+
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 // Ana state akışını gözlemle
                 launch {
+                    var previousStateType: Class<out HomeState>? = null
+
                     viewModel.topRatedCitiesState.collect { state ->
-                        Log.d(TAG, "State update: ${state.javaClass.simpleName}")
-                        // Tüm controller'ları güncelle
-                        controllers.forEach { it.update(state) }
+                        // Veri tipi değişince sadece MainStateController güncellenir
+                        val stateType = state.javaClass
+                        val typeChanged = previousStateType != stateType
+                        previousStateType = stateType
+
+                        // Önce ana state controller'ı güncelle
+                        controllers.firstOrNull { it is MainStateController }?.update(state)
+
+                        // Sonra diğer ilgili controller'ları güncelle
+                        when (state) {
+                            is HomeState.Success -> {
+                                // TopCitiesController ve CategoriesController güncelle
+                                controllers.forEach { controller ->
+                                    when (controller) {
+                                        is TopCitiesController,
+                                        is SwipeRefreshController -> controller.update(state)
+                                        // Diğer controller'ları güncelleme
+                                        else -> if (typeChanged) controller.update(state)
+                                    }
+                                }
+                            }
+                            is HomeState.Loading -> {
+                                // Sadece SwipeRefreshController'ı güncelle
+                                controllers.forEach { controller ->
+                                    if (controller is SwipeRefreshController) {
+                                        controller.update(state)
+                                    }
+                                }
+                            }
+                            else -> if (typeChanged) {
+                                // State tipi değiştiyse tüm controller'ları güncelle
+                                controllers.forEach { controller ->
+                                    controller.update(state)
+                                }
+                            }
+                        }
                     }
                 }
 

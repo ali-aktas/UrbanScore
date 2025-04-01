@@ -9,13 +9,8 @@ import com.aliaktas.urbanscore.ui.home.HomeState
  * Her controller, UI'ın belirli bir bölümünden sorumludur.
  */
 interface HomeController {
-    /**
-     * Controller'ın binding ile ilk kurulumunu yapar
-     */
     fun bind(view: View)
-
-    /**
-     * Görünüm durumunu günceller
-     */
     fun update(state: HomeState)
+    // Yeni metot: Bu controller bu state değişimine tepki vermeli mi?
+    fun shouldUpdate(state: HomeState): Boolean = true
 }

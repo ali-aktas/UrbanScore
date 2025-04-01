@@ -2,6 +2,7 @@ package com.aliaktas.urbanscore.ui.home.controllers
 
 import android.util.Log
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
 import com.aliaktas.urbanscore.ui.home.HomeState
@@ -24,21 +25,7 @@ class TopCitiesController(
         setupViewAllButton()
     }
 
-    private fun setupRecyclerView() {
-        binding.recyclerViewCities.apply {
-            adapter = citiesAdapter
-            setHasFixedSize(false)
-            recycledViewPool.setMaxRecycledViews(0, 15) // Performans optimizasyonu
-        }
 
-        // Tıklama olayını ayarla
-        citiesAdapter.onItemClick = { city ->
-            if (checkInternetBeforeClick()) {
-                Log.d(TAG, "City clicked: ${city.cityName}, id: ${city.id}")
-                onCityClick(city.id)
-            }
-        }
-    }
 
     private fun setupViewAllButton() {
         // "View All" butonuna tıklama olayını ayarla
@@ -58,18 +45,51 @@ class TopCitiesController(
         }
     }
 
-    override fun update(state: HomeState) {
-        // Sadece başarılı durumda şehirler listesini güncelle
-        if (state is HomeState.Success) {
-            Log.d(TAG, "Updating cities list with ${state.cities.size} cities")
+    private fun setupRecyclerView() {
+        binding.recyclerViewCities.apply {
+            // RecyclerView yapılandırması
+            setHasFixedSize(true)
+            itemAnimator = null  // Animasyonları kapat
 
-            // Yeni bir liste oluştur - bu, DiffUtil'e tam bir refresh sinyali verir
-            val newList = state.cities.toList()
-            citiesAdapter.submitList(newList)
+            // ViewHolder önbellek boyutunu artır
+            setItemViewCacheSize(20)
 
-            // Alternatif olarak, görünümü tamamen yenilemek için:
-            binding.recyclerViewCities.post { citiesAdapter.notifyDataSetChanged() }
+            // RecyclerView havuzunu genişlet
+            recycledViewPool.setMaxRecycledViews(0, 30)
+
+            // Ekran dışı öğeleri önden yükle
+            val layoutManager = LinearLayoutManager(context)
+            layoutManager.initialPrefetchItemCount = 10
+            this.layoutManager = layoutManager
+
+            // Adaptörü atamadan önce diğer yapılandırmaları tamamla
+            adapter = citiesAdapter
         }
+
+        // Tıklama olayını ayarla
+        citiesAdapter.onItemClick = { city ->
+            if (checkInternetBeforeClick()) {
+                Log.d(TAG, "City clicked: ${city.cityName}, id: ${city.id}")
+                onCityClick(city.id)
+            }
+        }
+
+        // İlk yüklemeyi optimize et - boş bir liste göster, sonra gerçek veri gelince güncelle
+        citiesAdapter.submitList(emptyList())
+    }
+
+    override fun update(state: HomeState) {
+        if (state is HomeState.Success) {
+            // Başarılı yükleme durumunda, adaptöre yeni listeyi bildir
+            binding.recyclerViewCities.post {
+                citiesAdapter.submitList(state.cities)
+            }
+        }
+    }
+
+    override fun shouldUpdate(state: HomeState): Boolean {
+        // Sadece Success veya Loading state'lerinde güncelle
+        return state is HomeState.Success || state is HomeState.Loading
     }
 
     companion object {

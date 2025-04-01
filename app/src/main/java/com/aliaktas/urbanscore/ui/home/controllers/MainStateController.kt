@@ -51,11 +51,21 @@ class MainStateController(
                 updateLoadingState(state)
             }
             is HomeState.Success -> {
-                binding.swipeRefreshLayout.isVisible = true
-                binding.loadingContainer.isVisible = false
-                binding.errorContainer.isVisible = false
-                binding.nestedLayout.isVisible = true
-                binding.cardCitiesList.isVisible = true
+                // Yükleme animasyonunu biraz daha göster, sonra içeriği göster
+                binding.loadingContainer.isVisible = true
+                binding.animationLoading.isVisible = true
+                binding.animationLoading.playAnimation()
+
+                // 2.2 saniye sonra içeriği göster
+                binding.root.postDelayed({
+                    if (binding.root.isAttachedToWindow) {  // Fragment hala aktif mi kontrol et
+                        binding.swipeRefreshLayout.isVisible = true
+                        binding.loadingContainer.isVisible = false
+                        binding.errorContainer.isVisible = false
+                        binding.nestedLayout.isVisible = true
+                        binding.cardCitiesList.isVisible = true
+                    }
+                }, 2200)  // 2.2 saniye gecikme
             }
             is HomeState.Error -> {
                 // Eğer halihazırda veri gösteriliyorsa ve internet varsa, içeriği tutmaya devam et
