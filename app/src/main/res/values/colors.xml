@@ -1,28 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Base app colors -->
-    <color name="primary">#1976D2</color>
-    <color name="primary_dark">#1565C0</color>
-    <color name="primary_light">#BBDEFB</color>
-    <color name="accent">#FF4081</color>
-    <color name="accent_light">#FF80AB</color>
-
-    <!-- Gradient colors -->
-    <color name="gradient_start">#2196F3</color>
-    <color name="gradient_center">#135E71</color>
-    <color name="gradient_end">#0D2C54</color>
-
-    <!-- Text colors -->
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
-    <color name="text_hint">#BDBDBD</color>
-
-    <!-- UI element colors -->
-    <color name="divider_color">#EEEEEE</color>
-    <color name="rating_color">#209358</color>
-    <color name="blue_primary">#1976D2</color>
-    <color name="rating_color_transparent">#33FF5722</color>
-
+    <color name="primary">#1e202c</color>
+    <color name="primary_purple">#60519b</color>
+    <color name="primary_gray">#31323e</color>
+    <color name="primary_light">#bfc0d1</color>
 
     <!-- Standard colors -->
     <color name="white">#FFFFFF</color>
@@ -31,20 +13,4 @@
     <color name="green">#4CAF50</color>
     <color name="yellow_500">#FFC107</color>
 
-    <!-- Auth Screens Colors -->
-    <color name="auth_primary">#2D6D62</color>
-    <color name="auth_secondary">#A3C9C1</color>
-    <color name="auth_light">#E0EBE9</color>
-    <color name="auth_accent">#F5BB2D</color>
-    <color name="auth_text_primary">#FFFFFF</color>
-    <color name="auth_text_secondary">#4A4A4A</color>
-    <color name="auth_input_background">#33FFFFFF</color>
-    <color name="auth_button_text">#FFFFFF</color>
-
-    <!-- Bottom navigation colors -->
-    <color name="bottom_nav_background_start">#2196F3</color>
-    <color name="bottom_nav_background_end">#1565C0</color>
-    <color name="bottom_nav_selected">#FFFFFF</color>
-    <color name="bottom_nav_unselected">#BBDEFB</color>
-    <color name="bottom_nav_item_color">#F44336</color>
 </resources>

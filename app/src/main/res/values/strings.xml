@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">UrbanRate</string>
+    <string name="app_name">Travel Rate</string>
 
     <!-- Home Screen -->
     <string name="search_hint">Search cities…</string>
@@ -11,6 +11,7 @@
     <string name="home_text">If we can rate cafes, we can rate cities!</string>
     <string name="top_rated_cities_in">Top Rated Cities in %1$s</string>
     <string name="continent_image">Continent image</string>
+    <string name="rate_cities_slogan">If we can rate hotels so we can rate cities! </string>
 
     <!-- Error messages -->
     <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
@@ -31,27 +32,39 @@
     <string name="error_loading_data">Could not load data. Please try again.</string>
     <string name="error_loading_cities">Could not load cities. Please try again.</string>
     <string name="error">Error</string>
+    <string name="no_internet_connection">No internet connection. Please try again.</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="loading_error">Could not load city information</string>
+    <string name="connection_error">Connection error. Please check your internet and try again.</string>
+    <string name="navigation_error">Navigation error. Please try again.</string>
 
 
-    <!-- Category names and descriptions -->
-    <string name="environment_title">Landscapes &amp; Aesthetics</string>
-    <string name="environment_desc">City architecture, green spaces, cleanliness, and overall beauty</string>
-    <string name="safety_title">Safety &amp; Tranquility</string>
-    <string name="safety_desc">Crime rates, security, traffic safety, and general feeling of peace</string>
-    <string name="livability_title">Livability</string>
-    <string name="livability_desc">Public transportation, walkability, infrastructure quality, and ease of daily life</string>
-    <string name="cost_title">Cost of Living</string>
-    <string name="cost_desc">Housing prices, food costs, transportation expenses, and overall affordability</string>
-    <string name="social_title">Social &amp; Cultural Life</string>
-    <string name="social_desc">Museums, galleries, nightlife, events, local hospitality, and social activities</string>
+    <!-- Yeni Kategori Başlıkları -->
+    <string name="gastronomy_title">Gastronomy &amp; Diversity</string>
+    <string name="aesthetics_title">City Aesthetics</string>
+    <string name="safety_title">Safety &amp; Peace</string>
+    <string name="culture_title">Cultural Heritage</string>
+    <string name="livability_title">Livability &amp; Nature</string>
+    <string name="social_title">Social Life &amp; Affordability</string>
+    <string name="hospitality_title">Local Hospitality</string>
 
-    <!-- Category Fragment Strings for AllCitiesFragment -->
-    <string name="rate_cities_slogan">If we can rate restaurants, we can rate cities!</string>
-    <string name="best_cities_environment">Best cities in Landscapes &amp; Aesthetics</string>
-    <string name="best_cities_safety">Best cities in Safety &amp; Tranquility</string>
-    <string name="best_cities_livability">Best cities in Livability</string>
-    <string name="best_cities_cost">Best cities in Cost of Living</string>
-    <string name="best_cities_social">Best cities in Social &amp; Cultural Life</string>
+    <!-- Yeni Kategori Açıklamaları -->
+    <string name="gastronomy_desc">Quality and diversity of local cuisine, street food, restaurants, cafes, and dining options.</string>
+    <string name="aesthetics_desc">Cityscape beauty, architectural design, scenic viewpoints, photogenic locations, and overall visual appeal.</string>
+    <string name="safety_desc">Day and night safety levels, personal security feeling, peaceful atmosphere, and overall sense of comfort.</string>
+    <string name="culture_desc">Museums, historical sites, architectural landmarks, cultural diversity, traditions, and historical identity.</string>
+    <string name="livability_desc">Public transportation, walkability, bike-friendliness, cleanliness of streets, green areas, and urban accessibility.</string>
+    <string name="social_desc">Entertainment options, festivals, events, bars/clubs, social gathering places, and the value-for-money of activities.</string>
+    <string name="hospitality_desc">Friendliness of locals toward visitors, language accessibility, helpfulness, and the overall welcoming atmosphere.</string>
+
+    <!-- Kategori Listelemesi -->
+    <string name="best_cities_gastronomy">Best Cities for Gastronomy &amp; Diversity</string>
+    <string name="best_cities_aesthetics">Best Cities for City Aesthetics</string>
+    <string name="best_cities_safety">Best Cities for Safety &amp; Peace</string>
+    <string name="best_cities_culture">Best Cities for Cultural Heritage</string>
+    <string name="best_cities_livability">Best Cities for Livability &amp; Nature</string>
+    <string name="best_cities_social">Best Cities for Social Life &amp; Affordability</string>
+    <string name="best_cities_hospitality">Best Cities for Local Hospitality</string>
 
     <!-- Navigation -->
     <string name="nav_home">Home</string>
@@ -86,21 +99,13 @@
     <string name="share_city_format">Check out %1$s, %2$s on UrbanScore! It has an average rating of %3$.1f/10. Download the app to explore more cities!</string>
     <string name="update_rating">Update rating</string>
     <string name="in_your_list">In your list</string>
-
-
-    <!-- Category names and descriptions -->
-    <string name="safety_and_serenity">Safety &amp; Serenity</string>
-    <string name="safety_serenity_desc">Crime rate, personal safety, and peaceful atmosphere</string>
-    <string name="landscape_and_vibe">Landscape &amp; Vibe</string>
-    <string name="landscape_vibe_desc">City architecture, urban planning, and general atmosphere</string>
-    <string name="nature_and_climate">Nature &amp; Climate</string>
-    <string name="nature_climate_desc">Green spaces, weather conditions, and natural surroundings</string>
-    <string name="lifestyle">Lifestyle</string>
-    <string name="lifestyle_desc">Quality of life, activities, entertainment, and nightlife</string>
-    <string name="cuisine">Cuisine</string>
-    <string name="cuisine_desc">Food quality, variety, and dining experiences</string>
-    <string name="hospitality">Hospitality</string>
-    <string name="hospitality_desc">Friendliness of locals and general welcome feeling</string>
+    <string name="show_comments">Show reviews (%d)</string>
+    <string name="hide_comments">Hide reviews</string>
+    <string name="add_comment">Add your review</string>
+    <string name="like_comment">Like</string>
+    <string name="delete_comment">Delete</string>
+    <string name="load_more_comments">Load more reviews</string>
+    <string name="no_comments">No reviews yet. Be the first to share your experience!</string>
 
     <!-- Explore Screen -->
     <string name="discover_new_cities">Discover new cities</string>
@@ -124,15 +129,16 @@
     <string name="logout_success">Logged out successfully.</string>
     <string name="web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
 
+
     <!-- Auth Strings -->
     <string name="email_or_phone">Email or Phone</string>
     <string name="password">Password</string>
     <string name="forgot_password">Forgot Password?</string>
-    <string name="login">Login</string>
+    <string name="login">LOGIN</string>
     <string name="or">or</string>
-    <string name="create_an_account">Create an account</string>
+    <string name="create_an_account">CREATE AN ACCOUNT</string>
     <string name="google_icon">Google Icon</string>
-    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_google">CONTINUE WITH GOOGLE</string>
     <string name="full_name">Full Name</string>
     <string name="email_address">Email Address</string>
     <string name="retype_password">Retype Password</string>
@@ -147,9 +153,14 @@
     <string name="forgot_password_description">No worries, we\'ll send you reset instructions</string>
     <string name="email">Email</string>
     <string name="enter_your_email">Enter your Email</string>
+    <string name="forgot_password_prompt">Forgot Password?</string>
+    <string name="passwords_dont_match">Passwords don\'t match</string>
+    <string name="password_too_short">Password must be at least 6 characters</string>
+    <string name="fill_all_fields">Please fill all fields</string>
+    <string name="please_agree_terms">Please agree to the terms and privacy policy</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_to_login">Back to Login</string>
-    <string name="for_travellers">FOR TRAVELLERS</string>
+    <string name="for_travellers">Rate cities you visited!</string>
     <string name="default_web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -166,5 +177,38 @@
     <string name="msg_city_suggestion_received">Thank you! Your city suggestion has been received.</string>
     <string name="msg_generic_error">An error occurred. Please try again.</string>
     <string name="msg_loading">Loading...</string>
+
+    <!-- Pro Abonelik İçin String Kaynakları -->
+    <string name="pro_title">Upgrade to Pro</string>
+    <string name="pro_description">Enhance your travel experience with premium features and ad-free browsing</string>
+    <string name="pro_features_title">Pro Features:</string>
+    <string name="feature_no_ads">Ad-free experience</string>
+    <string name="feature_suggests">Unlimited city suggestions</string>
+    <string name="feature_premium_comment">Premium comment experience</string>
+    <string name="monthly_subscription">Monthly Plan</string>
+    <string name="yearly_subscription">Yearly Plan</string>
+    <string name="billed_monthly">Billed monthly, cancel anytime</string>
+    <string name="billed_yearly_save">Billed yearly, save 45% compared to monthly</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="pro_active">You are a Pro User!</string>
+    <string name="subscription_expiry">Your subscription expires on %1$s</string>
+    <string name="renew_subscription">Renew Subscription</string>
+    <string name="pro_subscription">Pro Subscription</string>
+    <string name="accept_terms_and_conditions">Accept terms and conditions</string>
+    <string name="pro_subscription_icon">Pro subscription icon</string>
+    <string name="pro_active_icon">Pro active icon</string>
+    <string name="monthly_plan">Monthly Plan</string>
+    <string name="yearly_plan">Yearly Plan</string>
+    <string name="loading_price">Loading price…</string>
+    <string name="monthly_plan_benefits">• No ads\n• Full access to all features\n• Pay monthly</string>
+    <string name="yearly_plan_benefits">• No ads\n• Full access to all features\n• Pay once for a full year\n• Best value</string>
+    <string name="subscribe_now">Subscribe Now</string>
+    <string name="restore_purchases">Restore Purchases</string>
+    <string name="subscription_disclaimer">By subscribing, you agree to our Terms of Service. Your subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period.</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="manage_subscription">Manage Subscription</string>
+
+
+
 
 </resources>

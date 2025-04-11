@@ -22,9 +22,8 @@ class ExploreViewModel @Inject constructor(
     private val _allCities = MutableStateFlow<List<CityModel>>(emptyList())
     val allCities: StateFlow<List<CityModel>> = _allCities.asStateFlow()
 
-    // Popüler şehirleri tutan stateflow
-    private val _popularCities = MutableStateFlow<List<CuratedCityItem>>(emptyList())
-    val popularCities: StateFlow<List<CuratedCityItem>> = _popularCities.asStateFlow()
+    private val _usersCities = MutableStateFlow<List<CuratedCityItem>>(emptyList())
+    val usersCities: StateFlow<List<CuratedCityItem>> = _usersCities.asStateFlow()
 
     // Yükleme durumunu tutan stateflow
     private val _isLoading = MutableStateFlow(false)
@@ -32,12 +31,12 @@ class ExploreViewModel @Inject constructor(
 
     // Şehirlerin yüklenmiş olup olmadığını izleyen değişken
     private var _allCitiesLoaded = false
-    private var _popularCitiesLoaded = false
+    private var _usersCitiesLoaded = false
 
     init {
         // İlk başlatmada verileri yükle
         loadAllCities()
-        loadPopularCities()
+        loadUsersCities()
     }
 
     // Tüm şehirleri yükleme
@@ -79,16 +78,16 @@ class ExploreViewModel @Inject constructor(
     }
 
     // Popüler şehirleri yükleme
-    fun loadPopularCities() {
+    fun loadUsersCities() {
         // Eğer popüler şehirler zaten yüklenmişse, tekrar yükleme
-        if (_popularCitiesLoaded && _popularCities.value.isNotEmpty()) {
+        if (_usersCitiesLoaded && _usersCities.value.isNotEmpty()) {
             return
         }
 
         viewModelScope.launch {
             try {
                 firestore.collection("curated_lists")
-                    .whereEqualTo("listType", "popular_cities")
+                    .whereEqualTo("listType", "editors_choice")
                     .get()
                     .addOnSuccessListener { snapshot ->
                         val cities = snapshot.documents.mapNotNull { doc ->
@@ -102,11 +101,11 @@ class ExploreViewModel @Inject constructor(
 
                         // Position'a göre sırala
                         val sortedCities = cities.sortedBy { it.position }
-                        _popularCities.value = sortedCities
-                        _popularCitiesLoaded = true
+                        _usersCities.value = sortedCities
+                        _usersCitiesLoaded = true
                     }
                     .addOnFailureListener { e ->
-                        // Hata durumunda _popularCities boş olarak kalacak
+                        // Hata durumunda editors_choice boş olarak kalacak
                     }
             } catch (e: Exception) {
                 // Hata durumunda işlem yapma
@@ -117,8 +116,8 @@ class ExploreViewModel @Inject constructor(
     // Manuel yeniden yükleme (pull-to-refresh gibi durumlar için)
     fun refresh() {
         _allCitiesLoaded = false
-        _popularCitiesLoaded = false
+        _usersCitiesLoaded = false
         loadAllCities()
-        loadPopularCities()
+        loadUsersCities()
     }
 }

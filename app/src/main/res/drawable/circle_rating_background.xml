@@ -2,5 +2,5 @@
 <!-- circle_rating_background.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="@color/rating_color" />
+    <solid android:color="@color/primary_purple" />
 </shape>

@@ -31,6 +31,9 @@ junit = "4.13.2"
 mockk = "1.13.8"
 arch-core-testing = "2.2.0"
 baselibrary = "3.2.0-alpha11"
+play-services-ads = "22.6.0"
+billing = "6.1.0"
+revenuecat = "8.14.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,6 +76,9 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 arch-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "arch-core-testing" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 androidx-baselibrary = { group = "androidx.databinding", name = "baseLibrary", version.ref = "baselibrary" }
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "play-services-ads" }
+billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
+revenuecat = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

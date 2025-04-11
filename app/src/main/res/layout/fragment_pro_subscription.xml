@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/appmainbg">
+
+    <!-- Premium Header Image: At the top, spanning the full width with no padding -->
+    <ImageView
+        android:id="@+id/proHeader"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pro_img"
+        android:contentDescription="@string/pro_subscription_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Toolbar -->
+    <LinearLayout
+        android:id="@+id/toolbarLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_close"
+            android:contentDescription="Close"
+            app:tint="@color/white"/>
+    </LinearLayout>
+
+    <!-- Get Premium Title -->
+    <TextView
+        android:id="@+id/tvProTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Premium"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginTop="220dp"
+        app:layout_constraintBottom_toBottomOf="@+id/proHeader"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Unlock all Features Subtitle -->
+    <TextView
+        android:id="@+id/tvProDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Unlock all Features"
+        android:textColor="@color/primary_light"
+        android:textSize="16sp"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvProTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Free vs Pro Labels in Table Layout -->
+    <LinearLayout
+        android:id="@+id/headerLabels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="36dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvProDescription">
+
+        <TextView
+            android:id="@+id/tvFreeText"
+            android:layout_width="42dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Free"
+            android:gravity="center"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_medium" />
+
+        <TextView
+            android:id="@+id/tvProText"
+            android:layout_width="42dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="PRO"
+            android:gravity="center"
+            android:textColor="@color/primary_purple"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_bold" />
+    </LinearLayout>
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminateTint="@color/primary_purple"
+        app:layout_constraintTop_toBottomOf="@id/headerLabels"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Subscription Options Container -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/subscriptionOptionsScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/headerLabels"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:id="@+id/subscriptionOptionsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="32dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Feature comparison table -->
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
+
+                <!-- No Ads Feature -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="No ADS"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="start"
+                        android:maxLines="2"
+                        android:ellipsize="end"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_close"
+                        android:layout_marginEnd="18dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_light"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_check"
+                        android:layout_marginEnd="6dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_purple"/>
+                </TableRow>
+
+                <!-- Priority access feature -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="Priority access to features"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="start"
+                        android:maxLines="2"
+                        android:ellipsize="end"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_close"
+                        android:layout_marginEnd="18dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_light"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_check"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="6dp"
+                        app:tint="@color/primary_purple"/>
+                </TableRow>
+
+                <!-- City presentation feature -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="City presentation in explore"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="start"
+                        android:maxLines="2"
+                        android:ellipsize="end"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_close"
+                        android:layout_marginEnd="18dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_light"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_check"
+                        android:layout_marginEnd="6dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_purple"/>
+                </TableRow>
+
+                <!-- Premium comments feature -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="Premium comment features"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:gravity="start"
+                        android:maxLines="2"
+                        android:ellipsize="end"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_close"
+                        android:layout_marginEnd="18dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_light"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_check"
+                        android:layout_marginEnd="6dp"
+                        android:layout_gravity="center"
+                        app:tint="@color/primary_purple"/>
+                </TableRow>
+            </TableLayout>
+
+            <!-- Subscription Plan Cards -->
+            <RadioGroup
+                android:id="@+id/subscriptionRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <!-- Monthly Plan Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMonthlyPlan"
+                    android:layout_width="0dp"
+                    android:layout_height="140dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/primary_purple"
+                    android:backgroundTint="@android:color/transparent"
+                    android:checkable="true"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RadioButton
+                        android:id="@+id/radioMonthly"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/monthly_plan"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tvMonthlyPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/loading_price"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="per month"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/montserrat_light"
+                            android:textColor="@color/primary_light"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Yearly Plan Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardYearlyPlan"
+                    android:layout_width="0dp"
+                    android:layout_height="140dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/primary_purple"
+                    android:backgroundTint="@android:color/transparent"
+                    android:checkable="true"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RadioButton
+                        android:id="@+id/radioYearly"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/yearly_plan"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tvYearlyPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/loading_price"
+                            android:textSize="22sp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginTop="8dp"
+                            android:textColor="@color/white" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="4dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="per year"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/montserrat_light"
+                                android:textColor="@color/primary_light" />
+
+                            <TextView
+                                android:id="@+id/tvSavings"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                tools:text=" • Save 45%"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/montserrat_medium"
+                                android:textColor="@color/primary_purple"
+                                android:layout_marginStart="4dp"
+                                android:visibility="gone"
+                                tools:visibility="visible" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </RadioGroup>
+
+            <!-- Subscribe Button -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/btnSubscribe"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:tint="@color/primary_purple"
+                app:lottie_rawRes="@raw/button_animation_subs"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_gravity="center"/>
+
+            <!-- Restore Purchases Button -->
+            <TextView
+                android:id="@+id/btnRestorePurchases"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/restore_purchases"
+                android:textAllCaps="false"
+                android:background="?attr/selectableItemBackground"
+                android:textColor="@color/primary_light"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+                android:paddingVertical="12dp"
+                android:layout_marginTop="8dp" />
+
+            <!-- Legal Disclaimer -->
+            <TextView
+                android:id="@+id/tvLegalDisclaimer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/subscription_disclaimer"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_light" />
+
+            <TextView
+                android:id="@+id/tvPrivacyPolicy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/privacy_policy"
+                android:textColor="@color/primary_light"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:fontFamily="@font/roboto_medium" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Pro Status Layout (Shown when user is already Pro) -->
+    <LinearLayout
+        android:id="@+id/proStatusLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvProDescription"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:visibility="gone">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_check"
+            android:contentDescription="@string/pro_active_icon"
+            app:tint="@color/primary_light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pro_active"
+            android:textColor="@color/primary_light"
+            android:textSize="24sp"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:id="@+id/tvExpiryDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subscription_expiry"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:fontFamily="@font/roboto_medium"
+            android:layout_marginTop="8dp"
+            tools:text="Your subscription expires on 18 Apr 2025" />
+
+        <Button
+            android:id="@+id/btnRestoreProPurchases"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/restore_purchases"
+            android:textAllCaps="false"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/primary_purple"
+            android:layout_marginTop="16dp" />
+
+        <Button
+            android:id="@+id/btnManageSubscription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/manage_subscription"
+            android:textAllCaps="false"
+            android:backgroundTint="#F44336"
+            android:textColor="@color/white"
+            android:layout_marginTop="16dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

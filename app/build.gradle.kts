@@ -15,8 +15,8 @@ android {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 11
+        versionName = "1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.foundation.android)
     implementation(libs.androidx.baselibrary)
-    // KALDIRMAK İÇİN YORUMLAYINız:
     // implementation(libs.testng)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -102,9 +101,16 @@ dependencies {
     implementation(libs.mpandroidchart)
 
     // Test dependencies
-    // BURADA AŞAĞIDA TEKRAR JUNİT OLDUĞU İÇİN BU SATIRI SİL:
-    // testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.arch.core.testing)
+
+    // AdMob
+    implementation(libs.play.services.ads)
+
+    // Billing
+    implementation(libs.billing)
+    //RevenueCat
+    implementation(libs.revenuecat)
+    //implementation(libs.revenuecat.purchases.ui)
 }

@@ -3,18 +3,16 @@ package com.aliaktas.urbanscore.ui.auth
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentLoginBinding
@@ -31,6 +29,7 @@ class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
+    private var backPressedCallback: OnBackPressedCallback? = null
 
     private val viewModel: AuthViewModel by viewModels()
     private lateinit var googleSignInClient: GoogleSignInClient
@@ -46,7 +45,7 @@ class LoginFragment : Fragment() {
                     viewModel.signInWithGoogle(idToken)
                 }
             } catch (e: ApiException) {
-                Snackbar.make(binding.root, "Google sign in failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+                showUserFriendlyError("Google sign in failed: ${formatGoogleError(e)}")
             }
         }
     }
@@ -66,6 +65,22 @@ class LoginFragment : Fragment() {
         setupGoogleSignIn()
         setupClickListeners()
         observeViewModel()
+        setupBackNavigation()
+    }
+
+    private fun setupBackNavigation() {
+        // Önceki callback'i temizle
+        backPressedCallback?.remove()
+
+        // Yeni callback oluştur
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Login ekranından geri tuşuna basınca uygulamadan çık
+                requireActivity().finish()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback!!)
     }
 
     private fun setupGoogleSignIn() {
@@ -78,7 +93,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Login butonu
+        // Login button
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString()
@@ -86,24 +101,26 @@ class LoginFragment : Fragment() {
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 viewModel.signInWithEmail(email, password)
             } else {
-                Snackbar.make(binding.root, "Please fill all fields", Snackbar.LENGTH_SHORT).show()
+                showUserFriendlyError(getString(R.string.fill_all_fields))
             }
         }
 
-        // Hesap oluştur butonu
+        // Create account button
         binding.btnSignUp.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_registerFragment)
+            // Use MainActivity's custom navigation instead of Navigation Component
+            (requireActivity() as MainActivity).showRegisterFragment()
         }
 
-        // Google ile giriş butonu
+        // Google sign in button
         binding.btnGoogleSignIn.setOnClickListener {
             val signInIntent = googleSignInClient.signInIntent
             googleSignInLauncher.launch(signInIntent)
         }
 
-        // Şifremi unuttum butonu
+        // Forgot password button
         binding.tvForgotPassword.setOnClickListener {
-            findNavController().navigate(R.id.action_loginFragment_to_forgotPasswordFragment)
+            // Use MainActivity's custom navigation instead of Navigation Component
+            (requireActivity() as MainActivity).showForgotPasswordFragment()
         }
     }
 
@@ -117,7 +134,6 @@ class LoginFragment : Fragment() {
         }
     }
 
-    // LoginFragment.kt içinde mevcut updateUI metoduna ekle veya bu metodu değiştir
     private fun updateUI(state: AuthState) {
         when (state) {
             is AuthState.Loading -> {
@@ -127,7 +143,8 @@ class LoginFragment : Fragment() {
                 binding.btnSignUp.isEnabled = false
             }
             is AuthState.Authenticated -> {
-                // Burada başarılı giriş sonrası yönlendirme
+                binding.progressBar.visibility = View.GONE
+                // Navigate to home screen after successful login
                 (requireActivity() as MainActivity).navigateToHomeAfterLogin()
             }
             is AuthState.Unauthenticated -> {
@@ -141,18 +158,51 @@ class LoginFragment : Fragment() {
                 binding.btnLogin.isEnabled = true
                 binding.btnGoogleSignIn.isEnabled = true
                 binding.btnSignUp.isEnabled = true
-                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+
+                showUserFriendlyError(state.message)
                 viewModel.clearError()
             }
             is AuthState.Initial -> {
-                // İlk yükleme durumu, bir şey yapma
+                // Initial loading state, do nothing
                 binding.progressBar.visibility = View.GONE
             }
         }
     }
 
+    private fun showUserFriendlyError(errorMessage: String) {
+        val snackbar = Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG)
+
+        // Add "Forgot Password" action for password-related errors
+        if (errorMessage.contains("password", ignoreCase = true)) {
+            snackbar.setAction(getString(R.string.forgot_password_prompt)) {
+                (requireActivity() as MainActivity).showForgotPasswordFragment()
+            }
+        }
+
+        snackbar.show()
+    }
+
+    private fun formatGoogleError(e: ApiException): String {
+        return when (e.statusCode) {
+            7 -> "Network error, check your connection"
+            12500 -> "Sign in canceled"
+            12501 -> "Sign in error, please try again"
+            else -> "Sign in failed"
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Fragment görünür olduğunda callback'i yeniden ayarla
+        setupBackNavigation()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        // Callback'i temizle
+        backPressedCallback?.remove()
+        backPressedCallback = null
         _binding = null
     }
 }

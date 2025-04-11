@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- drawable/bg_rating.xml -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#4CAF81" />
-    <corners android:radius="12dp" />
+    <solid android:color="@color/primary" />
+    <corners android:radius="18dp" />
 </shape>

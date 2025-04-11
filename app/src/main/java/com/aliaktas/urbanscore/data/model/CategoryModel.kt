@@ -15,39 +15,53 @@ data class CategoryModel(
         // Yeni kategorilere göre listeyi güncelle
         fun getDefaultCategories(): List<CategoryModel> = listOf(
             CategoryModel(
-                id = "environment",
-                title = "Landscapes & City Vibe",
-                description = "City architecture, green spaces, cleanliness, and overall beauty",
-                imageUrl = "https://example.com/environment.jpg",
-                ratingType = "environment"
+                id = "gastronomy",
+                title = "Gastronomy & Diversity",
+                description = "Quality and diversity of local cuisine, street food, restaurants, cafes, and dining options. Representation of both authentic local dishes and international options.",
+                imageUrl = "https://example.com/gastronomy.jpg",
+                ratingType = "gastronomy"
+            ),
+            CategoryModel(
+                id = "aesthetics",
+                title = "City Aesthetics",
+                description = "Cityscape beauty, architectural design, scenic viewpoints, photogenic locations, and overall visual appeal of the urban environment.",
+                imageUrl = "https://example.com/aesthetics.jpg",
+                ratingType = "aesthetics"
             ),
             CategoryModel(
                 id = "safety",
-                title = "Safety & Tranquility",
-                description = "Crime rates, security, traffic safety, and general feeling of peace",
+                title = "Safety & Peace",
+                description = "Day and night safety levels, personal security feeling, peaceful atmosphere, and overall sense of comfort while exploring the city.",
                 imageUrl = "https://example.com/safety.jpg",
                 ratingType = "safety"
             ),
             CategoryModel(
+                id = "culture",
+                title = "Cultural Heritage",
+                description = "Museums, historical sites, architectural landmarks, cultural diversity, traditions, and the preservation of the city's historical identity.",
+                imageUrl = "https://example.com/culture.jpg",
+                ratingType = "culture"
+            ),
+            CategoryModel(
                 id = "livability",
-                title = "Livability",
-                description = "Public transportation, walkability, infrastructure quality, and ease of daily life",
+                title = "Livability & Nature",
+                description = "Public transportation efficiency, walkability, bike-friendliness, cleanliness of streets and public spaces, green areas, parks, and overall urban accessibility.",
                 imageUrl = "https://example.com/livability.jpg",
                 ratingType = "livability"
             ),
             CategoryModel(
-                id = "cost",
-                title = "Cost of Living",
-                description = "Housing prices, food costs, transportation expenses, and overall affordability",
-                imageUrl = "https://example.com/cost.jpg",
-                ratingType = "cost"
-            ),
-            CategoryModel(
                 id = "social",
-                title = "Social & Cultural Life",
-                description = "Museums, galleries, nightlife, events, local hospitality, and social activities",
+                title = "Social Life & Affordability",
+                description = "Entertainment options, festivals, events, bars/clubs, social gathering places, and the value-for-money of these activities compared to other cities.",
                 imageUrl = "https://example.com/social.jpg",
                 ratingType = "social"
+            ),
+            CategoryModel(
+                id = "hospitality",
+                title = "Local Hospitality",
+                description = "Friendliness of locals toward visitors, language accessibility, helpfulness, opportunities for meaningful social interactions, and the overall welcoming atmosphere.",
+                imageUrl = "https://example.com/hospitality.jpg",
+                ratingType = "hospitality"
             )
         )
     }

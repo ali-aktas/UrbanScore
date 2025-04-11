@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CategoryModel
-import com.aliaktas.urbanscore.databinding.ItemContinentBinding
+import com.aliaktas.urbanscore.databinding.ItemCategoryBinding
 import com.bumptech.glide.Glide
 
 /**
@@ -20,15 +20,15 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
 
     // Kıtalar için farklı arka plan drawable listesi
     private val backgroundDrawables = listOf(
-        R.drawable.little_category_button_bg,
-        R.drawable.little_category_button_bg,
-        R.drawable.little_category_button_bg,
-        R.drawable.little_category_button_bg,
-        R.drawable.little_category_button_bg
+        R.drawable.category_safety_bg,
+        R.drawable.category_safety_bg,
+        R.drawable.category_safety_bg,
+        R.drawable.category_safety_bg,
+        R.drawable.category_safety_bg
     )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-        val binding = ItemContinentBinding.inflate(
+        val binding = ItemCategoryBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -41,7 +41,7 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
     }
 
     inner class CategoryViewHolder(
-        private val binding: ItemContinentBinding
+        private val binding: ItemCategoryBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {

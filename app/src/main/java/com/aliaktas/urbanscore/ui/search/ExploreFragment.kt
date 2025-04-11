@@ -11,19 +11,20 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.databinding.FragmentExploreBinding
-import com.aliaktas.urbanscore.databinding.ItemFeaturedCityBinding
+import com.aliaktas.urbanscore.util.NetworkUtil
 import com.bumptech.glide.Glide
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.util.Locale
+import com.aliaktas.urbanscore.ads.AdManager
+import com.aliaktas.urbanscore.databinding.ItemFeaturedCityBinding
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ExploreFragment : Fragment() {
@@ -33,7 +34,13 @@ class ExploreFragment : Fragment() {
 
     private val viewModel: ExploreViewModel by viewModels()
     private lateinit var cityAdapter: FeaturedCityAdapter
-    private val allCities = mutableListOf<CityModel>() // Tüm şehirleri saklamak için
+    private val allCities = mutableListOf<CityModel>()
+
+    @Inject
+    lateinit var adManager: AdManager
+
+    @Inject
+    lateinit var networkUtil: NetworkUtil
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +61,72 @@ class ExploreFragment : Fragment() {
 
         setupCityCarousel()
         setupClickListeners()
+        setupAnimations()
         observeViewModel()
+        observeNetworkState()
+        loadBannerAd()
+
+        // İlk açılışta internet kontrolü yap
+        checkInternetConnection()
+    }
+
+    private fun setupAnimations() {
+        binding.animationError.apply {
+            setAnimation(R.raw.error_animation)
+        }
+    }
+
+    private fun observeNetworkState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            networkUtil.observeNetworkState().collect { isConnected ->
+                if (isConnected) {
+                    hideErrorUI()
+                    viewModel.refresh()
+                } else {
+                    showErrorUI(getString(R.string.no_internet_connection))
+                }
+            }
+        }
+    }
+
+    private fun checkInternetConnection(): Boolean {
+        val isConnected = networkUtil.isNetworkAvailable()
+        if (!isConnected) {
+            showErrorUI(getString(R.string.no_internet_connection))
+        }
+        return isConnected
+    }
+
+    private fun showErrorUI(errorMessage: String) {
+        binding.errorContainer.visibility = View.VISIBLE
+        binding.textError.text = errorMessage
+        binding.animationError.playAnimation()
+
+        // Ana içeriği gizle
+        binding.contentContainer.visibility = View.GONE
+    }
+
+    private fun hideErrorUI() {
+        binding.errorContainer.visibility = View.GONE
+
+        // Ana içeriği göster
+        binding.contentContainer.visibility = View.VISIBLE
+    }
+
+    private fun loadBannerAd() {
+        val adContainerView = binding.adContainerView
+        adManager.getBannerAd()?.let { adView ->
+            // AdView'i daha önce bir parent'a eklenmiş olabilir, önce kaldır
+            (adView.parent as? ViewGroup)?.removeView(adView)
+
+            // AdView'i container'a ekle
+            adContainerView.removeAllViews()
+            adContainerView.addView(adView)
+            adContainerView.visibility = View.VISIBLE
+        } ?: run {
+            // Pro kullanıcı veya reklam yüklenemedi
+            adContainerView.visibility = View.GONE
+        }
     }
 
     private fun setupCityCarousel() {
@@ -98,7 +170,6 @@ class ExploreFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // AllCities'i gözlemle
                 launch {
                     viewModel.allCities.collect { cities ->
                         allCities.clear()
@@ -106,19 +177,16 @@ class ExploreFragment : Fragment() {
                     }
                 }
 
-                // PopularCities'i gözlemle
                 launch {
-                    viewModel.popularCities.collect { cities ->
+                    viewModel.usersCities.collect { cities ->
                         if (cities.isNotEmpty()) {
                             updateCities(cities)
                         } else if (cityAdapter.itemCount == 0) {
-                            // Eğer boşsa ve henüz bir şey gösterilmiyorsa mock verileri göster
                             showMockCities()
                         }
                     }
                 }
 
-                // Loading durumunu gözlemle
                 launch {
                     viewModel.isLoading.collect { isLoading ->
                         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -130,12 +198,30 @@ class ExploreFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.cardSearch.setOnClickListener {
-            showSearchBottomSheet()
+            if (checkInternetConnection()) {
+                showSearchBottomSheet()
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         }
 
         binding.btnSuggestCity.setOnClickListener {
-            val suggestCityBottomSheet = SuggestCityBottomSheet()
-            suggestCityBottomSheet.show(childFragmentManager, "SuggestCityBottomSheet")
+            if (checkInternetConnection()) {
+                val suggestCityBottomSheet = SuggestCityBottomSheet()
+                suggestCityBottomSheet.show(childFragmentManager, "SuggestCityBottomSheet")
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnRetry.setOnClickListener {
+            if (networkUtil.isNetworkAvailable()) {
+                hideErrorUI()
+                viewModel.refresh()
+            } else {
+                // Bağlantı hala yoksa animasyonu yeniden oynat
+                binding.animationError.playAnimation()
+            }
         }
     }
 
@@ -143,13 +229,7 @@ class ExploreFragment : Fragment() {
         if (allCities.isEmpty()) {
             binding.progressBar.visibility = View.VISIBLE
 
-            // ViewModel aracılığıyla şehirleri yükle
             viewModel.loadAllCities()
-
-            // Şehirler hazır olduğunda observable içinde zaten fark edeceğiz
-            // ve bottom sheet'i o zaman göstereceğiz
-
-            // Direkt bir timeout ile kontrol edelim
             lifecycleScope.launch {
                 kotlinx.coroutines.delay(2000) // 2 saniye bekleyelim
                 if (allCities.isNotEmpty()) {
@@ -202,7 +282,11 @@ class ExploreFragment : Fragment() {
 
     private fun navigateToCityDetail(cityId: String) {
         try {
-            (requireActivity() as MainActivity).navigateToCityDetail(cityId)
+            if (checkInternetConnection()) {
+                (requireActivity() as MainActivity).navigateToCityDetail(cityId)
+            } else {
+                Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            }
         } catch (e: Exception) {
             Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
             val errorMessage = getString(R.string.msg_generic_error)
@@ -210,25 +294,23 @@ class ExploreFragment : Fragment() {
         }
     }
 
-    // Scroll to top fonksiyonu - MainActivity'den çağrılabilir
     fun scrollToTop() {
         // Root view'ı en başa kaydır
         binding.root.scrollTo(0, 0)
     }
 
     override fun onDestroyView() {
+        binding.adContainerView.removeAllViews()
         super.onDestroyView()
         _binding = null
     }
 
-    // Yardımcı Mock sınıfı (eski yapıyı desteklemek için)
     data class MockCity(
         val id: String,
         val name: String,
         val imageUrl: String
     )
 
-    // Adapter sınıfını FeaturedCityAdapter adı altında tutup içeriğini güncelliyoruz
     inner class FeaturedCityAdapter(private val cities: List<CuratedCityItem>) :
         RecyclerView.Adapter<FeaturedCityAdapter.CityViewHolder>() {
 
@@ -244,7 +326,6 @@ class ExploreFragment : Fragment() {
         override fun onBindViewHolder(holder: CityViewHolder, position: Int) {
             val city = cities[position]
 
-            // cityId'den şehir adını çıkar (örneğin "istanbul-turkey" -> "Istanbul")
             val cityName = city.cityId.split("-").firstOrNull()?.replaceFirstChar {
                 if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
             } ?: "Unknown City"
@@ -252,14 +333,12 @@ class ExploreFragment : Fragment() {
             with(holder.binding) {
                 txtCityName.text = cityName
 
-                // Resim yükleme - önce custom URL, yoksa varsayılan resim
                 if (city.imageUrl.isNotEmpty()) {
                     Glide.with(root.context)
                         .load(city.imageUrl)
                         .centerCrop()
                         .into(imgCity)
                 } else {
-                    // Varsayılan PNG dosyasını yükle
                     Glide.with(root.context)
                         .load(R.drawable.istanbulphoto)
                         .centerCrop()
@@ -268,12 +347,15 @@ class ExploreFragment : Fragment() {
             }
 
             holder.itemView.setOnClickListener {
-                try {
-                    // Şehir detay sayfasına git
-                    (requireActivity() as MainActivity).navigateToCityDetail(city.cityId)
-                } catch (e: Exception) {
-                    Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
-                    Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
+                if (checkInternetConnection()) {
+                    try {
+                        (requireActivity() as MainActivity).navigateToCityDetail(city.cityId)
+                    } catch (e: Exception) {
+                        Log.e("ExploreFragment", "Navigation error: ${e.message}", e)
+                        Toast.makeText(context, "Navigation error", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
                 }
             }
         }

@@ -3,7 +3,8 @@
     <!-- Mevcut arka plan rengi -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#E107A598" />
+            <solid android:color="#816ADF" />
+            <corners android:radius="28dp"></corners>
         </shape>
     </item>
 
@@ -12,6 +13,6 @@
         <bitmap
             android:src="@drawable/noisetexture"
             android:tileMode="repeat"
-            android:alpha="0.2" /> <!-- Gürültü şiddetini buradan ayarlayabilirsiniz (0.0-1.0) -->
+            android:alpha="0.3" /> <!-- Gürültü şiddetini buradan ayarlayabilirsiniz (0.0-1.0) -->
     </item>
 </layer-list>

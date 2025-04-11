@@ -6,235 +6,263 @@
     android:layout_height="match_parent"
     android:paddingEnd="8dp"
     android:paddingStart="8dp"
+    android:background="@drawable/appmainbg"
     tools:context=".ui.home.HomeFragment">
 
-    <TextView
+    <LinearLayout
         android:id="@+id/txtAppName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
+        android:layout_width="400dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:clipToPadding="true"
+        android:layout_height="220dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/poppins_medium"
-        android:textColor="#FFFFFF"
-        android:textSize="32sp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp">
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nestedLayout"
-        android:layout_width="match_parent"
+        <ImageView
+            android:id="@+id/mainHeader"
+            android:layout_width="400dp"
+            android:layout_height="220dp"
+            android:src="@drawable/homeheaderimage"
+            >
+
+        </ImageView>
+
+    </LinearLayout>
+
+
+    <!-- Ana İçerik (SwipeRefreshLayout içinde) -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:clipToPadding="false"
-        fillViewport="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtAppName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:overScrollMode="never"
-        android:paddingBottom="20dp">
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nestedLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            fillViewport="true"
+            android:overScrollMode="never"
+            android:paddingBottom="20dp">
 
-            <TextView
-                android:id="@+id/categoryTitleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Best Cities on Categories"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:textSize="18sp"
-                android:textColor="@color/white"
-                android:fontFamily="@font/roboto_medium"
-                android:layout_marginStart="18dp"
-                android:layout_marginTop="12dp"
-                />
-
-            <!-- Continents Carousel -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewCategories"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:foregroundGravity="center"
-                android:clipToPadding="false"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal"
-                android:padding="18dp"
-                app:layout_constraintTop_toBottomOf="@+id/categoryTitleText"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_continent" />
+                android:layout_height="match_parent">
 
+                <TextView
+                    android:id="@+id/categoryTitleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Best Cities on Categories"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="4dp"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/montserrat_alternates_bold"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="12dp" />
 
-            <!-- Cities List Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCitiesList"
-                android:layout_width="match_parent"
-                android:focusable="true"
-                android:clickable="true"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="18dp"
-                android:background="@null"
-                android:layout_marginTop="18dp"
-                android:backgroundTintMode="multiply"
-                app:strokeWidth="0dp"
-                app:strokeColor="@color/rating_color"
-                app:cardCornerRadius="26dp"
-                app:layout_constraintTop_toBottomOf="@id/recyclerViewCategories">
+                <!-- Continents Carousel -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewCategories"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:foregroundGravity="center"
+                    android:clipToPadding="false"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="18dp"
+                    android:orientation="horizontal"
+                    tools:listitem="@layout/item_category"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryTitleText"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    />
 
-                <LinearLayout
-                    android:id="@+id/topCitiesListLayout"
+                <TextView
+                    android:id="@+id/txtTopRatedTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/noise_background"
-                    android:orientation="vertical">
+                    android:padding="4dp"
+                    android:gravity="center"
+                    android:fontFamily="@font/montserrat_alternates_bold"
+                    android:text="@string/top_rated_cities"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="8dp"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/recyclerViewCategories">
 
-                    <TextView
-                        android:id="@+id/txtTopRatedTitle"
+                </TextView>
+
+                <!-- Cities List Section -->
+                <FrameLayout
+                    android:id="@+id/cardCitiesList"
+                    android:layout_width="match_parent"
+                    android:layout_height="340dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:focusable="true"
+                    android:background="@drawable/mainlistbg"
+                    android:clickable="true"
+                    app:layout_constraintTop_toBottomOf="@id/txtTopRatedTitle">
+
+                    <LinearLayout
+                        android:id="@+id/topCitiesListLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="8dp"
-                        android:gravity="center"
-                        android:fontFamily="@font/geologicablack"
-                        android:text="@string/top_rated_cities"
-                        android:textColor="#FFFFFF"
-                        android:textSize="18sp"/>
+                        android:layout_height="340dp"
+                        android:clipToPadding="true"
+                        android:orientation="vertical">
 
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="380dp">
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/recyclerViewCities"
+                        <FrameLayout
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:clipToPadding="false"
-                            android:nestedScrollingEnabled="true"
-                            android:orientation="vertical"
-                            android:overScrollMode="never"
-                            android:scrollbars="vertical"
-                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                            tools:itemCount="5"
-                            tools:listitem="@layout/item_city" />
-                    </FrameLayout>
+                            android:layout_height="280dp"
+                            android:layout_marginTop="24dp"
+                            >
 
-                    <TextView
-                        android:id="@+id/txtViewListFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="12dp"
-                        android:gravity="center"
-                        android:fontFamily="@font/roboto_semicondensed_medium"
-                        android:text="View all list"
-                        android:textColor="#E6C8C8C8"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/recyclerViewCities"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clipToPadding="false"
+                                android:nestedScrollingEnabled="true"
+                                android:orientation="vertical"
+                                android:overScrollMode="never"
+                                android:scrollbars="vertical"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:itemCount="5"
+                                tools:listitem="@layout/item_city" />
+                        </FrameLayout>
 
-            </com.google.android.material.card.MaterialCardView>
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/txtViewListFragment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:layout_gravity="center"
+                            android:padding="8dp"
+                            android:gravity="center"
+                            android:fontFamily="@font/montserrat_alternates_regular"
+                            android:text="View all list"
+                            android:textColor="@color/primary_light"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </FrameLayout>
 
-            <!-- Değiştirilen kısım: Eskiden GridLayout olan bölüm yerine RecyclerView -->
-            <TextView
-                android:id="@+id/txtEditorsChoicesTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="18dp"
-                android:layout_marginTop="24dp"
-                android:text="Editor's choices"
-                android:fontFamily="@font/roboto_medium"
-                android:textColor="#D8D8D8"
-                android:textSize="18sp"
-                app:layout_constraintTop_toBottomOf="@+id/cardCitiesList"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewEditorsChoice"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="18dp"
-                android:layout_marginTop="12dp"
-                android:clipToPadding="false"
-                android:orientation="horizontal"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintTop_toBottomOf="@+id/txtEditorsChoicesTitle"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_editors_choice_city"/>
-
-            <!-- Loading Animation Container -->
-            <FrameLayout
-                android:id="@+id/loadingContainer"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="visible">
-
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/animationLoading"
-                    android:layout_width="200dp"
-                    android:layout_height="200dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    app:lottie_autoPlay="true"
-                    app:lottie_loop="true"
-                    app:lottie_rawRes="@raw/loading_animation" />
-
+                <!-- Editör Seçimleri Bölümü -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/txtEditorsChoicesTitle"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal|bottom"
-                    android:text="@string/loading_cities"
-                    android:textColor="#BEFFFFFF"
-                    android:textSize="16sp" />
-            </FrameLayout>
-
-            <!-- Error State Container -->
-            <LinearLayout
-                android:id="@+id/errorContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                android:padding="24dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:visibility="gone">
-
-                <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/animationError"
-                    android:layout_width="150dp"
-                    android:layout_height="150dp"
-                    app:lottie_autoPlay="true"
-                    app:lottie_loop="true"
-                    app:lottie_rawRes="@raw/error_animation" />
-
-                <TextView
-                    android:id="@+id/textError"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="18dp"
                     android:layout_marginTop="16dp"
-                    android:text="@string/error_loading_data"
-                    android:textAlignment="center"
-                    android:textColor="@color/text_primary"
-                    android:textSize="16sp" />
+                    android:text="Popular cities"
+                    android:fontFamily="@font/montserrat_alternates_bold"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@+id/cardCitiesList"/>
 
-                <Button
-                    android:id="@+id/btnRetry"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewEditorsChoice"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="@string/retry"
-                    android:textAllCaps="false" />
-            </LinearLayout>
+                    android:layout_marginHorizontal="18dp"
+                    android:layout_marginTop="4dp"
+                    android:clipToPadding="false"
+                    android:orientation="horizontal"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintTop_toBottomOf="@+id/txtEditorsChoicesTitle"
+                    tools:itemCount="3"
+                    tools:listitem="@layout/item_editors_choice_city"/>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <!-- Yükleme animasyonu container -->
+    <FrameLayout
+        android:id="@+id/loadingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAppName"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
 
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationLoading"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loading_animation" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|bottom"
+            android:text="@string/loading_cities"
+            android:textColor="#BEFFFFFF"
+            android:textSize="16sp" />
+    </FrameLayout>
+
+    <!-- Hata Durumu Container - NestedScrollView dışında, doğrudan ana container'a bağlı -->
+    <LinearLayout
+        android:id="@+id/errorContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAppName"
+        tools:visibility="visible">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationError"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/error_animation" />
+
+        <TextView
+            android:id="@+id/textError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_internet_connection"
+            android:textAlignment="center"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/primary_purple"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/retry"
+            android:textAllCaps="false" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

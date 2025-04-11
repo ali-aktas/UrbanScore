@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/appmainbg">
+
+    <!-- Header skeleton -->
+    <View
+        android:id="@+id/skeleton_header"
+        android:layout_width="400dp"
+        android:layout_height="220dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Categories title skeleton -->
+    <View
+        android:id="@+id/skeleton_category_title"
+        android:layout_width="180dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_header" />
+
+    <!-- Categories skeleton -->
+    <LinearLayout
+        android:id="@+id/skeleton_categories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_category_title">
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
+
+        <View
+            android:layout_width="100dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
+    </LinearLayout>
+
+    <!-- Top rated title skeleton -->
+    <View
+        android:id="@+id/skeleton_top_rated_title"
+        android:layout_width="200dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_categories" />
+
+    <!-- Top rated cities skeleton -->
+    <View
+        android:id="@+id/skeleton_top_cities"
+        android:layout_width="match_parent"
+        android:layout_height="340dp"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_top_rated_title" />
+
+    <!-- Popular cities title skeleton -->
+    <View
+        android:id="@+id/skeleton_popular_title"
+        android:layout_width="150dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/skeleton_background"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_top_cities" />
+
+    <!-- Popular cities skeleton -->
+    <LinearLayout
+        android:id="@+id/skeleton_popular_cities"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="18dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/skeleton_popular_title">
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
+
+        <View
+            android:layout_width="120dp"
+            android:layout_height="150dp"
+            android:background="@drawable/skeleton_background" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

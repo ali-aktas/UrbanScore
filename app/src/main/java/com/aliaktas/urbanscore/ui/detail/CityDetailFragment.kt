@@ -1,7 +1,5 @@
 package com.aliaktas.urbanscore.ui.detail
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
+import com.aliaktas.urbanscore.ui.detail.controllers.UiController
 import com.aliaktas.urbanscore.ui.ratecity.RateCityBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialContainerTransform
@@ -26,34 +27,32 @@ import javax.inject.Inject
 
 private const val TAG = "CityDetailFragment"
 
+/**
+ * Şehir detay ekranı.
+ * Yeniden yapılandırılmış versiyonda Fragment sadece koordinasyon
+ * görevlerinden sorumludur ve ayrıntılı UI işlemleri controllerlara
+ * delege edilmiştir.
+ */
 @AndroidEntryPoint
 class CityDetailFragment : Fragment() {
 
+    @Inject lateinit var adManager: AdManager
+    @Inject lateinit var uiControllerFactory: CityDetailUiControllerFactory
+    @Inject lateinit var eventHandler: CityDetailEventHandler
+    private var isFirstInteraction = true
+
     private var _binding: FragmentCityDetailBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: CityDetailViewModel by viewModels()
-    private val args: CityDetailFragmentArgs by navArgs()
+    private lateinit var cityId: String
 
-    @Inject
-    lateinit var formatter: CityDetailFormatter
-
-    @Inject
-    lateinit var radarChartHelper: RadarChartHelper
-
-    private lateinit var uiStateManager: CityDetailUiStateManager
-
-    // Reference to rating bottom sheet for lifecycle management
+    private lateinit var uiControllers: List<UiController>
     private var ratingBottomSheet: RateCityBottomSheet? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Setup shared element transition
-        sharedElementEnterTransition = MaterialContainerTransform().apply {
-            duration = 300L
-            fadeMode = MaterialContainerTransform.FADE_MODE_THROUGH
-        }
+        // NavArgs yerine doğrudan arguments bundle'ından değeri alın
+        cityId = arguments?.getString("cityId") ?: throw IllegalArgumentException("City ID is required")
     }
 
     override fun onCreateView(
@@ -68,133 +67,105 @@ class CityDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup transition name for shared element transition
-        binding.toolbar.transitionName = "city_${args.cityId}"
 
-        // Initialize UI state manager
-        initializeUiStateManager()
+        // Toolbar geçiş adını ayarla (paylaşılan element geçişi için)
+        binding.toolbar.transitionName = "city_${cityId}"
 
-        // Setup UI components and observers
-        setupRadarChart()
-        setupClickListeners()
+        // Reklamları göster
+        setupAds()
+
+        // UI controller'ları başlat
+        initializeUiControllers()
+
+        // ViewModel'i gözlemle
         observeViewModel()
-    }
 
-    private fun initializeUiStateManager() {
-        uiStateManager = CityDetailUiStateManager(
-            context = requireContext(),
-            binding = binding,
-            lifecycleScope = lifecycleScope,
-            formatter = formatter,
-            radarChartHelper = radarChartHelper,
-            onRetry = { viewModel.loadCityDetails() },
-            onGoBack = { (requireActivity() as MainActivity).handleBackPressed() },
-            onRateButtonClick = { viewModel.showRatingSheet() }
-        )
-    }
-
-    private fun setupRadarChart() {
-        lifecycleScope.launch {
-            radarChartHelper.setupRadarChart(binding.radarChart)
-        }
-    }
-
-    private fun setupClickListeners() {
-        // Back button
+        // Geri navigasyonu
         binding.toolbar.setOnClickListener {
             (requireActivity() as MainActivity).handleBackPressed()
         }
+    }
 
-        // Action buttons
-        binding.btnAddToWishlist.setOnClickListener {
-            viewModel.toggleWishlist()
+    private fun setupAds() {
+        val shouldShowAd = adManager.recordCityVisit()
+        if (shouldShowAd) {
+            adManager.showInterstitialAd(requireActivity()) {
+                // Reklam kapatıldığında callback (gerekirse)
+                Log.d(TAG, "Interstitial ad closed")
+            }
         }
 
-        // Explore buttons
-        binding.btnExploreYouTube.setOnClickListener {
-            viewModel.openYouTubeSearch()
+        if (adManager.shouldSuggestProSubscription()) {
+            showProSubscriptionSuggestion()
         }
+    }
 
-        binding.btnExploreGoogle.setOnClickListener {
-            viewModel.openGoogleSearch()
+    private fun showProSubscriptionSuggestion() {
+        val snackbar = Snackbar.make(
+            binding.root,
+            "Want to remove ads? Try Pro subscription!",
+            Snackbar.LENGTH_LONG
+        )
+        snackbar.setAction("Upgrade") {
+            (requireActivity() as MainActivity).navigateToProSubscription()
         }
+        snackbar.show()
+    }
+
+    private fun initializeUiControllers() {
+        uiControllers = uiControllerFactory.createControllers(
+            binding,
+            viewLifecycleOwner,
+            viewModel,
+            this  // Fragment'i parametre olarak geçir
+        )
+        uiControllers.forEach { it.bind(binding.root) }
     }
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Observe state
+                // State akışını gözlemle
                 launch {
                     viewModel.detailState.collectLatest { state ->
-                        uiStateManager.updateUI(state)
+                        uiControllers.forEach { it.update(state) }
                     }
                 }
 
-                // Observe events
+                // Event akışını gözlemle
                 launch {
                     viewModel.detailEvents.collectLatest { event ->
-                        handleEvent(event)
+                        eventHandler.handleEvent(event, this@CityDetailFragment)
                     }
                 }
             }
         }
     }
 
-    private fun handleEvent(event: CityDetailEvent) {
-        when (event) {
-            is CityDetailEvent.OpenUrl -> openUrl(event.url)
-            is CityDetailEvent.ShowRatingSheet -> showRatingBottomSheet(event.cityId)
-            is CityDetailEvent.ShowMessage -> showMessage(event.message)
-            is CityDetailEvent.ShareCity -> startActivity(Intent.createChooser(event.shareIntent, "Share via"))
-            is CityDetailEvent.DismissRatingSheet -> dismissRatingSheet()
-        }
-    }
-
-    private fun openUrl(url: String) {
+    // CityDetailFragment.kt içine ekleyin
+    fun navigateBack() {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-            startActivity(intent)
+            (requireActivity() as? MainActivity)?.handleBackPressed() ?:
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         } catch (e: Exception) {
-            Log.e(TAG, "Error opening URL: ${e.message}", e)
-            showMessage("Could not open link: ${e.message}")
+            Log.e(TAG, "Error navigating back: ${e.message}", e)
+            // Fallback yöntem: Fragment Manager'ı kullanarak geri dönmeyi dene
+            try {
+                parentFragmentManager.popBackStack()
+            } catch (e2: Exception) {
+                Log.e(TAG, "Error popping back stack: ${e2.message}", e2)
+                Toast.makeText(requireContext(), "Could not navigate back. Please try again.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
-    private fun showRatingBottomSheet(cityId: String) {
-        try {
-            Log.d(TAG, "Creating rating sheet for cityId: $cityId")
-            val bottomSheet = RateCityBottomSheet.newInstance(cityId)
-
-            bottomSheet.show(parentFragmentManager, "RateCityBottomSheet")
-            ratingBottomSheet = bottomSheet
-
-            Log.d(TAG, "Rating sheet shown successfully")
-        } catch (e: Exception) {
-            Log.e(TAG, "Error showing rating sheet: ${e.message}", e)
-            Toast.makeText(
-                requireContext(),
-                "Could not open rating screen: ${e.message}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
-    private fun dismissRatingSheet() {
-        ratingBottomSheet?.dismiss()
-        ratingBottomSheet = null
-    }
-
-    private fun showMessage(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    fun setRatingBottomSheet(bottomSheet: RateCityBottomSheet) {
+        ratingBottomSheet = bottomSheet
     }
 
     override fun onResume() {
         super.onResume()
-        // Refresh data if returning from rating bottom sheet
-        if (ratingBottomSheet?.isAdded == true && !ratingBottomSheet?.isVisible!!) {
-            viewModel.refreshAfterRating()
-            ratingBottomSheet = null
-        }
+
     }
 
     override fun onDestroyView() {

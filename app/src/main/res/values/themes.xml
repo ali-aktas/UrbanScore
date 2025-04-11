@@ -6,15 +6,15 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowBackground">@drawable/category_social_bg</item>
     </style>
 
     <style name="Theme.UrbanScore" parent="Base.Theme.UrbanScore" />
 
     <style name="BottomNavigationStyle">
         <item name="android:background">@android:color/transparent</item>
-        <item name="itemIconTint">@color/bottom_nav_item_color</item>
-        <item name="itemTextColor">@color/bottom_nav_item_color</item>
-        <item name="itemRippleColor">@color/gradient_end</item>
+        <item name="itemIconTint">@color/primary_light</item>
+        <item name="itemTextColor">@color/primary_light</item>
         <item name="labelVisibilityMode">labeled</item>
     </style>
 
@@ -23,12 +23,13 @@
     </style>
 
     <!-- Splash screen theme for Android 12+ -->
+    <!-- Splash screen theme for Android 12+ -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Splash screen arkaplan rengi -->
-        <item name="windowSplashScreenBackground">@color/auth_primary</item>
+        <item name="windowSplashScreenBackground">#1e202c</item>
 
         <!-- Uygulamanın logosunu kullan -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/loginicon2</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
 
         <!-- Ana tema -->
         <item name="postSplashScreenTheme">@style/Theme.UrbanScore</item>
@@ -46,8 +47,8 @@
         <item name="thumbHeight">18dp</item>
         <item name="trackHeight">8dp</item>
         <item name="trackColorInactive">#E0E0E0</item>
-        <item name="trackColorActive">@color/rating_color</item>
-        <item name="thumbColor">@color/rating_color</item>
+        <item name="trackColorActive">@color/primary_purple</item>
+        <item name="thumbColor">@color/primary_purple</item>
         <item name="thumbElevation">1dp</item>
         <item name="haloColor">#882D6D62</item>
         <item name="haloRadius">2dp</item>

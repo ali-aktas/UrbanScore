@@ -4,67 +4,94 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="18dp"
-    android:paddingEnd="18dp"
+    android:paddingEnd="8dp"
+    android:paddingStart="8dp"
+    android:background="@drawable/appmainbg"
     tools:context=".ui.allcities.AllCitiesFragment">
 
-    <!-- App Title -->
-    <TextView
+    <LinearLayout
         android:id="@+id/txtAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:fontFamily="@font/poppins_medium"
-        android:text="@string/app_name"
-        android:textColor="@color/white"
-        android:textSize="32sp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Travel"
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rate"
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:textColor="@color/primary_purple"
+            android:textSize="32sp" />
+
+    </LinearLayout>
 
     <!-- Slogan -->
     <TextView
         android:id="@+id/txtSlogan"
-        android:layout_width="330dp"
+        android:layout_width="260dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/poppins_medium"
+        android:fontFamily="@font/montserrat_bold"
         android:text="@string/rate_cities_slogan"
-        android:textColor="#FFFFFF"
-        android:textSize="24sp"
+        android:textColor="@color/primary_light"
+        android:textSize="20sp"
         android:paddingEnd="20dp"
         app:layout_constraintStart_toStartOf="@id/txtAppName"
         app:layout_constraintTop_toBottomOf="@id/txtAppName" />
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="320dp"
+        android:layout_height="1dp"
+        app:layout_constraintStart_toStartOf="@id/txtSlogan"
+        app:layout_constraintEnd_toEndOf="@id/txtSlogan"
+        android:background="@color/primary_gray"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/txtSlogan" />
+
+
     <!-- Scroll View for Categories -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/contentScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:clipToPadding="false"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtSlogan">
+        app:layout_constraintTop_toBottomOf="@id/divider">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Environment & Aesthetics Category -->
+            <!-- Gastronomy & Diversity Category -->
             <TextView
-                android:id="@+id/txtCategoryEnvironment"
+                android:id="@+id/txtCategoryGastronomy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="2dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="@string/best_cities_environment"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/best_cities_gastronomy"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardEnvironment"
+                android:id="@+id/cardGastronomy"
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
                 android:layout_marginBottom="16dp"
@@ -76,17 +103,17 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/category_landscape_bg">
+                    android:background="@drawable/gastronomyimg">
 
                     <TextView
-                        android:id="@+id/txtEnvironmentDesc"
+                        android:id="@+id/txtGastronomyDesc"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
                         android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:fontFamily="@font/poppins_medium"
-                        android:text="@string/environment_desc"
+                        android:text="@string/gastronomy_desc"
                         android:textColor="#CCFFFFFF"
                         android:textSize="14sp"
                         android:textAlignment="center"
@@ -98,17 +125,64 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Safety & Tranquility Category -->
+            <!-- City Aesthetics Category -->
+            <TextView
+                android:id="@+id/txtCategoryAesthetics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="2dp"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/best_cities_aesthetics"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardAesthetics"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardUseCompatPadding="false"
+                app:cardPreventCornerOverlap="false"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/aesth_img">
+
+                    <TextView
+                        android:id="@+id/txtAestheticsDesc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/aesthetics_desc"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="14sp"
+                        android:textAlignment="center"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.5" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Safety & Peace Category -->
             <TextView
                 android:id="@+id/txtCategorySafety"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="2dp"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/montserrat_alternates_bold"
                 android:text="@string/best_cities_safety"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSafety"
@@ -122,7 +196,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/category_safety_bg">
+                    android:background="@drawable/safetyimg">
 
                     <TextView
                         android:id="@+id/txtSafetyDesc"
@@ -144,17 +218,63 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Livability Category -->
+            <!-- Cultural Heritage Category -->
+            <TextView
+                android:id="@+id/txtCategoryCulture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="2dp"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/best_cities_culture"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCulture"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/culturalimg">
+
+                    <TextView
+                        android:id="@+id/txtCultureDesc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/culture_desc"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="14sp"
+                        android:textAlignment="center"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.5" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Livability & Nature Category -->
             <TextView
                 android:id="@+id/txtCategoryLivability"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="2dp"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/montserrat_alternates_bold"
                 android:text="@string/best_cities_livability"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLivability"
@@ -168,7 +288,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/category_livability_bg">
+                    android:background="@drawable/livabilityimg">
 
                     <TextView
                         android:id="@+id/txtLivabilityDesc"
@@ -190,63 +310,17 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Cost of Living Category -->
-            <TextView
-                android:id="@+id/txtCategoryCost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="@string/best_cities_cost"
-                android:textColor="@color/white"
-                android:textSize="18sp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardCost"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/category_cost_bg">
-
-                    <TextView
-                        android:id="@+id/txtCostDesc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="@string/cost_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
-                        android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Social & Cultural Life Category -->
+            <!-- Social Life & Affordability Category -->
             <TextView
                 android:id="@+id/txtCategorySocial"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="2dp"
-                android:fontFamily="@font/poppins_medium"
+                android:fontFamily="@font/montserrat_alternates_bold"
                 android:text="@string/best_cities_social"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="14sp" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSocial"
@@ -260,7 +334,7 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/category_social_bg">
+                    android:background="@drawable/socialimg">
 
                     <TextView
                         android:id="@+id/txtSocialDesc"
@@ -281,7 +355,99 @@
                         app:layout_constraintVertical_bias="0.5" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <!-- Local Hospitality Category -->
+            <TextView
+                android:id="@+id/txtCategoryHospitality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="2dp"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/best_cities_hospitality"
+                android:textColor="@color/white"
+                android:textSize="14sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHospitality"
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/hospitalimg">
+
+                    <TextView
+                        android:id="@+id/txtHospitalityDesc"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="@string/hospitality_desc"
+                        android:textColor="#CCFFFFFF"
+                        android:textSize="14sp"
+                        android:textAlignment="center"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.5" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <!-- Hata Durumu Konteyneri -->
+    <LinearLayout
+        android:id="@+id/errorContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSlogan"
+        tools:visibility="visible">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/animationError"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/error_animation" />
+
+        <TextView
+            android:id="@+id/textError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_internet_connection"
+            android:textAlignment="center"
+            android:fontFamily="@font/poppins_bold"
+            android:textColor="@color/white"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/primary_purple"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_medium"
+            android:text="@string/retry"
+            android:textAllCaps="false" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

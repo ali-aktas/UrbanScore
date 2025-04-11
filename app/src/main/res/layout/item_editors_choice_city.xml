@@ -2,10 +2,10 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="180dp"
-    android:layout_height="220dp"
+    android:layout_width="140dp"
+    android:layout_height="160dp"
     android:layout_margin="6dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="18dp"
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -31,11 +31,11 @@
             android:id="@+id/txtEditorsChoiceCityName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
+            android:layout_margin="8dp"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:fontFamily="@font/geologicablack"
+            android:fontFamily="@font/montserrat_alternates_bold"
             app:layout_constraintBottom_toBottomOf="@id/imgEditorsChoiceCity"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="İstanbul" />
@@ -44,28 +44,14 @@
             android:id="@+id/txtEditorsChoiceCountry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginBottom="4dp"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:fontFamily="@font/geologicaregular"
+            android:textSize="11sp"
+            android:fontFamily="@font/montserrat_alternates_regular"
             app:layout_constraintBottom_toTopOf="@id/txtEditorsChoiceCityName"
             app:layout_constraintStart_toStartOf="parent"
             tools:text="Türkiye" />
 
-        <TextView
-            android:id="@+id/txtEditorsChoiceRating"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:background="@drawable/bg_rating"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="4.8" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

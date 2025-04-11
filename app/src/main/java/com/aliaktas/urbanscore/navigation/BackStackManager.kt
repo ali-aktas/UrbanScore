@@ -16,36 +16,52 @@ import java.util.Stack
 class BackStackManager(
     private val fragmentManager: FragmentManager
 ) {
-    private val TAG = "BackStackManager"
+    companion object {
+        private const val TAG = "BackStackManager"
+
+        // Bottom navigation IDs for tab items
+        private val BOTTOM_NAV_ITEMS = setOf(
+            R.id.homeFragment,
+            R.id.exploreFragment,
+            R.id.allCitiesFragment,
+            R.id.profileFragment
+        )
+    }
 
     // Fragment bilgilerini saklamak için veri sınıfı
     data class FragmentInfo(
         val fragment: Fragment,
         val tabId: Int
-    )
-
-    // Bottom navigation menu item'ları için sabit set
-    private val bottomNavItems = setOf(
-        R.id.homeFragment,
-        R.id.exploreFragment,
-        R.id.allCitiesFragment,
-        R.id.profileFragment
-    )
+    ) {
+        override fun toString(): String = "FragmentInfo(${fragment.javaClass.simpleName}, tabId=$tabId)"
+    }
 
     // Backstack yönetimi için stack yapısı
     private val fragmentBackStack = Stack<FragmentInfo>()
 
     /**
      * Fragment'i backstack'e ekler
+     *
+     * @param fragment Eklenecek fragment
+     * @param tabId Fragment'in bağlı olduğu tab ID'si
+     * @return Eklendiyse true, aksi halde false
      */
-    fun pushToBackStack(fragment: Fragment, tabId: Int) {
-        Log.d(TAG, "Pushing to backstack: ${fragment.javaClass.simpleName}, tabId: $tabId")
-        fragmentBackStack.push(FragmentInfo(fragment, tabId))
-        printBackStack() // Debug log için
+    fun pushToBackStack(fragment: Fragment, tabId: Int): Boolean {
+        // Fragment'in geçerli olduğundan emin ol
+        if (fragment.isAdded && !fragment.isDetached) {
+            fragmentBackStack.push(FragmentInfo(fragment, tabId))
+            Log.d(TAG, "Added to backstack: ${fragment.javaClass.simpleName}, Stack size: ${fragmentBackStack.size}")
+            printBackStack()
+            return true
+        } else {
+            Log.w(TAG, "Skipped pushing invalid fragment to backstack: ${fragment.javaClass.simpleName}")
+            return false
+        }
     }
 
     /**
      * Backstack'ten bir önceki fragment'i alır
+     *
      * @return Önceki fragment bilgisi veya stack boşsa null
      */
     fun popFromBackStack(): FragmentInfo? {
@@ -54,44 +70,68 @@ class BackStackManager(
             return null
         }
 
-        try {
+        return try {
             val info = fragmentBackStack.pop()
-            Log.d(TAG, "Popping from backstack: ${info.fragment.javaClass.simpleName}, tabId: ${info.tabId}")
-            printBackStack() // Debug log için
-            return info
+            Log.d(TAG, "Popped from backstack: $info")
+            printBackStack()
+            info
         } catch (e: Exception) {
             Log.e(TAG, "Error popping from backstack", e)
-            return null
+            null
         }
     }
 
     /**
      * Backstack'i son tab'a kadar temizler
+     *
+     * @return Temizlenen fragment sayısı
      */
-    fun clearBackStackUntilTab() {
-        Log.d(TAG, "Clearing backstack until last tab...")
-        while (fragmentBackStack.isNotEmpty()) {
-            val fragmentInfo = fragmentBackStack.peek()
-            if (fragmentInfo.tabId in bottomNavItems) {
-                Log.d(TAG, "Found tab in backstack, stopping clear: ${fragmentInfo.fragment.javaClass.simpleName}")
-                break
-            }
-            Log.d(TAG, "Removing from backstack: ${fragmentInfo.fragment.javaClass.simpleName}")
-            fragmentBackStack.pop()
+    fun clearBackStackUntilTab(): Int {
+        if (fragmentBackStack.isEmpty()) {
+            Log.d(TAG, "Backstack is already empty")
+            return 0
         }
-        printBackStack() // Debug log için
+
+        var clearedCount = 0
+        try {
+            Log.d(TAG, "Clearing backstack until last tab...")
+            while (fragmentBackStack.isNotEmpty()) {
+                val fragmentInfo = fragmentBackStack.peek()
+                if (isBottomNavTab(fragmentInfo.tabId)) {
+                    Log.d(TAG, "Found tab in backstack, stopping clear: $fragmentInfo")
+                    break
+                }
+                Log.d(TAG, "Removing from backstack: $fragmentInfo")
+                fragmentBackStack.pop()
+                clearedCount++
+            }
+            printBackStack()
+            return clearedCount
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing backstack until tab: ${e.message}", e)
+            return clearedCount
+        }
     }
 
     /**
      * Backstack'i tamamen temizler
      */
     fun clearBackStack() {
-        Log.d(TAG, "Clearing entire backstack")
+        val size = fragmentBackStack.size
         fragmentBackStack.clear()
+        Log.d(TAG, "Backstack cleared, removed $size items")
     }
 
     /**
      * Geri tuşu davranışını oluşturur
+     *
+     * @param activity Activity referansı
+     * @param currentTabId Aktif tab ID'sini döndüren lambda
+     * @param bottomNavigation Bottom navigation view referansı
+     * @param onNavigateBack Geri navigasyon callback'i
+     * @param onNavigateToHome Ana sayfaya navigasyon callback'i
+     * @param onFinish Uygulamadan çıkış callback'i
+     * @return Oluşturulan OnBackPressedCallback
      */
     fun setupBackPressedCallback(
         activity: AppCompatActivity,
@@ -105,73 +145,121 @@ class BackStackManager(
             override fun handleOnBackPressed() {
                 Log.d(TAG, "Back pressed. Stack size: ${fragmentBackStack.size}")
 
-                // Backstack boş değilse, bir önceki fragment'e dön
+                // Eğer backstack doluysa, önceki ekrana dön
                 if (fragmentBackStack.isNotEmpty()) {
-                    val previousFragmentInfo = popFromBackStack()
-
-                    // Null kontrolü ekle
-                    if (previousFragmentInfo == null) {
-                        Log.e(TAG, "Error: Popped null fragment info despite non-empty stack")
-                        // Stackte sorun var, ana sayfaya yönlendir
-                        onNavigateToHome()
-                        return
-                    }
-
-                    Log.d(TAG, "Navigating back to: ${previousFragmentInfo.fragment.javaClass.simpleName}")
-
-                    // Eğer önceki ekran bottom nav tab'ıysa, ilgili tab'ı seç
-                    val isBottomNavTab = previousFragmentInfo.tabId in bottomNavItems
-
-                    // Önceki fragment'e dön
-                    onNavigateBack(previousFragmentInfo)
-
-                    // Bottom nav tab'ı ise, UI'da ilgili tab'ı seç
-                    if (isBottomNavTab) {
-                        Log.d(TAG, "Setting bottom nav selected item to: ${previousFragmentInfo.tabId}")
-
-                        // Menu item'ın mevcut olduğundan emin ol
-                        val menuItem = bottomNavigation.menu.findItem(previousFragmentInfo.tabId)
-                        if (menuItem != null) {
-                            bottomNavigation.selectedItemId = previousFragmentInfo.tabId
-                        } else {
-                            Log.e(TAG, "Menu item not found for id: ${previousFragmentInfo.tabId}")
-                        }
-                    }
+                    handleBackWithNonEmptyStack(
+                        bottomNavigation,
+                        onNavigateBack,
+                        onNavigateToHome
+                    )
                 } else {
-                    Log.d(TAG, "Backstack is empty")
-
-                    // Backstack boşsa ve ana sayfada değilsek, ana sayfaya dön
-                    val currentId = currentTabId()
-                    if (currentId != R.id.homeFragment) {
-                        Log.d(TAG, "Not on home tab, navigating to home")
-                        onNavigateToHome()
-                    } else {
-                        // Ana sayfadaysak, uygulamadan çık
-                        Log.d(TAG, "On home tab, finishing activity")
-                        onFinish()
-                    }
+                    handleBackWithEmptyStack(
+                        currentTabId(),
+                        onNavigateToHome,
+                        onFinish
+                    )
                 }
             }
         }
     }
 
     /**
+     * Backstack doluyken geri tuşu işlemini yönetir
+     *
+     * @param bottomNavigation Bottom navigation view
+     * @param onNavigateBack Geri navigasyon callback'i
+     * @param onNavigateToHome Ana sayfaya navigasyon callback'i
+     */
+    private fun handleBackWithNonEmptyStack(
+        bottomNavigation: BottomNavigationView,
+        onNavigateBack: (FragmentInfo) -> Unit,
+        onNavigateToHome: () -> Unit
+    ) {
+        val previousFragmentInfo = popFromBackStack()
+
+        // Null check
+        if (previousFragmentInfo == null) {
+            Log.e(TAG, "Error: Popped null fragment info despite non-empty stack")
+            onNavigateToHome()
+            return
+        }
+
+        // Önceki fragment'e dön
+        onNavigateBack(previousFragmentInfo)
+
+        // Eğer bottom nav tab'ıysa, UI'ı güncelle
+        if (isBottomNavTab(previousFragmentInfo.tabId)) {
+            try {
+                val menuItem = bottomNavigation.menu.findItem(previousFragmentInfo.tabId)
+                if (menuItem != null) {
+                    bottomNavigation.selectedItemId = previousFragmentInfo.tabId
+                    Log.d(TAG, "Set bottom nav to tab: ${previousFragmentInfo.tabId}")
+                } else {
+                    Log.e(TAG, "Menu item not found for id: ${previousFragmentInfo.tabId}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error selecting bottom nav item: ${e.message}", e)
+            }
+        }
+    }
+
+    /**
+     * Backstack boşken geri tuşu işlemini yönetir
+     *
+     * @param currentTabId Aktif tab ID'si
+     * @param onNavigateToHome Ana sayfaya navigasyon callback'i
+     * @param onFinish Uygulamadan çıkış callback'i
+     */
+    private fun handleBackWithEmptyStack(
+        currentTabId: Int,
+        onNavigateToHome: () -> Unit,
+        onFinish: () -> Unit
+    ) {
+        // Backstack boşsa ve ana sayfada değilsek, ana sayfaya dön
+        if (currentTabId != R.id.homeFragment) {
+            Log.d(TAG, "Not on home tab ($currentTabId), navigating to home")
+            onNavigateToHome()
+        } else {
+            // Ana sayfadaysak, uygulamayı kapat
+            Log.d(TAG, "On home tab, finishing activity")
+            onFinish()
+        }
+    }
+
+    /**
+     * Tab ID'sinin bottom navigation tab'ı olup olmadığını kontrol eder
+     *
+     * @param tabId Kontrol edilecek tab ID'si
+     * @return Bottom nav tab'ı ise true, değilse false
+     */
+    fun isBottomNavTab(tabId: Int): Boolean = tabId in BOTTOM_NAV_ITEMS
+
+    /**
      * Stack'teki fragment sayısını döndürür
+     *
+     * @return Backstack uzunluğu
      */
     fun getBackStackSize(): Int = fragmentBackStack.size
 
     /**
      * Stack boş mu kontrolü
+     *
+     * @return Stack boşsa true, değilse false
      */
     fun isBackStackEmpty(): Boolean = fragmentBackStack.isEmpty()
 
     /**
      * Backstack içeriğini loglar (debug için)
      */
-    fun printBackStack() {
+    private fun printBackStack() {
+        if (fragmentBackStack.isEmpty()) {
+            Log.d(TAG, "Backstack is empty")
+            return
+        }
+
         Log.d(TAG, "Current backstack (${fragmentBackStack.size} items):")
         fragmentBackStack.forEachIndexed { index, info ->
-            Log.d(TAG, "  $index: ${info.fragment.javaClass.simpleName}, tabId: ${info.tabId}")
+            Log.d(TAG, "  $index: ${info.fragment.javaClass.simpleName}, tabId=${info.tabId}")
         }
     }
 }

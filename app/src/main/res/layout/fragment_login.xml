@@ -1,107 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/appmainbg"
     tools:context=".ui.auth.LoginFragment">
 
     <!-- Logo ve Başlık Alanı -->
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="160dp"
-        android:layout_height="180dp"
-        android:layout_marginTop="60dp"
-        android:src="@drawable/loginicon2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="120dp"
+        android:layout_height="140dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/loginicon2"/>
 
-    <TextView
-        android:id="@+id/tvAppName"
+    <LinearLayout
+        android:id="@+id/txtAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="sans-serif-medium"
-        android:text="@string/app_name"
-        android:textColor="@color/auth_accent"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivLogo" />
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Travel"
+            android:fontFamily="@font/montserrat_black"
+            android:textColor="#FFFFFF"
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R"
+            android:fontFamily="@font/montserrat_black"
+            android:textColor="#FF5614"
+            android:textSize="32sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvTagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
+        android:fontFamily="@font/montserrat_medium"
         android:text="@string/for_travellers"
-        android:textColor="@color/auth_text_primary"
+        android:textColor="#CCFFFFFF"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAppName" />
+        android:gravity="center"
+        android:layout_gravity="center"/>
 
-    <!-- Giriş Formu -->
+    <!-- Google Sign In Button - ÜST KISMA KONUMLANDIRILDI -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGoogleSignIn"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
+        android:text="Continue with Google"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:fontFamily="@font/montserrat_medium"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/primary_purple"
+        app:icon="@drawable/ic_google"
+        app:iconGravity="textStart"
+        app:iconPadding="12dp"
+        app:iconTint="#FFFFFF"
+        android:elevation="4dp"
+        app:cardElevation="4dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:gravity="center"
+        android:layout_gravity="center"/>
+
+    <!-- Or Divider -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#33FFFFFF"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="or"
+            android:textColor="#CCFFFFFF"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="@font/montserrat_medium"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#33FFFFFF"/>
+    </LinearLayout>
+
+    <!-- Email ve Parola Girişi -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilEmail"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:hint="@string/email_or_phone"
-        app:boxCornerRadiusBottomEnd="24dp"
-        app:boxCornerRadiusBottomStart="24dp"
-        app:boxCornerRadiusTopEnd="24dp"
-        app:boxCornerRadiusTopStart="24dp"
-        app:boxStrokeColor="@color/auth_text_primary"
-        app:hintTextColor="@color/auth_text_primary"
-        app:startIconTint="@color/auth_text_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTagline">
+        android:hint="Email or Phone"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary_purple"
+        app:hintTextColor="#00E5FF">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:maxLines="1"
-            android:textColor="@color/auth_text_primary" />
+            android:fontFamily="@font/montserrat_medium"
+            android:textColor="#FFFFFF"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPassword"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        android:hint="@string/password"
-        app:boxCornerRadiusBottomEnd="24dp"
-        app:boxCornerRadiusBottomStart="24dp"
-        app:boxCornerRadiusTopEnd="24dp"
-        app:boxCornerRadiusTopStart="24dp"
-        app:boxStrokeColor="@color/auth_text_primary"
-        app:hintTextColor="@color/auth_text_primary"
+        android:hint="Password"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxStrokeColor="@color/primary_purple"
+        app:hintTextColor="#00E5FF"
         app:endIconMode="password_toggle"
-        app:endIconTint="@color/auth_text_primary"
-        app:startIconTint="@color/auth_text_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tilEmail">
+        app:endIconTint="#00E5FF">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:maxLines="1"
-            android:textColor="@color/auth_text_primary" />
+            android:fontFamily="@font/montserrat_medium"
+            android:textColor="#FFFFFF"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Şifremi Unuttum -->
@@ -110,166 +170,51 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:fontFamily="sans-serif"
-        android:text="@string/forgot_password"
-        android:textColor="@color/auth_text_primary"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="@+id/tilPassword"
-        app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
+        android:layout_marginEnd="32dp"
+        android:layout_gravity="end"
+        android:text="Forgot Password?"
+        android:textColor="@color/primary_light"
+        android:fontFamily="@font/montserrat_medium"
+        android:padding="8dp"
+        android:foreground="?attr/selectableItemBackground"/>
 
-    <!-- Giriş Yap Butonu -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardLogin"
-        android:layout_width="0dp"
+    <!-- Login Butonu -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="32dp"
-        app:cardBackgroundColor="@color/auth_primary"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvForgotPassword">
+        android:text="Login"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:fontFamily="@font/montserrat_medium"
+        app:cornerRadius="12dp"
+        app:backgroundTint="@color/primary_gray"
+        android:elevation="4dp"/>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btnLogin"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/bottom_nav_background"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/login"
-                android:textColor="@color/auth_button_text"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- veya Çizgili Çizgi -->
+    <!-- Hesap Oluştur -->
     <TextView
-        android:id="@+id/tvOr"
+        android:id="@+id/btnSignUp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/or"
-        android:textColor="@color/auth_text_primary"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardLogin" />
+        android:text="Create an Account"
+        android:textColor="#CCFFFFFF"
+        android:textSize="14sp"
+        android:fontFamily="@font/montserrat_medium"
+        android:layout_gravity="center"
+        android:padding="8dp"
+        android:background="?attr/selectableItemBackground"/>
 
-    <!-- Kayıt Ol Butonu -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardSignUp"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="32dp"
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvOr">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btnSignUp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingVertical="16dp"
-            android:paddingHorizontal="24dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/create_an_account"
-                android:textColor="@color/auth_primary"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
-    <!-- Google ile Giriş Yap -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardGoogleSignIn"
-        android:layout_width="0dp"
-        android:layout_height="56dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="32dp"
-        app:cardBackgroundColor="@color/white"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardSignUp"
-        app:layout_constraintVertical_bias="0.0">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btnGoogleSignIn"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/ivGoogleIcon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="16dp"
-                android:contentDescription="@string/google_icon"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:gravity="center"
-                android:text="@string/continue_with_google"
-                android:textColor="@color/auth_text_secondary"
-                android:textSize="16sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:visibility="gone"/>
+</LinearLayout>

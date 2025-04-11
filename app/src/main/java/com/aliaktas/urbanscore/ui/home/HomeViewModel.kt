@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.home
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
@@ -7,12 +8,13 @@ import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -29,16 +31,44 @@ class HomeViewModel @Inject constructor(
     private val _topRatedCitiesState = MutableStateFlow<HomeState>(HomeState.Initial)
     val topRatedCitiesState: StateFlow<HomeState> = _topRatedCitiesState.asStateFlow()
 
-    // State for editors' choice cities
-    private val _editorsChoiceState = MutableStateFlow<List<CuratedCityItem>>(emptyList())
-    val editorsChoiceState: StateFlow<List<CuratedCityItem>> = _editorsChoiceState.asStateFlow()
+    // State for popular cities
+    private val _popularCitiesState = MutableStateFlow<List<CuratedCityItem>>(emptyList())
+    val popularCitiesState: StateFlow<List<CuratedCityItem>> = _popularCitiesState.asStateFlow()
 
     // Cache for top rated cities
     private var cachedTopRatedCities: List<CityModel>? = null
 
+    private var popularCitiesLoaded = false
+
+    private var networkObserver: Job? = null
+    private var wasInErrorState = false
+
     init {
+        // İnternet bağlantısı değişikliklerini gözlemle
+        networkObserver = viewModelScope.launch {
+            networkUtil.observeNetworkState()
+                .collect { isConnected ->
+                    Log.d("HomeViewModel", "Network state changed: connected=$isConnected, currentState=${_topRatedCitiesState.value.javaClass.simpleName}")
+
+                    // İnternet bağlantısı geri geldiyse ve şu anda hata durumundaysak ya da daha önce hata durumundaysak
+                    if (isConnected && (wasInErrorState || _topRatedCitiesState.value is HomeState.Error)) {
+                        Log.d("HomeViewModel", "Internet connection restored, reloading data")
+                        wasInErrorState = false
+                        loadTopRatedCities(true) // Force refresh
+                    }
+                }
+        }
+
         loadTopRatedCities(false)
-        loadEditorsChoiceCities()
+
+        viewModelScope.launch {
+            _topRatedCitiesState.collect { state ->
+                if (state is HomeState.Success) {
+                    // Top Rated Cities başarıyla yüklendiğinde Popular Cities'i yükle
+                    loadPopularCities()
+                }
+            }
+        }
     }
 
     /**
@@ -49,7 +79,6 @@ class HomeViewModel @Inject constructor(
      */
     fun loadTopRatedCities(forceRefresh: Boolean = false) {
         // Always use "averageRating" for HomeFragment
-        // This ensures top rated cities list is consistent
         val categoryToUse = "averageRating"
 
         // Use cache if available and not forcing refresh
@@ -67,6 +96,7 @@ class HomeViewModel @Inject constructor(
                     emitEvent(UiEvent.Error("No internet connection. Showing cached data."))
                 }
             } else {
+                wasInErrorState = true // Hata durumunu işaretle
                 _topRatedCitiesState.value = HomeState.Error("No internet connection. Please try again later.")
             }
             return
@@ -83,43 +113,52 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                cityRepository.getCitiesByCategoryRating(categoryToUse, 20)
-                    .catch { e ->
-                        handleError(e)
-                        _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
-                    }
-                    .collectLatest { cities ->
-                        cachedTopRatedCities = cities
-                        _topRatedCitiesState.value = HomeState.Success(cities)
-                    }
+                // ÖNEMLİ DEĞİŞİKLİK: Flow yerine doğrudan liste metodu çağırıyoruz
+                val result = withContext(Dispatchers.IO) {
+                    cityRepository.getCitiesByCategoryRatingOneTime(categoryToUse, 20)
+                }
+
+                cachedTopRatedCities = result
+                _topRatedCitiesState.value = HomeState.Success(result)
             } catch (e: Exception) {
                 handleError(e)
+                wasInErrorState = true
                 _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))
             }
         }
     }
 
     /**
-     * Loads editor's choice cities from the repository
+     * Loads popular cities from the repository
      */
-    private fun loadEditorsChoiceCities() {
+    private fun loadPopularCities() {
+        // Zaten yüklendiyse tekrar yükleme
+        if (popularCitiesLoaded) return
+
         if (!networkUtil.isNetworkAvailable()) {
             return // Silently fail, as this is not crucial content
         }
 
+        popularCitiesLoaded = true
         viewModelScope.launch {
             try {
-                cityRepository.getCuratedCities("editors_choice")
-                    .catch { e ->
-                        handleError(e)
-                    }
-                    .collectLatest { cities ->
-                        _editorsChoiceState.value = cities
-                    }
+                // Değişiklik: Flow yerine doğrudan liste çağırıyoruz
+                val cities = withContext(Dispatchers.IO) {
+                    cityRepository.getCuratedCitiesOneTime("popular_cities")
+                }
+                _popularCitiesState.value = cities
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading popular cities", e)
                 handleError(e)
+                // Hata durumunda flag'i sıfırla ki tekrar denenebilsin
+                popularCitiesLoaded = false
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        networkObserver?.cancel()
     }
 
     /**

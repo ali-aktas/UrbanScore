@@ -12,13 +12,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCategoryListBinding
 import com.aliaktas.urbanscore.ui.home.CitiesAdapter
+import com.aliaktas.urbanscore.util.ImageLoader
+import com.aliaktas.urbanscore.util.NetworkUtil
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class CategoryListFragment : Fragment() {
@@ -27,13 +30,19 @@ class CategoryListFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: CategoryListViewModel by viewModels()
-    private val citiesAdapter = CitiesAdapter()
-    private val args: CategoryListFragmentArgs by navArgs()
+    private lateinit var citiesAdapter: CitiesAdapter
     private lateinit var categoryId: String
+    private var noInternetSnackbar: Snackbar? = null
+
+    @Inject
+    lateinit var imageLoader: ImageLoader
+    @Inject
+    lateinit var networkUtil: NetworkUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        categoryId = args.categoryId
+        // NavArgs yerine doğrudan arguments bundle'ından değeri alın
+        categoryId = arguments?.getString("categoryId", "averageRating") ?: "averageRating"
         Log.d("CategoryListFragment", "Created with category ID: $categoryId")
     }
 
@@ -54,15 +63,62 @@ class CategoryListFragment : Fragment() {
         setupRecyclerView()
         setupButtons()
         observeViewModel()
+        observeNetworkState()
+    }
+
+    private fun observeNetworkState() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            networkUtil.observeNetworkState().collect { isConnected ->
+                if (isConnected) {
+                    // İnternet geldiğinde snackbar'ı kapat
+                    noInternetSnackbar?.dismiss()
+                    noInternetSnackbar = null
+
+                    // Yeni veri yüklenebilir
+                    binding.btnLoadMore.isEnabled = true
+                } else {
+                    // İnternet gittiğinde snackbar göster
+                    showNoInternetSnackbar()
+
+                    // Yükleme butonunu devre dışı bırak
+                    binding.btnLoadMore.isEnabled = false
+                }
+            }
+        }
+    }
+
+    private fun showNoInternetSnackbar() {
+        if (noInternetSnackbar == null || noInternetSnackbar?.isShown == false) {
+            noInternetSnackbar = Snackbar.make(
+                binding.root,
+                R.string.no_internet_connection,
+                Snackbar.LENGTH_INDEFINITE // Sürekli göster
+            ).setAction(R.string.dismiss) {
+                // Kullanıcı kapatabilir
+                noInternetSnackbar = null
+            }
+            noInternetSnackbar?.show()
+        }
+    }
+
+    private fun checkInternetForNavigation(): Boolean {
+        val isConnected = networkUtil.isNetworkAvailable()
+        if (!isConnected) {
+            Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
+            showNoInternetSnackbar()
+        }
+        return isConnected
     }
 
     private fun setCategoryTitle() {
         val title = when (categoryId) {
-            "environment" -> "Best Cities for Landscapes & Aesthetics"
-            "safety" -> "Best Cities for Safety & Tranquility"
-            "livability" -> "Best Cities for Livability"
-            "cost" -> "Best Cities for Cost of Living"
-            "social" -> "Best Cities for Social & Cultural Life"
+            "gastronomy" -> "Best Cities for Gastronomy & Diversity"
+            "aesthetics" -> "Best Cities for City Aesthetics"
+            "safety" -> "Best Cities for Safety & Peace"
+            "culture" -> "Best Cities for Cultural Heritage"
+            "livability" -> "Best Cities for Livability & Nature"
+            "social" -> "Best Cities for Social Life & Affordability"
+            "hospitality" -> "Best Cities for Local Hospitality"
             else -> "Top Rated Cities Overall"
         }
         binding.txtTitle.text = title
@@ -70,11 +126,15 @@ class CategoryListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
+        // Burada CitiesAdapter'a imageLoader parametresi ekle
+        citiesAdapter = CitiesAdapter(categoryId, imageLoader)
         binding.recyclerViewCategoryList.adapter = citiesAdapter
 
         citiesAdapter.onItemClick = { city ->
-            Log.d("CategoryListFragment", "City clicked: ${city.cityName}")
-            (requireActivity() as MainActivity).navigateToCityDetail(city.id)
+            if (checkInternetForNavigation()) {
+                Log.d("CategoryListFragment", "City clicked: ${city.cityName}")
+                (requireActivity() as MainActivity).navigateToCityDetail(city.id)
+            }
         }
     }
 
@@ -84,10 +144,12 @@ class CategoryListFragment : Fragment() {
         }
 
         binding.btnLoadMore.setOnClickListener {
-            Log.d("CategoryListFragment", "Load more button clicked")
-            binding.btnLoadMore.isEnabled = false
-            binding.loadingMore.visibility = View.VISIBLE
-            viewModel.loadMoreCities()
+            if (checkInternetForNavigation()) {
+                Log.d("CategoryListFragment", "Load more button clicked")
+                binding.btnLoadMore.isEnabled = false
+                binding.loadingMore.visibility = View.VISIBLE
+                viewModel.loadMoreCities()
+            }
         }
     }
 
@@ -97,6 +159,13 @@ class CategoryListFragment : Fragment() {
                 viewModel.state.collect { state ->
                     Log.d("CategoryListFragment", "State changed: ${state.javaClass.simpleName}")
                     updateUI(state)
+
+                    // State değişiminde internet durumunu kontrol et
+                    if (!networkUtil.isNetworkAvailable() &&
+                        state !is CategoryListState.Loading) {
+                        showNoInternetSnackbar()
+                        binding.btnLoadMore.isEnabled = false
+                    }
                 }
             }
         }
@@ -128,7 +197,7 @@ class CategoryListFragment : Fragment() {
                 Log.d("CategoryListFragment", "UI State: Success - ${state.cities.size} cities, hasMore=${state.hasMoreItems}")
                 binding.progressBar.isVisible = false
                 binding.loadingMore.isVisible = false
-                binding.btnLoadMore.isEnabled = true
+                binding.btnLoadMore.isEnabled = networkUtil.isNetworkAvailable() // Sadece internet varsa etkinleştir
                 binding.btnLoadMore.isVisible = state.hasMoreItems
 
                 citiesAdapter.submitList(state.cities)
@@ -139,6 +208,7 @@ class CategoryListFragment : Fragment() {
                 binding.loadingMore.isVisible = false
                 binding.btnLoadMore.isVisible = false
 
+                // Hata mesajını göster
                 Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
             }
         }
@@ -147,6 +217,12 @@ class CategoryListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d("CategoryListFragment", "onResume")
+
+        // Internet durumunu kontrol et
+        if (!networkUtil.isNetworkAvailable()) {
+            showNoInternetSnackbar()
+            binding.btnLoadMore.isEnabled = false
+        }
 
         // Force refresh list when returning to this fragment
         val currentState = viewModel.state.value
@@ -159,6 +235,8 @@ class CategoryListFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         Log.d("CategoryListFragment", "onDestroyView")
+        noInternetSnackbar?.dismiss()
+        noInternetSnackbar = null
         _binding = null
     }
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/appbackground"
+    android:background="@color/primary"
     android:fitsSystemWindows="true">
 
     <!-- Tutamaç -->
@@ -12,7 +12,7 @@
         android:layout_width="40dp"
         android:layout_height="4dp"
         android:layout_marginTop="12dp"
-        android:background="#80FFFFFF"
+        android:background="@color/primary_gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

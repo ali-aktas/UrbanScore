@@ -54,7 +54,7 @@ class EditorsChoiceAdapter :
             // Set text
             binding.txtEditorsChoiceCityName.text = cityName
             binding.txtEditorsChoiceCountry.text = country
-            binding.txtEditorsChoiceRating.text = "4.8" // Default value
+            //binding.txtEditorsChoiceRating.text = "4.8" // Default value
 
             // Load image (if available) or use placeholder background
             if (item.imageUrl.isNotEmpty()) {

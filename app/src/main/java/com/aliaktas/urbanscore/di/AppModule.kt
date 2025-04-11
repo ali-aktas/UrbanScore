@@ -8,9 +8,10 @@ import com.aliaktas.urbanscore.util.ResourceProvider
 import com.aliaktas.urbanscore.data.repository.CityRecommendationRepository
 import com.aliaktas.urbanscore.data.repository.CityRecommendationRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.CityRepository
-import com.aliaktas.urbanscore.data.repository.CityRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.UserRepository
-import com.aliaktas.urbanscore.data.repository.UserRepositoryImpl
+import com.aliaktas.urbanscore.util.AppPreferences
+import com.aliaktas.urbanscore.util.PreferenceManager
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
@@ -68,27 +69,30 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCityRepository(
-        firestore: FirebaseFirestore
-    ): CityRepository {
-        return CityRepositoryImpl(firestore)
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserRepository(
-        auth: FirebaseAuth,
-        firestore: FirebaseFirestore
-    ): UserRepository {
-        return UserRepositoryImpl(auth, firestore)
-    }
-
-    @Provides
-    @Singleton
     fun provideCityRecommendationRepository(
         firestore: FirebaseFirestore,
         auth: FirebaseAuth
     ): CityRecommendationRepository {
         return CityRecommendationRepositoryImpl(firestore, auth)
     }
+
+    @Provides
+    @Singleton
+    fun providePreferenceManager(@ApplicationContext context: Context): PreferenceManager {
+        return PreferenceManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRevenueCatManager(): RevenueCatManager {
+        return RevenueCatManager.getInstance()
+    }
+
+    // di/AppModule.kt - sınıfın içinde
+    @Provides
+    @Singleton
+    fun provideAppPreferences(@ApplicationContext context: Context): AppPreferences {
+        return AppPreferences(context)
+    }
+
 }

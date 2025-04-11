@@ -62,6 +62,7 @@ class CategoryListViewModel @Inject constructor(
 
     fun loadMoreCities() {
         Log.d("CategoryListViewModel", "loadMoreCities() called")
+        Log.d("CategoryListViewModel", "loadMoreCities() çağrıldı, hasMoreItems: ${(currentCities as? CategoryListState.Success)?.hasMoreItems ?: false}")
 
         val currentState = _state.value
         if (isDataLoading ||

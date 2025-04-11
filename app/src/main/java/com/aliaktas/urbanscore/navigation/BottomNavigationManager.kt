@@ -19,9 +19,27 @@ class BottomNavigationManager(
     private val bottomNavigation: BottomNavigationView,
     private val navigationManager: NavigationManager
 ) {
-    private val TAG = "BottomNavManager"
+    companion object {
+        private const val TAG = "BottomNavManager"
 
-    // Bottom nav görünür olacak fragment'ların listesi
+        // Fragment tag constants
+        private const val TAG_HOME = "HOME_FRAGMENT"
+        private const val TAG_EXPLORE = "EXPLORE_FRAGMENT"
+        private const val TAG_ALL_CITIES = "ALL_CITIES_FRAGMENT"
+        private const val TAG_PROFILE = "PROFILE_FRAGMENT"
+
+        // Tab IDs - Navigation View'daki item ID'leri ile eşleşmelidir
+        private val TAB_IDS = setOf(
+            R.id.homeFragment,
+            R.id.exploreFragment,
+            R.id.allCitiesFragment,
+            R.id.profileFragment
+        )
+    }
+
+    /**
+     * Bottom navigation görünür olacak fragment türleri
+     */
     private val bottomNavVisibleFragments = setOf(
         HomeFragment::class.java,
         ExploreFragment::class.java,
@@ -31,95 +49,165 @@ class BottomNavigationManager(
         CategoryListFragment::class.java
     )
 
-    // Lazy fragment instances
-    private val homeFragment by lazy { HomeFragment() }
-    private val exploreFragment by lazy { ExploreFragment() }
-    private val allCitiesFragment by lazy { AllCitiesFragment() }
-    private val profileFragment by lazy { ProfileFragment() }
-
     /**
-     * Bottom navigation'ı yapılandırır ve click listener'ları ayarlar
+     * Fragment map - tab ID'lerine göre lazy olarak oluşturulan fragment'ler
      */
+    private val fragmentMap = mapOf(
+        R.id.homeFragment to lazy { HomeFragment() },
+        R.id.exploreFragment to lazy { ExploreFragment() },
+        R.id.allCitiesFragment to lazy { AllCitiesFragment() },
+        R.id.profileFragment to lazy { ProfileFragment() }
+    )
+
     fun setupBottomNavigation(backStackManager: BackStackManager) {
         Log.d(TAG, "Setting up bottom navigation")
+
+        // Tab seçim listener'ı ayarla
         bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.homeFragment,
-                R.id.exploreFragment,
-                R.id.allCitiesFragment,
-                R.id.profileFragment -> {
-                    // Aynı tab'a tıklandıysa bir şey yapma
-                    if (item.itemId != navigationManager.getActiveTabId()) {
-                        Log.d(TAG, "Selected bottom nav item: ${item.itemId}")
-
-                        // Back stack'i temizleyelim
-                        backStackManager.clearBackStackUntilTab()
-
-                        showBottomNavFragment(item.itemId)
-                    } else {
-                        Log.d(TAG, "Same tab selected, no action needed")
-                    }
+                in TAB_IDS -> {
+                    // handleTabSelection yerine handleTabNavigation kullanılacak
+                    handleTabNavigation(item.itemId, backStackManager)
                     true
                 }
-                else -> false
+                else -> {
+                    Log.w(TAG, "Unknown menu item selected: ${item.itemId}")
+                    false
+                }
             }
         }
 
-        bottomNavigation.setOnItemReselectedListener {
-            Log.d(TAG, "Tab reselected, no action needed")
+        // Tab yeniden seçim listener'ı ayarla
+        bottomNavigation.setOnItemReselectedListener { item ->
+            // Tab yeniden seçildiğinde, kullanıcı aynı tab'in ana ekranına geri dönmeli
+            Log.d(TAG, "Tab reselected: ${item.title}")
+
+            // Aktif fragment bir tab fragment mi (ana ekran mı) değil mi kontrol et
+            val activeFragment = navigationManager.getActiveFragment()
+            val isMainTabFragment = when(activeFragment) {
+                is HomeFragment, is ExploreFragment, is AllCitiesFragment, is ProfileFragment -> true
+                else -> false
+            }
+
+            // Eğer ana tab ekranında değilsek, o tab'in ana ekranına dön
+            if (!isMainTabFragment) {
+                showBottomNavFragment(item.itemId)
+            }
+            // Ana ekrandaysak hiçbir şey yapma
+        }
+    }
+
+    // YENİ METHOD: Hem tab seçimini hem de ana tab'a dönüşü işler
+    private fun handleTabNavigation(tabId: Int, backStackManager: BackStackManager) {
+        // Aktif fragment ve tab bilgilerini al
+        val currentTabId = navigationManager.getActiveTabId()
+        val activeFragment = navigationManager.getActiveFragment()
+
+        // Aktif fragment bir tab fragment mi?
+        val isMainTabFragment = activeFragment is HomeFragment ||
+                activeFragment is ExploreFragment ||
+                activeFragment is AllCitiesFragment ||
+                activeFragment is ProfileFragment
+
+        // DURUM 1: Aynı tab seçildi, ama ana tab ekranında değiliz - ana tab'a dön
+        if (tabId == currentTabId && !isMainTabFragment) {
+            Log.d(TAG, "Same tab selected but not on tab fragment, returning to tab: $tabId")
+            showBottomNavFragment(tabId)
+            return
+        }
+
+        // DURUM 2: Farklı bir tab seçildi
+        if (tabId != currentTabId) {
+            Log.d(TAG, "Tab changed from $currentTabId to $tabId")
+
+            // Back stack'i tab'a kadar temizle
+            val clearedCount = backStackManager.clearBackStackUntilTab()
+            Log.d(TAG, "Cleared $clearedCount fragments from backstack")
+
+            // Seçilen tab'ı göster
+            showBottomNavFragment(tabId)
+        }
+
+        // DURUM 3: Aynı tab seçildi ve zaten ana tab ekranındayız - hiçbir şey yapma
+        // (Bu durum için ekstra kod yazmaya gerek yok)
+    }
+
+
+    fun updateBottomNavVisibility(fragment: Fragment) {
+        val shouldShowBottomNav = shouldShowBottomNav(fragment)
+        val fragmentName = fragment.javaClass.simpleName
+
+        if (bottomNavigation.visibility == View.VISIBLE && !shouldShowBottomNav) {
+            Log.d(TAG, "Hiding bottom nav for $fragmentName")
+            bottomNavigation.visibility = View.GONE
+        } else if (bottomNavigation.visibility == View.GONE && shouldShowBottomNav) {
+            Log.d(TAG, "Showing bottom nav for $fragmentName")
+            bottomNavigation.visibility = View.VISIBLE
         }
     }
 
     /**
-     * Bottom navigation'ın görünürlüğünü fragment tipine göre ayarlar
+     * Verilen fragment için bottom nav görünür olmalı mı belirler
+     *
+     * @param fragment Kontrol edilecek fragment
+     * @return Bottom nav görünür olmalıysa true, gizli olmalıysa false
      */
-    fun updateBottomNavVisibility(fragment: Fragment) {
-        val shouldShowBottomNav = bottomNavVisibleFragments.contains(fragment::class.java)
-        Log.d(TAG, "Update bottom nav visibility for ${fragment.javaClass.simpleName}: $shouldShowBottomNav")
-
-        bottomNavigation.visibility = if (shouldShowBottomNav) View.VISIBLE else View.GONE
+    private fun shouldShowBottomNav(fragment: Fragment): Boolean {
+        return bottomNavVisibleFragments.contains(fragment::class.java)
     }
 
     /**
      * Bottom nav tab'ına göre ilgili fragment'i gösterir
+     *
+     * @param menuItemId Gösterilecek tab ID'si
+     * @return İşlem başarılıysa true, değilse false
      */
-    fun showBottomNavFragment(menuItemId: Int) {
-        // Bottom navigation'ı göster
-        Log.d(TAG, "Showing bottom nav fragment for menu item: $menuItemId")
-        bottomNavigation.visibility = View.VISIBLE
+    fun showBottomNavFragment(menuItemId: Int): Boolean {
+        try {
+            // Bottom navigation'ı görünür yap
+            bottomNavigation.visibility = View.VISIBLE
 
-        // Menu item'ı seç
-        bottomNavigation.menu.findItem(menuItemId)?.isChecked = true
+            // Menu item'ı seç
+            val menuItem = bottomNavigation.menu.findItem(menuItemId)
+            if (menuItem == null) {
+                Log.e(TAG, "Menu item not found for ID: $menuItemId")
+                return false
+            }
 
-        // İlgili fragment'i göster
-        val fragment = getFragmentForMenuItem(menuItemId)
-        val tag = getTagForMenuItem(menuItemId)
-        navigationManager.showBottomNavFragment(fragment, menuItemId, tag)
-    }
+            menuItem.isChecked = true
 
-    /**
-     * Menu item ID'sine göre fragment döndürür
-     */
-    private fun getFragmentForMenuItem(menuItemId: Int): Fragment {
-        return when (menuItemId) {
-            R.id.homeFragment -> homeFragment
-            R.id.exploreFragment -> exploreFragment
-            R.id.allCitiesFragment -> allCitiesFragment
-            R.id.profileFragment -> profileFragment
-            else -> homeFragment // Varsayılan olarak ana sayfaya dön
+            // Fragment map'ten fragment'i al ve göster
+            val fragmentLazy = fragmentMap[menuItemId]
+            if (fragmentLazy != null) {
+                val fragment = fragmentLazy.value
+                val tag = getTagForMenuItem(menuItemId)
+
+                navigationManager.showBottomNavFragment(fragment, menuItemId, tag)
+                Log.d(TAG, "Showed tab fragment: ${fragment.javaClass.simpleName} with ID $menuItemId")
+                return true
+            } else {
+                Log.e(TAG, "Fragment not found for menu item: $menuItemId")
+                return false
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing bottom nav fragment: ${e.message}", e)
+            return false
         }
     }
 
     /**
-     * Menu item ID'sine göre tag döndürür
+     * Menu item ID'sine göre fragment tag'i döndürür
+     *
+     * @param menuItemId Menu item ID'si
+     * @return Fragment tag string'i
      */
     private fun getTagForMenuItem(menuItemId: Int): String {
         return when (menuItemId) {
-            R.id.homeFragment -> "HOME_FRAGMENT"
-            R.id.exploreFragment -> "EXPLORE_FRAGMENT"
-            R.id.allCitiesFragment -> "ALL_CITIES_FRAGMENT"
-            R.id.profileFragment -> "PROFILE_FRAGMENT"
-            else -> "UNKNOWN_FRAGMENT"
+            R.id.homeFragment -> TAG_HOME
+            R.id.exploreFragment -> TAG_EXPLORE
+            R.id.allCitiesFragment -> TAG_ALL_CITIES
+            R.id.profileFragment -> TAG_PROFILE
+            else -> "FRAGMENT_$menuItemId"
         }
     }
 
@@ -127,15 +215,40 @@ class BottomNavigationManager(
      * Bottom navigation'ı gizler
      */
     fun hideBottomNavigation() {
-        Log.d(TAG, "Hiding bottom navigation")
-        bottomNavigation.visibility = View.GONE
+        if (bottomNavigation.visibility == View.VISIBLE) {
+            bottomNavigation.visibility = View.GONE
+            Log.d(TAG, "Bottom navigation hidden")
+        }
     }
 
     /**
      * Bottom navigation'ı gösterir
      */
     fun showBottomNavigation() {
-        Log.d(TAG, "Showing bottom navigation")
-        bottomNavigation.visibility = View.VISIBLE
+        if (bottomNavigation.visibility == View.GONE) {
+            bottomNavigation.visibility = View.VISIBLE
+            Log.d(TAG, "Bottom navigation shown")
+        }
+    }
+
+    /**
+     * Bottom navigation'da belirli bir tab'ı seçer
+     *
+     * @param tabId Seçilecek tab ID'si
+     * @return İşlem başarılıysa true, değilse false
+     */
+    fun selectTab(tabId: Int): Boolean {
+        if (tabId !in TAB_IDS) {
+            Log.e(TAG, "Invalid tab ID: $tabId")
+            return false
+        }
+
+        try {
+            bottomNavigation.selectedItemId = tabId
+            return true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error selecting tab: ${e.message}", e)
+            return false
+        }
     }
 }

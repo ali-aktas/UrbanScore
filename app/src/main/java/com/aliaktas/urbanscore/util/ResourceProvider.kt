@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import androidx.annotation.StringRes
 import javax.inject.Inject
@@ -17,6 +18,7 @@ class ResourceProvider @Inject constructor(
         return context.getString(resId, *formatArgs)
     }
 
+    @SuppressLint("ResourceType")
     fun getQuantityString(@StringRes resId: Int, quantity: Int, vararg formatArgs: Any): String {
         return context.resources.getQuantityString(resId, quantity, *formatArgs)
     }

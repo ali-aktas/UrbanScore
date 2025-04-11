@@ -122,15 +122,18 @@ object TestDataGenerator {
                 val cityDoc = firestore.collection("cities").document(documentId)
 
                 // Rastgele puanlar oluştur (7.0 - 9.5 arasında)
-                val environment = (7.0 + (Math.random() * 2.5)).toDouble()
+                val gastronomy = (7.0 + (Math.random() * 2.5)).toDouble()
+                val aesthetics = (7.0 + (Math.random() * 2.5)).toDouble()
                 val safety = (7.0 + (Math.random() * 2.5)).toDouble()
+                val culture = (7.0 + (Math.random() * 2.5)).toDouble()
                 val livability = (7.0 + (Math.random() * 2.5)).toDouble()
-                val cost = (7.0 + (Math.random() * 2.5)).toDouble()
                 val social = (7.0 + (Math.random() * 2.5)).toDouble()
+                val hospitality = (7.0 + (Math.random() * 2.5)).toDouble()
 
                 // Genel ortalama puanı hesapla (ağırlıklı ortalama)
-                val avgRating = ((environment * 1.3) + (safety * 1.1) + (livability * 1.0) +
-                        (cost * 1.0) + (social * 1.2)) / 5.6
+                val avgRating = ((gastronomy * 1.0) + (aesthetics * 1.1) + (safety * 1.2) +
+                        (culture * 1.0) + (livability * 1.0) + (social * 0.9) +
+                        (hospitality * 0.8)) / 7.0
 
                 // Rastgele nüfus (500,000 - 10,000,000)
                 val population = 500000L + (Math.random() * 9500000L).toLong()
@@ -143,13 +146,15 @@ object TestDataGenerator {
                     "flagUrl" to (flagUrls[country] ?: "https://flagcdn.com/w320/un.png"),
                     "population" to population,
                     "averageRating" to (Math.round(avgRating * 100) / 100.0),
-                    "ratingCount" to (10 + (Math.random() * 90).toInt()),
+                    "ratingCount" to (10 + (Math.random() * 20).toInt()),
                     "ratings" to hashMapOf(
-                        "environment" to (Math.round(environment * 100) / 100.0),
+                        "gastronomy" to (Math.round(gastronomy * 100) / 100.0),
+                        "aesthetics" to (Math.round(aesthetics * 100) / 100.0),
                         "safety" to (Math.round(safety * 100) / 100.0),
+                        "culture" to (Math.round(culture * 100) / 100.0),
                         "livability" to (Math.round(livability * 100) / 100.0),
-                        "cost" to (Math.round(cost * 100) / 100.0),
-                        "social" to (Math.round(social * 100) / 100.0)
+                        "social" to (Math.round(social * 100) / 100.0),
+                        "hospitality" to (Math.round(hospitality * 100) / 100.0)
                     )
                 )
 

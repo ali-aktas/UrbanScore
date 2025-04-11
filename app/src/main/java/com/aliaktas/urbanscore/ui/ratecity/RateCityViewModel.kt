@@ -7,6 +7,7 @@ import com.aliaktas.urbanscore.data.model.CategoryRatings
 import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
+import com.aliaktas.urbanscore.util.RatingEventBus
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,7 @@ class RateCityViewModel @Inject constructor(
     private val _ratingState = MutableStateFlow<RateCityState>(RateCityState.Initial)
     val ratingState: StateFlow<RateCityState> = _ratingState.asStateFlow()
 
+    // RateCityViewModel.kt içindeki submitRating fonksiyonunun tam hali:
     fun submitRating(cityId: String, ratings: CategoryRatings) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -68,6 +70,10 @@ class RateCityViewModel @Inject constructor(
 
                                 // 4. Başarılı state'i ayarla
                                 _ratingState.value = RateCityState.Success
+
+                                // 5. Event'i yayınla (YENİ EKLENDİ)
+                                RatingEventBus.emitRatingSubmitted(cityId)
+
                             } catch (e: Exception) {
                                 Log.e("RateCityViewModel", "Error in adding to visited cities: ${e.message}", e)
                                 _ratingState.value = RateCityState.Error("Error updating profile: ${e.message}")
@@ -88,11 +94,13 @@ class RateCityViewModel @Inject constructor(
 
     private fun calculateAverageRating(ratings: CategoryRatings): Double {
         // Weighted average calculation
-        val sum = (ratings.environment * 1.3 +
-                ratings.safety * 1.1 +
+        val sum = (ratings.gastronomy * 1.0 +
+                ratings.aesthetics * 1.1 +
+                ratings.safety * 1.2 +
+                ratings.culture * 1.0 +
                 ratings.livability * 1.0 +
-                ratings.cost * 1.0 +
-                ratings.social * 1.2)
-        return (sum / 5.6).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
+                ratings.social * 0.9 +
+                ratings.hospitality * 0.8)
+        return (sum / 7.0).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
     }
 }

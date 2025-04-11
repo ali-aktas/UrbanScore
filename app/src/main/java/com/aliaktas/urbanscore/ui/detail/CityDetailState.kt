@@ -1,6 +1,7 @@
 package com.aliaktas.urbanscore.ui.detail
 
 import com.aliaktas.urbanscore.data.model.CityModel
+import com.aliaktas.urbanscore.data.model.CommentModel
 
 /**
  * Represents the state of the city detail screen.
@@ -21,7 +22,13 @@ sealed class CityDetailState {
         val isInWishlist: Boolean = false,
         val hasUserRated: Boolean = false,
         val isShareInProgress: Boolean = false,
-        val showRatingSheet: Boolean = false
+        val showRatingSheet: Boolean = false,
+        val comments: List<CommentModel> = emptyList(),
+        val commentsCount: Int = 0,
+        val hasMoreComments: Boolean = false,
+        val isLoadingComments: Boolean = false,
+        val showComments: Boolean = false,
+        val isPartialUpdate: Boolean = false
     ) : CityDetailState()
 
     /**
@@ -39,4 +46,8 @@ sealed class CityDetailEvent {
     data class ShowMessage(val message: String) : CityDetailEvent()
     data class ShareCity(val shareIntent: android.content.Intent) : CityDetailEvent()
     data object DismissRatingSheet : CityDetailEvent()
+
+    data class ShowCommentBottomSheet(val cityId: String) : CityDetailEvent()
+    data class LikeCommentResult(val success: Boolean, val message: String) : CityDetailEvent()
+    data class AddCommentResult(val success: Boolean, val message: String) : CityDetailEvent()
 }

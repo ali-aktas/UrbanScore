@@ -27,6 +27,7 @@ abstract class BaseViewModel : ViewModel() {
         }
     }
 
+
     // Launch coroutines with error handling
     protected fun launchWithLoading(block: suspend CoroutineScope.() -> Unit) {
         viewModelScope.launch(errorHandler) {
@@ -44,8 +45,10 @@ abstract class BaseViewModel : ViewModel() {
             is java.net.UnknownHostException,
             is java.net.ConnectException -> "No internet connection. Please check your network and try again."
             is com.google.firebase.FirebaseNetworkException -> "Network error. Please check your connection."
-            is com.google.firebase.auth.FirebaseAuthException -> "Authentication error: ${simplifyAuthError(throwable)}"
-            else -> "An unexpected error occurred: ${throwable.message ?: "Unknown error"}"
+            is com.google.firebase.auth.FirebaseAuthException -> "Authentication error. Please try again."
+            else -> "Something went wrong. Please try again later." // Exception mesajını gösterme
+            // Logging için yine de hatayı loglayabilirsiniz:
+            // Log.e("BaseViewModel", "Error details: ${throwable.message}", throwable)
         }
     }
 
@@ -98,6 +101,7 @@ abstract class BaseViewModel : ViewModel() {
     sealed class UiEvent {
         data class Error(val message: String) : UiEvent()
         data class Success(val message: String) : UiEvent()
+        data class Loading(val message: String) : UiEvent()
         data class Navigate(val route: String) : UiEvent()
         data object ShowLogin : UiEvent()
         data object RefreshData : UiEvent()
