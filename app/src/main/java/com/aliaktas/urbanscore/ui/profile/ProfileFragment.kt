@@ -1,12 +1,15 @@
 package com.aliaktas.urbanscore.ui.profile
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -31,7 +34,7 @@ class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-
+    private var isMyTopListSelected = true
     private val viewModel: ProfileViewModel by viewModels()
 
     // Adaptörleri lazy olarak başlat - sadece kullanıldığında oluşturulur
@@ -58,6 +61,7 @@ class ProfileFragment : Fragment() {
         setupRecyclerViews()
         setupClickListeners()
         observeViewModel()
+        updateTabButtonStyles()
 
         // ViewModel'in Flow'larının düzgün çalıştığından emin olmak için
         Log.d("ProfileFragment", "onViewCreated: Starting to observe ViewModel")
@@ -107,12 +111,69 @@ class ProfileFragment : Fragment() {
             viewModel.shareWishlist()
         }
 
+        // Sekme butonları
+        binding.btnMyTopList.setOnClickListener {
+            if (!isMyTopListSelected) {
+                isMyTopListSelected = true
+                updateTabButtonStyles()
+                updateTabContent()
+            }
+        }
+
+        binding.profileButton.setOnClickListener {
+            showProfileMenu(it)
+        }
+
+        binding.btnBucketList.setOnClickListener {
+            if (isMyTopListSelected) {
+                isMyTopListSelected = false
+                updateTabButtonStyles()
+                updateTabContent()
+            }
+        }
+
         // Logout button
         binding.btnLogout.setOnClickListener {
             showLogoutConfirmationDialog()
         }
+
+        // Delete account butonunu ekle
+        binding.btnDeleteAccount.setOnClickListener {
+            showDeleteAccountConfirmationDialog()
+        }
     }
 
+    // Tab butonlarının stillerini güncelleyen yeni metod
+    private fun updateTabButtonStyles() {
+        val context = requireContext()
+
+        if (isMyTopListSelected) {
+            binding.btnMyTopList.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.primary_purple))
+            binding.btnBucketList.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.primary_gray))
+        } else {
+            binding.btnMyTopList.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.primary_gray))
+            binding.btnBucketList.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.primary_purple))
+        }
+    }
+
+    // Sekme içeriğini güncelleyen yeni metod
+    private fun updateTabContent() {
+        val currentState = viewModel.profileState.value as? ProfileState.Success ?: return
+
+        if (isMyTopListSelected) {
+            // My Top List sekmesi aktif
+            binding.rvVisitedCities.visibility = View.VISIBLE
+            binding.rvWishlistCities.visibility = View.GONE
+            binding.tvNoVisitedCities.visibility = if (currentState.visitedCities.isEmpty()) View.VISIBLE else View.GONE
+            binding.tvNoWishlistCities.visibility = View.GONE
+        } else {
+            // Bucket List sekmesi aktif
+            binding.rvVisitedCities.visibility = View.GONE
+            binding.rvWishlistCities.visibility = View.VISIBLE
+            binding.tvNoVisitedCities.visibility = View.GONE
+            binding.tvNoWishlistCities.visibility = if (currentState.wishlistCities.isEmpty()) View.VISIBLE else View.GONE
+        }
+    }
 
 
     private fun observeViewModel() {
@@ -152,6 +213,18 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // updateVisitedCitiesList ve updateWishlistCitiesList metodlarını güncelle
+    private fun updateVisitedCitiesList(cities: List<VisitedCityItem>) {
+        // Sadece adapter'ı güncelle, görünürlük updateTabContent'te kontrol edilecek
+        visitedCitiesAdapter.submitList(cities)
+    }
+
+    private fun updateWishlistCitiesList(cities: List<WishlistCityItem>) {
+        // Sadece adapter'ı güncelle, görünürlük updateTabContent'te kontrol edilecek
+        wishlistCitiesAdapter.submitList(cities)
+    }
+
+    // updateUI metodunu güncelle
     private fun updateUI(state: ProfileState) {
         when (state) {
             is ProfileState.Loading -> {
@@ -163,8 +236,10 @@ class ProfileFragment : Fragment() {
 
                 // Kullanıcı bilgilerini göster
                 binding.txtUsername.text = state.displayName
-                binding.txtVisitedCitiesCount.text =
-                    "${state.visitedCities.size}"
+
+                // Sayaçları güncelle
+                binding.txtVisitedCitiesCount.text = "${state.visitedCities.size}"
+                binding.txtBucketListCount.text = "${state.wishlistCities.size}"
 
                 // Profil fotoğrafını yükle
                 if (state.photoUrl.isNotEmpty()) {
@@ -177,6 +252,9 @@ class ProfileFragment : Fragment() {
                 // Listeleri güncelle
                 updateVisitedCitiesList(state.visitedCities)
                 updateWishlistCitiesList(state.wishlistCities)
+
+                // Aktif sekmeye göre içeriği güncelle
+                updateTabContent()
             }
 
             is ProfileState.Error -> {
@@ -186,24 +264,41 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    private fun showProfileMenu(view: View) {
+        val popup = PopupMenu(requireContext(), view)
+        popup.menuInflater.inflate(R.menu.menu_profile, popup.menu)
 
+        // Menu öğesi tıklama olayını ayarla
+        popup.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.menu_pro_subscription -> {
+                    // Pro abonelik ekranına yönlendir
+                    (requireActivity() as MainActivity).navigateToProSubscription()
+                    true
+                }
+                R.id.menu_logout -> {
+                    // Çıkış yap - mevcut dialog'u kullan
+                    showLogoutConfirmationDialog()
+                    true
+                }
+                else -> false
+            }
+        }
 
-    private fun updateVisitedCitiesList(cities: List<VisitedCityItem>) {
-        // Boş liste kontrolü - UI'da gösterilecek metin
-        binding.tvNoVisitedCities.isVisible = cities.isEmpty()
-        binding.rvVisitedCities.isVisible = cities.isNotEmpty()
+        // Material tasarıma uygun icon tint rengini ayarla
+        try {
+            val menuHelper = PopupMenu::class.java.getDeclaredField("mPopup")
+            menuHelper.isAccessible = true
+            val menuPopupHelper = menuHelper.get(popup)
+            menuPopupHelper.javaClass
+                .getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+                .invoke(menuPopupHelper, true)
+        } catch (e: Exception) {
+            Log.e("ProfileFragment", "Menu icon force show error", e)
+        }
 
-        // Listeyi güncelle (DiffUtil adapter içinde çalışacak)
-        visitedCitiesAdapter.submitList(cities)
-    }
-
-    private fun updateWishlistCitiesList(cities: List<WishlistCityItem>) {
-        // Boş liste kontrolü - UI'da gösterilecek metin
-        binding.tvNoWishlistCities.isVisible = cities.isEmpty()
-        binding.rvWishlistCities.isVisible = cities.isNotEmpty()
-
-        // Listeyi güncelle (DiffUtil adapter içinde çalışacak)
-        wishlistCitiesAdapter.submitList(cities)
+        // Popup menu'yü göster
+        popup.show()
     }
 
     private fun showLoading(isLoading: Boolean) {
@@ -231,6 +326,20 @@ class ProfileFragment : Fragment() {
         }
     }
 
+    // Delete account için dialog ekle
+    private fun showDeleteAccountConfirmationDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.delete_account)
+            .setMessage(R.string.delete_account_confirmation)
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(R.string.yes) { _, _ ->
+                // TODO: Hesap silme işlemi burada yapılacak
+                showMessage("Delete account functionality will be implemented soon")
+            }
+            .show()
+    }
     private fun showLogoutConfirmationDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.logout)

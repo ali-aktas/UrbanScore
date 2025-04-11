@@ -178,6 +178,11 @@
     <string name="msg_generic_error">An error occurred. Please try again.</string>
     <string name="msg_loading">Loading...</string>
 
+    <!-- Delete Account strings -->
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirmation">Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost.</string>
+    <string name="account_deleted_successfully">Your account has been deleted successfully</string>
+
     <!-- Pro Abonelik İçin String Kaynakları -->
     <string name="pro_title">Upgrade to Pro</string>
     <string name="pro_description">Enhance your travel experience with premium features and ad-free browsing</string>
@@ -193,7 +198,7 @@
     <string name="pro_active">You are a Pro User!</string>
     <string name="subscription_expiry">Your subscription expires on %1$s</string>
     <string name="renew_subscription">Renew Subscription</string>
-    <string name="pro_subscription">Pro Subscription</string>
+    <string name="pro_subscription">Get Premium</string>
     <string name="accept_terms_and_conditions">Accept terms and conditions</string>
     <string name="pro_subscription_icon">Pro subscription icon</string>
     <string name="pro_active_icon">Pro active icon</string>
