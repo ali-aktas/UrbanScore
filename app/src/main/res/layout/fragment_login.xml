@@ -118,7 +118,7 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeColor="@color/primary_purple"
-        app:hintTextColor="#00E5FF">
+        app:hintTextColor="@color/primary_purple">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
@@ -143,9 +143,9 @@
         app:boxCornerRadiusTopEnd="12dp"
         app:boxCornerRadiusTopStart="12dp"
         app:boxStrokeColor="@color/primary_purple"
-        app:hintTextColor="#00E5FF"
+        app:hintTextColor="@color/primary_purple"
         app:endIconMode="password_toggle"
-        app:endIconTint="#00E5FF">
+        app:endIconTint="@color/primary_purple">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etPassword"

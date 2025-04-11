@@ -79,7 +79,7 @@ class HomeFragment : Fragment() {
 
         // 3 saniye sonra gerçek içeriği göster
         lifecycleScope.launch {
-            delay(4000)
+            delay(3000)
             hideSkeleton()
         }
     }

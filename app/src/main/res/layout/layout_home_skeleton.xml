@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="12dp"
     android:background="@drawable/appmainbg">
 
     <!-- Header skeleton -->
     <View
         android:id="@+id/skeleton_header"
-        android:layout_width="400dp"
-        android:layout_height="220dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/skeleton_background"
         app:layout_constraintEnd_toEndOf="parent"
@@ -54,6 +55,11 @@
             android:layout_height="36dp"
             android:layout_marginEnd="12dp"
             android:background="@drawable/skeleton_background" />
+        <View
+            android:layout_width="100dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/skeleton_background" />
     </LinearLayout>
 
     <!-- Top rated title skeleton -->
@@ -61,7 +67,7 @@
         android:id="@+id/skeleton_top_rated_title"
         android:layout_width="200dp"
         android:layout_height="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:background="@drawable/skeleton_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -71,8 +77,8 @@
     <View
         android:id="@+id/skeleton_top_cities"
         android:layout_width="match_parent"
-        android:layout_height="340dp"
-        android:layout_marginHorizontal="12dp"
+        android:layout_height="320dp"
+        android:layout_marginVertical="12dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/skeleton_background"
         app:layout_constraintTop_toBottomOf="@id/skeleton_top_rated_title" />
@@ -80,7 +86,7 @@
     <!-- Popular cities title skeleton -->
     <View
         android:id="@+id/skeleton_popular_title"
-        android:layout_width="150dp"
+        android:layout_width="220dp"
         android:layout_height="24dp"
         android:layout_marginStart="18dp"
         android:layout_marginTop="16dp"
@@ -88,32 +94,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/skeleton_top_cities" />
 
-    <!-- Popular cities skeleton -->
-    <LinearLayout
-        android:id="@+id/skeleton_popular_cities"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="18dp"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/skeleton_popular_title">
-
-        <View
-            android:layout_width="120dp"
-            android:layout_height="150dp"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/skeleton_background" />
-
-        <View
-            android:layout_width="120dp"
-            android:layout_height="150dp"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/skeleton_background" />
-
-        <View
-            android:layout_width="120dp"
-            android:layout_height="150dp"
-            android:background="@drawable/skeleton_background" />
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

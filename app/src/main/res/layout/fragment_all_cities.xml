@@ -4,18 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingEnd="8dp"
-    android:paddingStart="8dp"
+    android:paddingHorizontal="16dp"
     android:background="@drawable/appmainbg"
     tools:context=".ui.allcities.AllCitiesFragment">
 
+    <!-- Başlık Kısmı - Aynı Kalıyor -->
     <LinearLayout
         android:id="@+id/txtAppName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="32dp">
 
         <TextView
@@ -23,9 +23,8 @@
             android:layout_height="wrap_content"
             android:text="Roamly"
             android:fontFamily="@font/montserrat_alternates_bold"
-            android:textColor="@color/white"
+            android:textColor="@color/primary_purple"
             android:textSize="32sp" />
-
     </LinearLayout>
 
     <!-- Slogan -->
@@ -44,360 +43,495 @@
 
     <View
         android:id="@+id/divider"
-        android:layout_width="320dp"
+        android:layout_width="0dp"
         android:layout_height="1dp"
-        app:layout_constraintStart_toStartOf="@id/txtSlogan"
-        app:layout_constraintEnd_toEndOf="@id/txtSlogan"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:background="@color/primary_gray"
-        android:layout_marginBottom="8dp"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/txtSlogan" />
 
-
-    <!-- Scroll View for Categories -->
+    <!-- Kartlar için Kaydırma Görünümü -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/contentScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:clipToPadding="false"
-        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:paddingBottom="24dp">
 
-            <!-- Gastronomy & Diversity Category -->
-            <TextView
-                android:id="@+id/txtCategoryGastronomy"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_gastronomy"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardGastronomy"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false"
-                app:cardPreventCornerOverlap="false"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/gastronomyimg">
-
-                    <TextView
-                        android:id="@+id/txtGastronomyDesc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="@string/gastronomy_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
-                        android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- City Aesthetics Category -->
-            <TextView
-                android:id="@+id/txtCategoryAesthetics"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_aesthetics"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
+            <!-- Aesthetics Kartı - Üstte Geniş -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardAesthetics"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:cardCornerRadius="16dp"
-                app:cardUseCompatPadding="false"
-                app:cardPreventCornerOverlap="false"
+                app:cardElevation="4dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/aesth_img">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/aesth_img"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/aesthetics_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategoryAesthetics"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/aesthetics_title"
+                            android:textColor="@color/white"
+                            android:textSize="24sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
                     <TextView
                         android:id="@+id/txtAestheticsDesc"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:padding="16dp"
+                        android:background="@color/primary_gray"
                         android:text="@string/aesthetics_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
                         android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/primary_light"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Safety & Peace Category -->
-            <TextView
-                android:id="@+id/txtCategorySafety"
-                android:layout_width="wrap_content"
+            <!-- Gastronomy Kartı - Sol Üst -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardGastronomy"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_safety"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/cardSafety"
+                app:layout_constraintTop_toBottomOf="@id/cardAesthetics"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintHorizontal_weight="1"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginEnd="6dp"
+                app:strokeWidth="0dp">
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/gastronomyimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/gastronomy_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategoryGastronomy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/gastronomy_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
+                    <TextView
+                        android:id="@+id/txtGastronomyDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
+                        android:text="@string/gastronomy_desc"
+                        android:textAlignment="center"
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Safety Kartı - Sağ Üst -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSafety"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toEndOf="@+id/cardGastronomy"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardAesthetics"
+                app:layout_constraintHorizontal_weight="1"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardElevation="4dp"
+                android:layout_marginStart="6dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/safetyimg">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/safetyimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/safety_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategorySafety"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/safety_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
                     <TextView
                         android:id="@+id/txtSafetyDesc"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
                         android:text="@string/safety_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
                         android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Cultural Heritage Category -->
-            <TextView
-                android:id="@+id/txtCategoryCulture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_culture"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
+            <!-- Culture Kartı - Sol Orta -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardCulture"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/cardLivability"
+                app:layout_constraintTop_toBottomOf="@id/cardGastronomy"
+                app:layout_constraintHorizontal_weight="1"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardElevation="4dp"
+                android:layout_marginEnd="6dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/culturalimg">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/culturalimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/culture_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategoryCulture"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/culture_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
                     <TextView
                         android:id="@+id/txtCultureDesc"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
                         android:text="@string/culture_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
                         android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Livability & Nature Category -->
-            <TextView
-                android:id="@+id/txtCategoryLivability"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_livability"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
+            <!-- Livability Kartı - Sağ Orta -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardLivability"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toEndOf="@+id/cardCulture"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardSafety"
+                app:layout_constraintHorizontal_weight="1"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardElevation="4dp"
+                android:layout_marginStart="6dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/livabilityimg">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/livabilityimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/livability_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategoryLivability"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/livability_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
                     <TextView
                         android:id="@+id/txtLivabilityDesc"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
                         android:text="@string/livability_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
                         android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Social Life & Affordability Category -->
-            <TextView
-                android:id="@+id/txtCategorySocial"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_social"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
+            <!-- Social Kartı - Sol Alt -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSocial"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/socialimg">
-
-                    <TextView
-                        android:id="@+id/txtSocialDesc"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
-                        android:text="@string/social_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
-                        android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Local Hospitality Category -->
-            <TextView
-                android:id="@+id/txtCategoryHospitality"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:layout_marginBottom="2dp"
-                android:fontFamily="@font/montserrat_alternates_bold"
-                android:text="@string/best_cities_hospitality"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/cardHospitality"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/cardHospitality"
+                app:layout_constraintTop_toBottomOf="@id/cardCulture"
+                app:layout_constraintHorizontal_weight="1"
                 app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
+                app:cardElevation="4dp"
+                android:layout_marginEnd="6dp"
                 app:strokeWidth="0dp">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/hospitalimg">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/socialimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/social_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategorySocial"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/social_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
+                    <TextView
+                        android:id="@+id/txtSocialDesc"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
+                        android:text="@string/social_desc"
+                        android:textAlignment="center"
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Hospitality Kartı - Sağ Alt -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardHospitality"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toEndOf="@+id/cardSocial"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardLivability"
+                app:layout_constraintHorizontal_weight="1"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                android:layout_marginStart="6dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="160dp">
+
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:src="@drawable/hospitalimg"
+                            android:scaleType="centerCrop"
+                            android:contentDescription="@string/hospitality_title"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/gradient_overlay"/>
+
+                        <TextView
+                            android:id="@+id/txtCategoryHospitality"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="@string/hospitality_title"
+                            android:textColor="@color/white"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/montserrat_alternates_bold"
+                            android:gravity="center"
+                            android:padding="8dp"/>
+                    </FrameLayout>
+
+                    <!-- Açıklama kısmı -->
                     <TextView
                         android:id="@+id/txtHospitalityDesc"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:padding="12dp"
+                        android:background="@color/primary_gray"
                         android:text="@string/hospitality_desc"
-                        android:textColor="#CCFFFFFF"
-                        android:textSize="14sp"
                         android:textAlignment="center"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintVertical_bias="0.5" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textColor="@color/primary_light"
+                        android:textSize="12sp"
+                        android:minLines="3"
+                        android:maxLines="6"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/montserrat_medium"/>
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Hata Durumu Konteyneri -->
+    <!-- Hata Durumu Container - Aynen Korundu -->
     <LinearLayout
         android:id="@+id/errorContainer"
         android:layout_width="0dp"
@@ -405,6 +539,7 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="24dp"
+        android:layout_marginTop="12dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

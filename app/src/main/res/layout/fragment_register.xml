@@ -9,66 +9,67 @@
     android:background="@drawable/appmainbg"
     tools:context=".ui.auth.RegisterFragment">
 
-    <!-- Logo ve Başlık Alanı -->
+    <!-- Logo ve Başlık Container -->
     <LinearLayout
-        android:id="@+id/txtAppName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
-        android:layout_gravity="center"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="16dp">
 
-        <TextView
+        <!-- App Logo/Name -->
+        <LinearLayout
+            android:id="@+id/txtAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Roamly"
-            android:fontFamily="@font/montserrat_alternates_bold"
-            android:textColor="@color/primary_purple"
-            android:textSize="32sp" />
+            android:gravity="center">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Roamly"
+                android:fontFamily="@font/montserrat_black"
+                android:textColor="@color/primary_purple"
+                android:textSize="36sp" />
+        </LinearLayout>
+
+        <!-- Create Account Title -->
+        <TextView
+            android:id="@+id/tvCreateAccountTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/montserrat_medium"
+            android:text="@string/create_your_account"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tvCreateAccountTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:fontFamily="@font/montserrat_medium"
-        android:text="@string/create_your_account"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:paddingHorizontal="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
+            android:orientation="vertical">
 
-            <!-- İsim Soyisim -->
+            <!-- Full Name Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilFullName"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
-                android:layout_marginTop="24dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginTop="8dp"
                 android:hint="@string/full_name"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxStrokeColor="#00E5FF"
-                app:hintTextColor="#00E5FF"
+                app:boxStrokeColor="@color/primary_purple"
+                app:hintTextColor="@color/primary_purple"
                 app:startIconDrawable="@drawable/ic_profile"
-                app:startIconTint="#00E5FF">
+                app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFullName"
@@ -77,27 +78,21 @@
                     android:fontFamily="@font/montserrat_medium"
                     android:inputType="textPersonName"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Email -->
+            <!-- Email Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEmail"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
                 android:hint="@string/email"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxStrokeColor="#00E5FF"
-                app:hintTextColor="#00E5FF"
+                app:boxStrokeColor="@color/primary_purple"
+                app:hintTextColor="@color/primary_purple"
                 app:startIconDrawable="@drawable/ic_email"
-                app:startIconTint="#00E5FF">
+                app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEmail"
@@ -106,27 +101,21 @@
                     android:fontFamily="@font/montserrat_medium"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Telefon -->
+            <!-- Phone Input (Optional) -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPhone"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
-                android:hint="Phone optional"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxStrokeColor="#00E5FF"
-                app:hintTextColor="#00E5FF"
+                android:hint="Phone (optional)"
+                app:boxStrokeColor="@color/primary_purple"
+                app:hintTextColor="@color/primary_purple"
                 app:startIconDrawable="@drawable/ic_phone"
-                app:startIconTint="#00E5FF">
+                app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPhone"
@@ -135,29 +124,23 @@
                     android:fontFamily="@font/montserrat_medium"
                     android:inputType="phone"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Şifre -->
+            <!-- Password Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilPassword"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
                 android:hint="@string/password"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxStrokeColor="#00E5FF"
+                app:boxStrokeColor="@color/primary_purple"
+                app:hintTextColor="@color/primary_purple"
                 app:endIconMode="password_toggle"
-                app:endIconTint="#00E5FF"
-                app:hintTextColor="#00E5FF"
+                app:endIconTint="@color/primary_purple"
                 app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="#00E5FF">
+                app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etPassword"
@@ -166,29 +149,23 @@
                     android:fontFamily="@font/montserrat_medium"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Şifre Tekrar -->
+            <!-- Confirm Password Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilConfirmPassword"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
                 android:hint="Confirm password"
-                app:boxCornerRadiusBottomEnd="20dp"
-                app:boxCornerRadiusBottomStart="20dp"
-                app:boxCornerRadiusTopEnd="20dp"
-                app:boxCornerRadiusTopStart="20dp"
-                app:boxStrokeColor="#00E5FF"
+                app:boxStrokeColor="@color/primary_purple"
+                app:hintTextColor="@color/primary_purple"
                 app:endIconMode="password_toggle"
-                app:endIconTint="#00E5FF"
-                app:hintTextColor="#00E5FF"
+                app:endIconTint="@color/primary_purple"
                 app:startIconDrawable="@drawable/ic_lock"
-                app:startIconTint="#00E5FF">
+                app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etConfirmPassword"
@@ -197,95 +174,106 @@
                     android:fontFamily="@font/montserrat_medium"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/white" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Kullanım Şartları Onayı -->
+            <!-- Terms & Conditions Checkbox -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <CheckBox
                     android:id="@+id/cbTerms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:buttonTint="#00E5FF" />
+                    android:buttonTint="@color/primary_purple" />
 
                 <TextView
                     android:id="@+id/tvTerms"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:fontFamily="@font/montserrat_medium"
                     android:text="@string/accept_terms_and_conditions"
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/primary_light"
                     android:textSize="14sp" />
             </LinearLayout>
 
-            <!-- Kayıt Ol Butonu -->
+            <!-- Create Account Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSignUp"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
+                android:layout_height="56dp"
                 android:layout_marginTop="24dp"
-                android:layout_marginEnd="32dp"
-                android:fontFamily="@font/montserrat_medium"
-                android:gravity="center"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
                 android:text="Create account"
-                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:fontFamily="@font/montserrat_bold"
                 android:textSize="16sp"
-                app:backgroundTint="#00B8D4"
-                app:cornerRadius="24dp"
-                app:rippleColor="#FFFFFF" />
+                android:textColor="@color/white"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/primary_purple"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
 
-            <!-- veya Bölümü -->
-            <TextView
-                android:id="@+id/tvOr"
-                android:layout_width="wrap_content"
+            <!-- Divider with OR Text -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/montserrat_medium"
-                android:text="@string/or"
-                android:textColor="#CCFFFFFF" />
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="24dp">
 
-            <!-- Google ile Kayıt Ol -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/primary_gray"/>
+
+                <TextView
+                    android:id="@+id/tvOr"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/or"
+                    android:textColor="@color/primary_light"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:layout_marginHorizontal="16dp"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"
+                    android:background="@color/primary_gray"/>
+            </LinearLayout>
+
+            <!-- Google Sign Up Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnGoogleSignIn"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginStart="32dp"
+                android:layout_height="56dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="32dp"
-                android:fontFamily="@font/montserrat_medium"
-                android:gravity="center"
-                android:insetTop="0dp"
-                android:insetBottom="0dp"
                 android:text="Sign up with Google"
-                android:textColor="#0D1B2A"
+                android:textAllCaps="false"
+                android:fontFamily="@font/montserrat_bold"
                 android:textSize="16sp"
-                app:backgroundTint="#FFFFFF"
-                app:cornerRadius="24dp"
+                android:textColor="@color/primary"
+                app:cornerRadius="16dp"
+                app:backgroundTint="@color/white"
                 app:icon="@drawable/ic_google"
                 app:iconGravity="textStart"
-                app:iconPadding="8dp"
+                app:iconPadding="12dp"
                 app:iconTint="@null"
-                app:rippleColor="#33000000" />
+                android:insetTop="0dp"
+                android:insetBottom="0dp"/>
 
-            <!-- Hesabınız var mı? -->
+            <!-- Login Link -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="24dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="24dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -293,7 +281,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserrat_medium"
                     android:text="Already have an account?"
-                    android:textColor="#CCFFFFFF"
+                    android:textColor="@color/primary_light"
                     android:textSize="14sp" />
 
                 <TextView
@@ -303,17 +291,17 @@
                     android:layout_marginStart="4dp"
                     android:clickable="true"
                     android:focusable="true"
-                    android:fontFamily="@font/montserrat_medium"
+                    android:fontFamily="@font/montserrat_bold"
                     android:foreground="?attr/selectableItemBackground"
                     android:padding="4dp"
                     android:text="@string/login"
-                    android:textColor="#00E5FF"
+                    android:textColor="@color/primary_purple"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
 
-    <!-- Progress Bar for Sign Up -->
+    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
@@ -322,5 +310,4 @@
         android:layout_gravity="center"
         android:layout_marginBottom="16dp"
         android:visibility="gone" />
-
 </LinearLayout>
