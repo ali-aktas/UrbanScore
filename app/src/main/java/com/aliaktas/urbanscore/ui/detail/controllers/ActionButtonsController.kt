@@ -32,10 +32,10 @@ class ActionButtonsController(
         binding.btnAddToWishlist.apply {
             if (state.isInWishlist) {
                 text = context.getString(R.string.in_your_list)
-                setBackgroundColor(context.getColor(android.R.color.holo_red_light))
+                setBackgroundColor(context.getColor(android.R.color.black))
             } else {
                 text = context.getString(R.string.add_to_wishlist)
-                setBackgroundColor(context.getColor(R.color.white))
+                setBackgroundColor(context.getColor(R.color.primary_purple))
             }
         }
 

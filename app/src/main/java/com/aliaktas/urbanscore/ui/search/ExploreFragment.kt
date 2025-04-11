@@ -336,11 +336,13 @@ class ExploreFragment : Fragment() {
                 if (city.imageUrl.isNotEmpty()) {
                     Glide.with(root.context)
                         .load(city.imageUrl)
+                        .error(R.drawable.city_placeholder) // Yükleme hatası durumunda
+                        .placeholder(R.drawable.city_placeholder) // Yükleme sırasında
                         .centerCrop()
                         .into(imgCity)
                 } else {
                     Glide.with(root.context)
-                        .load(R.drawable.istanbulphoto)
+                        .load(R.drawable.city_placeholder)
                         .centerCrop()
                         .into(imgCity)
                 }

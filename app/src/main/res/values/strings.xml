@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Travel Rate</string>
+    <string name="app_name">Roamly</string>
 
     <!-- Home Screen -->
     <string name="search_hint">Search cities…</string>

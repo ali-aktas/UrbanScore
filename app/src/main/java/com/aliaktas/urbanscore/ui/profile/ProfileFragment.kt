@@ -164,7 +164,7 @@ class ProfileFragment : Fragment() {
                 // Kullanıcı bilgilerini göster
                 binding.txtUsername.text = state.displayName
                 binding.txtVisitedCitiesCount.text =
-                    "Visited cities: ${state.visitedCities.size}"
+                    "${state.visitedCities.size}"
 
                 // Profil fotoğrafını yükle
                 if (state.photoUrl.isNotEmpty()) {

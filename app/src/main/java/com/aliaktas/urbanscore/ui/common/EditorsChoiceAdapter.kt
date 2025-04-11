@@ -60,18 +60,16 @@ class EditorsChoiceAdapter :
             if (item.imageUrl.isNotEmpty()) {
                 Glide.with(binding.root.context)
                     .load(item.imageUrl)
+                    .error(R.drawable.city_placeholder) // Yükleme hatası durumunda
+                    .placeholder(R.drawable.city_placeholder) // Yükleme sırasında
                     .centerCrop()
                     .into(binding.imgEditorsChoiceCity)
             } else {
-                // Rotate through backgrounds based on position
-                val backgroundResource = when (position % 5) {
-                    0 -> R.drawable.category_landscape_bg
-                    1 -> R.drawable.category_safety_bg
-                    2 -> R.drawable.category_livability_bg
-                    3 -> R.drawable.category_cost_bg
-                    else -> R.drawable.category_social_bg
-                }
-                binding.imgEditorsChoiceCity.setBackgroundResource(backgroundResource)
+                // Yeni city_placeholder görselini kullan
+                Glide.with(binding.root.context)
+                    .load(R.drawable.city_placeholder)
+                    .centerCrop()
+                    .into(binding.imgEditorsChoiceCity)
             }
         }
     }
