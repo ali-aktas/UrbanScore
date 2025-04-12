@@ -33,7 +33,7 @@ class BannerAdHelper(private val context: Context) {
     private fun createAndLoadBannerAd() {
         adView = AdView(context).apply {
             // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
-            adUnitId = TEST_BANNER_AD_UNIT_ID
+            adUnitId = if (BuildConfig.DEBUG) TEST_BANNER_AD_UNIT_ID else BANNER_AD_UNIT_ID
             setAdSize(AdSize.BANNER)
 
             adListener = object : AdListener() {

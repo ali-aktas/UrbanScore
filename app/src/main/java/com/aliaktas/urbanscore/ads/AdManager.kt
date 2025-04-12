@@ -46,7 +46,7 @@ class AdManager @Inject constructor(
 
     fun initialize() {
         try {
-            Log.d(TAG, "AdManager başlatılıyor")
+            Log.d(TAG, "AdManager is starting")
 
             // Debug modda test cihazlarını kullan, release modda kullanma
             if (BuildConfig.DEBUG) {

@@ -15,20 +15,26 @@ android {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
         targetSdk = 34
-        versionCode = 12
-        versionName = "1.12"
+        versionCode = 13
+        versionName = "1.13-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("boolean", "ENABLE_LOGS", "false")
         }
+
+        debug {
+            buildConfigField("boolean", "ENABLE_LOGS", "true")
+        }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

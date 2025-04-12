@@ -21,4 +21,5 @@ class MyApplication : Application() {
         // RevenueCat'i başlat
         RevenueCatManager.initialize(this)
     }
+
 }

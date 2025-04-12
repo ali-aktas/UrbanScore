@@ -51,9 +51,9 @@ class SplashActivity : AppCompatActivity() {
         val isFirstLaunch = appPreferences.isFirstLaunch
 
         val delayMillis = when {
-            isFirstLaunch -> 2500 // İlk açılışta uzun splash
-            !isUserLoggedIn -> 1500 // Oturum açılmamışsa orta uzunlukta
-            else -> 500 // Oturum açıksa ve ilk açılış değilse çok kısa
+            isFirstLaunch -> 3000 // İlk açılışta uzun splash
+            !isUserLoggedIn -> 2500 // Oturum açılmamışsa orta uzunlukta
+            else -> 2500 // Oturum açıksa ve ilk açılış değilse çok kısa
         }
 
         // Animasyonu başlat
