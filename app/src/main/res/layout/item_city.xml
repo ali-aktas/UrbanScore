@@ -52,7 +52,7 @@
         app:layout_constraintEnd_toStartOf="@id/ratingContainer"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Istanbul, Turkey" />
+        tools:text="City, Country" />
 
     <LinearLayout
         android:id="@+id/ratingContainer"
@@ -84,7 +84,7 @@
             android:layout_gravity="center_vertical"
             android:fontFamily="@font/montserrat_alternates_bold"
             android:textSize="15sp"
-            tools:text="9.12" />
+            tools:text="10.0" />
     </LinearLayout>
 
 

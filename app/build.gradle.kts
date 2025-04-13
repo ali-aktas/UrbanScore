@@ -119,4 +119,6 @@ dependencies {
     //RevenueCat
     implementation(libs.revenuecat)
     //implementation(libs.revenuecat.purchases.ui)
+
+    implementation(libs.ump)
 }

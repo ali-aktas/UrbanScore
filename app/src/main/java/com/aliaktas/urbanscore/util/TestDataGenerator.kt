@@ -9,98 +9,110 @@ import kotlinx.coroutines.tasks.await
  */
 object TestDataGenerator {
 
-
-    // TestDataGenerator.kt dosyasına eklenecek kod
-
-    // Şehirler ve ülkeler
-    private val cities = listOf(
-        "Paris" to "France",
-        "London" to "United Kingdom",
-        "Rome" to "Italy",
-        "Barcelona" to "Spain",
-        "Berlin" to "Germany",
-        "Amsterdam" to "Netherlands",
-        "Prague" to "Czech Republic",
-        "Vienna" to "Austria",
-        "Lisbon" to "Portugal",
-        "Budapest" to "Hungary",
-        "Athens" to "Greece",
-        "Dublin" to "Ireland",
-        "Copenhagen" to "Denmark",
-        "Stockholm" to "Sweden",
-        "Oslo" to "Norway",
-        "Helsinki" to "Finland",
-        "Warsaw" to "Poland",
-        "Brussels" to "Belgium",
-        "Madrid" to "Spain",
-        "Munich" to "Germany",
-        "Milan" to "Italy",
-        "Zurich" to "Switzerland",
-        "Geneva" to "Switzerland",
-        "Istanbul" to "Turkey",
-        "Kiev" to "Ukraine",
-        "Toronto" to "Canada",
-        "Vancouver" to "Canada",
-        "New York" to "USA",
-        "Los Angeles" to "USA",
-        "Sydney" to "Australia"
+    // Türkiye şehirleri listesi
+    private val turkishCities = listOf(
+        "Istanbul", "Ankara", "Izmir", "Bursa", "Antalya",
+        "Adana", "Gaziantep", "Konya", "Mersin", "Eskişehir",
+        "Kayseri", "Samsun", "Trabzon", "Diyarbakır", "Şanlıurfa",
+        "Hatay", "Manisa", "Sakarya", "Aydın", "Denizli",
+        "Tekirdağ", "Edirne", "Çanakkale", "Muğla", "Balıkesir",
+        "Bolu", "Zonguldak", "Rize", "Artvin", "Kastamonu",
+        "Sinop", "Sivas", "Erzurum", "Van", "Hakkari",
+        "Mardin", "Batman", "Siirt", "Bitlis", "Muş",
+        "Ordu", "Giresun", "Tokat", "Amasya", "Çorum",
+        "Malatya", "Elazığ", "Bingöl", "Erzincan", "Ardahan"
     )
 
-    // Bölgeler
+    // Bölgeler (Kıtalar)
     private val regions = mapOf(
-        "France" to "Europe",
-        "United Kingdom" to "Europe",
-        "Italy" to "Europe",
-        "Spain" to "Europe",
-        "Germany" to "Europe",
-        "Netherlands" to "Europe",
-        "Czech Republic" to "Europe",
-        "Austria" to "Europe",
-        "Portugal" to "Europe",
-        "Hungary" to "Europe",
-        "Greece" to "Europe",
-        "Ireland" to "Europe",
-        "Denmark" to "Europe",
-        "Sweden" to "Europe",
-        "Norway" to "Europe",
-        "Finland" to "Europe",
-        "Poland" to "Europe",
-        "Belgium" to "Europe",
-        "Switzerland" to "Europe",
-        "Turkey" to "Europe",
-        "Ukraine" to "Europe",
-        "Canada" to "North America",
-        "USA" to "North America",
-        "Australia" to "Oceania"
+        "Europe" to listOf("Istanbul"),
+        "Asia" to listOf("Ankara", "Izmir", "Bursa", "Antalya", "Adana",
+            "Gaziantep", "Konya", "Mersin", "Eskişehir", "Kayseri",
+            "Samsun", "Trabzon", "Diyarbakır", "Şanlıurfa", "Hatay",
+            "Manisa", "Sakarya", "Aydın", "Denizli", "Tekirdağ",
+            "Edirne", "Çanakkale", "Muğla", "Balıkesir", "Bolu",
+            "Zonguldak", "Rize", "Artvin", "Kastamonu", "Sinop",
+            "Sivas", "Erzurum", "Van", "Hakkari", "Mardin",
+            "Batman", "Siirt", "Bitlis", "Muş", "Ordu",
+            "Giresun", "Tokat", "Amasya", "Çorum", "Malatya",
+            "Elazığ", "Bingöl", "Erzincan", "Ardahan")
     )
+
+    // Şehir nüfusları (2023 TÜİK verileri)
+    private val cityPopulations = mapOf(
+        "Istanbul" to 15907951,
+        "Ankara" to 5661374,
+        "Izmir" to 4425123,
+        "Bursa" to 3086018,
+        "Antalya" to 2511500,
+        "Adana" to 2273105,
+        "Gaziantep" to 2130449,
+        "Konya" to 2290162,
+        "Mersin" to 1920136,
+        "Eskişehir" to 894447,
+        "Kayseri" to 1404766,
+        "Samsun" to 1348542,
+        "Trabzon" to 807903,
+        "Diyarbakır" to 1000268,
+        "Şanlıurfa" to 2205407,
+        "Hatay" to 1670317,
+        "Manisa" to 1428713,
+        "Sakarya" to 1029650,
+        "Aydın" to 1148085,
+        "Denizli" to 1030511,
+        "Tekirdağ" to 1107556,
+        "Edirne" to 411721,
+        "Çanakkale" to 542157,
+        "Muğla" to 1017741,
+        "Balıkesir" to 1228620,
+        "Bolu" to 314268,
+        "Zonguldak" to 595952,
+        "Rize" to 342056,
+        "Artvin" to 167819,
+        "Kastamonu" to 371000,
+        "Sinop" to 204133,
+        "Sivas" to 618615,
+        "Erzurum" to 762507,
+        "Van" to 1170380,
+        "Hakkari" to 271775,
+        "Mardin" to 838938,
+        "Batman" to 601508,
+        "Siirt" to 331051,
+        "Bitlis" to 338444,
+        "Muş" to 412000,
+        "Ordu" to 751745,
+        "Giresun" to 427359,
+        "Tokat" to 593547,
+        "Amasya" to 335808,
+        "Çorum" to 525180,
+        "Malatya" to 812157,
+        "Elazığ" to 595631,
+        "Bingöl" to 281222,
+        "Erzincan" to 234747,
+        "Ardahan" to 99256
+    )
+
+    private fun String.toEnglishSlug(): String {
+        return this
+            .replace('İ', 'i')
+            .replace('I', 'i')
+            .replace('ı', 'i')
+            .replace('ş', 's')
+            .replace('Ş', 'S')
+            .replace('ğ', 'g')
+            .replace('Ğ', 'G')
+            .replace('ç', 'c')
+            .replace('Ç', 'C')
+            .replace('ö', 'o')
+            .replace('Ö', 'O')
+            .replace('ü', 'u')
+            .replace('Ü', 'U')
+            .toLowerCase()
+            .replace(" ", "-")
+    }
 
     // Bayrak URL'leri
-    private val flagUrls = mapOf(
-        "France" to "https://flagcdn.com/w320/fr.png",
-        "United Kingdom" to "https://flagcdn.com/w320/gb.png",
-        "Italy" to "https://flagcdn.com/w320/it.png",
-        "Spain" to "https://flagcdn.com/w320/es.png",
-        "Germany" to "https://flagcdn.com/w320/de.png",
-        "Netherlands" to "https://flagcdn.com/w320/nl.png",
-        "Czech Republic" to "https://flagcdn.com/w320/cz.png",
-        "Austria" to "https://flagcdn.com/w320/at.png",
-        "Portugal" to "https://flagcdn.com/w320/pt.png",
-        "Hungary" to "https://flagcdn.com/w320/hu.png",
-        "Greece" to "https://flagcdn.com/w320/gr.png",
-        "Ireland" to "https://flagcdn.com/w320/ie.png",
-        "Denmark" to "https://flagcdn.com/w320/dk.png",
-        "Sweden" to "https://flagcdn.com/w320/se.png",
-        "Norway" to "https://flagcdn.com/w320/no.png",
-        "Finland" to "https://flagcdn.com/w320/fi.png",
-        "Poland" to "https://flagcdn.com/w320/pl.png",
-        "Belgium" to "https://flagcdn.com/w320/be.png",
-        "Switzerland" to "https://flagcdn.com/w320/ch.png",
-        "Turkey" to "https://flagcdn.com/w320/tr.png",
-        "Ukraine" to "https://flagcdn.com/w320/ua.png",
-        "Canada" to "https://flagcdn.com/w320/ca.png",
-        "USA" to "https://flagcdn.com/w320/us.png",
-        "Australia" to "https://flagcdn.com/w320/au.png"
-    )
+    private val flagUrl = "https://flagcdn.com/w320/tr.png"
 
     /**
      * Şehir verilerini Firebase'e ekler.
@@ -115,38 +127,48 @@ object TestDataGenerator {
             var operationCount = 0
 
             for (i in 0 until count) {
-                if (i >= cities.size) break
+                if (i >= turkishCities.size) break
 
-                val (cityName, country) = cities[i]
-                val documentId = "$cityName-$country".toLowerCase().replace(" ", "-")
+                val cityName = turkishCities[i]
+                val documentId = cityName.toEnglishSlug()
                 val cityDoc = firestore.collection("cities").document(documentId)
 
-                // Rastgele puanlar oluştur (7.0 - 9.5 arasında)
-                val gastronomy = (7.0 + (Math.random() * 2.5)).toDouble()
-                val aesthetics = (7.0 + (Math.random() * 2.5)).toDouble()
-                val safety = (7.0 + (Math.random() * 2.5)).toDouble()
-                val culture = (7.0 + (Math.random() * 2.5)).toDouble()
-                val livability = (7.0 + (Math.random() * 2.5)).toDouble()
-                val social = (7.0 + (Math.random() * 2.5)).toDouble()
-                val hospitality = (7.0 + (Math.random() * 2.5)).toDouble()
+                // Rastgele puanlar oluştur (5.0 - 7.0 arasında)
+                val generateRandomRating = {
+                    5.0 + (Math.random() * 2.0)
+                }
+                val gastronomy = generateRandomRating()
+                val aesthetics = generateRandomRating()
+                val safety = generateRandomRating()
+                val culture = generateRandomRating()
+                val livability = generateRandomRating()
+                val social = generateRandomRating()
+                val hospitality = generateRandomRating()
 
                 // Genel ortalama puanı hesapla (ağırlıklı ortalama)
-                val avgRating = ((gastronomy * 1.0) + (aesthetics * 1.1) + (safety * 1.2) +
-                        (culture * 1.0) + (livability * 1.0) + (social * 0.9) +
-                        (hospitality * 0.8)) / 7.0
+                val avgRating = ((gastronomy * 1.0) + (aesthetics * 1.4) + (safety * 1.0) +
+                        (culture * 1.0) + (livability * 1.0) + (social * 1.0) +
+                        (hospitality * 1.0)) / 7.4
 
-                // Rastgele nüfus (500,000 - 10,000,000)
-                val population = 500000L + (Math.random() * 9500000L).toLong()
+                // Şehrin nüfusunu al, yoksa rastgele üret
+                val population = cityPopulations[cityName]?.toLong() ?:
+                (100000L + (Math.random() * 14900000L).toLong())
+
+                // Rating count 5 ile 10 arasında
+                val ratingCount = 5 + (Math.random() * 6).toInt()
+
+                // Şehrin bölgesini bul
+                val region = regions.entries.find { it.value.contains(cityName) }?.key ?: "Other"
 
                 // DOĞRU FIELD KEY'LERİ KULLAN
                 val cityData = hashMapOf(
                     "cityName" to cityName,
-                    "country" to country,
-                    "region" to (regions[country] ?: "Other"),
-                    "flagUrl" to (flagUrls[country] ?: "https://flagcdn.com/w320/un.png"),
+                    "country" to "Turkiye",
+                    "region" to region,
+                    "flagUrl" to flagUrl,
                     "population" to population,
                     "averageRating" to (Math.round(avgRating * 100) / 100.0),
-                    "ratingCount" to (10 + (Math.random() * 20).toInt()),
+                    "ratingCount" to ratingCount,
                     "ratings" to hashMapOf(
                         "gastronomy" to (Math.round(gastronomy * 100) / 100.0),
                         "aesthetics" to (Math.round(aesthetics * 100) / 100.0),
@@ -155,7 +177,9 @@ object TestDataGenerator {
                         "livability" to (Math.round(livability * 100) / 100.0),
                         "social" to (Math.round(social * 100) / 100.0),
                         "hospitality" to (Math.round(hospitality * 100) / 100.0)
-                    )
+                    ),
+                    // Gelecekteki badge'ler için boş map
+                    "badges" to hashMapOf<String, Int>()
                 )
 
                 batch.set(cityDoc, cityData)
@@ -180,7 +204,6 @@ object TestDataGenerator {
             throw e
         }
     }
-
 
     /**
      * Firebase'deki tüm şehirleri siler
@@ -233,37 +256,34 @@ object TestDataGenerator {
 // HomeFragment.kt - onViewCreated içinde kullanılan manuel şehir ekleme kodu
 
         if (BuildConfig.DEBUG) {
-            binding.txtAppName.setOnLongClickListener {
+            binding.mainContainer.setOnLongClickListener {
                 lifecycleScope.launch {
                     try {
-                        // Önce mevcut şehirleri kontrol et
+                        // Mevcut kod
                         val firestore = FirebaseFirestore.getInstance()
                         val snapshot = firestore.collection("cities").get().await()
 
                         if (snapshot.isEmpty) {
-                            // Şehir yoksa, yeni şehirler ekle
-                            Toast.makeText(requireContext(), "30 şehir ekleniyor...", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity, "30 şehir ekleniyor...", Toast.LENGTH_SHORT).show()
                             TestDataGenerator.addCities(30)
-                            Toast.makeText(requireContext(), "30 şehir başarıyla eklendi!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(this@MainActivity, "30 şehir başarıyla eklendi!", Toast.LENGTH_SHORT).show()
                         } else {
-                            // Şehirler varsa, silip yeniden ekle (kullanıcıya sor)
-                            val builder = AlertDialog.Builder(requireContext())
-                            builder.setTitle("Test Verilerini Yenile")
+                            // Dialog kısmı
+                            AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Test Verilerini Yenile")
                                 .setMessage("Mevcut ${snapshot.size()} şehir var. Tümünü silip 30 yeni şehir eklemek ister misiniz?")
                                 .setPositiveButton("Evet") { _, _ ->
                                     lifecycleScope.launch {
                                         try {
-                                            Toast.makeText(requireContext(), "Şehirler siliniyor...", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(this@MainActivity, "Şehirler siliniyor...", Toast.LENGTH_SHORT).show()
                                             TestDataGenerator.clearAllCities()
 
-                                            Toast.makeText(requireContext(), "30 yeni şehir ekleniyor...", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(this@MainActivity, "30 yeni şehir ekleniyor...", Toast.LENGTH_SHORT).show()
                                             TestDataGenerator.addCities(30)
 
-                                            Toast.makeText(requireContext(), "Şehirler yenilendi!", Toast.LENGTH_SHORT).show()
-                                            viewModel.refreshCities(true)
                                         } catch (e: Exception) {
-                                            Toast.makeText(requireContext(), "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
-                                            Log.e("HomeFragment", "Error refreshing cities", e)
+                                            Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            Log.e("MainActivity", "Error refreshing cities", e)
                                         }
                                     }
                                 }
@@ -271,12 +291,10 @@ object TestDataGenerator {
                                 .show()
                         }
 
-                        // Her durumda verileri yenile
-                        viewModel.refreshCities(true)
 
                     } catch (e: Exception) {
-                        Toast.makeText(requireContext(), "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
-                        Log.e("HomeFragment", "Error checking cities", e)
+                        Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("MainActivity", "Error checking cities", e)
                     }
                 }
                 true

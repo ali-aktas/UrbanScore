@@ -5,13 +5,17 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.lifecycleScope
 import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.ActivityMainBinding
 import com.aliaktas.urbanscore.navigation.BackStackManager
@@ -23,8 +27,13 @@ import com.aliaktas.urbanscore.ui.auth.RegisterFragment
 import com.aliaktas.urbanscore.ui.categories.CategoryListFragment
 import com.aliaktas.urbanscore.ui.detail.CityDetailFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
+import com.aliaktas.urbanscore.ui.home.HomeViewModel
 import com.aliaktas.urbanscore.ui.subscription.ProSubscriptionFragment
+import com.aliaktas.urbanscore.util.TestDataGenerator
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,8 +50,7 @@ class MainActivity : AppCompatActivity() {
     // Geri tuşu callback'i
     private lateinit var backPressedCallback: OnBackPressedCallback
 
-    @Inject
-    lateinit var adManager: AdManager
+    lateinit var viewModel: HomeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +65,52 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        adManager.initialize()
+        if (BuildConfig.DEBUG) {
+            binding.mainContainer.setOnLongClickListener {
+                lifecycleScope.launch {
+                    try {
+                        // Mevcut kod
+                        val firestore = FirebaseFirestore.getInstance()
+                        val snapshot = firestore.collection("cities").get().await()
+
+                        if (snapshot.isEmpty) {
+                            Toast.makeText(this@MainActivity, "30 şehir ekleniyor...", Toast.LENGTH_SHORT).show()
+                            TestDataGenerator.addCities(30)
+                            Toast.makeText(this@MainActivity, "30 şehir başarıyla eklendi!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            // Dialog kısmı
+                            AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Test Verilerini Yenile")
+                                .setMessage("Mevcut ${snapshot.size()} şehir var. Tümünü silip 30 yeni şehir eklemek ister misiniz?")
+                                .setPositiveButton("Evet") { _, _ ->
+                                    lifecycleScope.launch {
+                                        try {
+                                            Toast.makeText(this@MainActivity, "Şehirler siliniyor...", Toast.LENGTH_SHORT).show()
+                                            TestDataGenerator.clearAllCities()
+
+                                            Toast.makeText(this@MainActivity, "30 yeni şehir ekleniyor...", Toast.LENGTH_SHORT).show()
+                                            TestDataGenerator.addCities(30)
+
+                                        } catch (e: Exception) {
+                                            Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            Log.e("MainActivity", "Error refreshing cities", e)
+                                        }
+                                    }
+                                }
+                                .setNegativeButton("Hayır", null)
+                                .show()
+                        }
+
+
+                    } catch (e: Exception) {
+                        Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("MainActivity", "Error checking cities", e)
+                    }
+                }
+                true
+            }
+        }
+
 
         // Yönetici sınıfları başlat
         setupManagers()
@@ -199,7 +252,7 @@ class MainActivity : AppCompatActivity() {
                     putString("cityId", cityId)
                 }
             }
- 
+
             // Yeni kullanıcı girişinden sonra ilk kez CityDetail'e gidildiğinde
             // Home fragment'ini backstack'e ekleyelim
             if (backStackManager.isBackStackEmpty()) {

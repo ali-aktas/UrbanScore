@@ -32,7 +32,7 @@ class BannerAdHelper(private val context: Context) {
      */
     private fun createAndLoadBannerAd() {
         adView = AdView(context).apply {
-            // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
+            // Debug modda test ID, release modda gerçek ID kullan
             adUnitId = if (BuildConfig.DEBUG) TEST_BANNER_AD_UNIT_ID else BANNER_AD_UNIT_ID
             setAdSize(AdSize.BANNER)
 
@@ -59,7 +59,7 @@ class BannerAdHelper(private val context: Context) {
         // Test banner reklam ID
         private const val TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
 
-        // Gerçek banner reklam ID - değiştirilecek
-        private const val BANNER_AD_UNIT_ID = "ca-app-pub-XXXXXXXXXXXX/YYYYYYYYYY"
+        // Gerçek banner reklam ID
+        private const val BANNER_AD_UNIT_ID = "ca-app-pub-5728309332567964/3263573107"
     }
 }

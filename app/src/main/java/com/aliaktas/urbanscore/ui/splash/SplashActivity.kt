@@ -11,6 +11,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.aliaktas.urbanscore.MainActivity
+import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.ActivitySplashBinding
 import com.aliaktas.urbanscore.util.AppPreferences
 import com.google.firebase.auth.FirebaseAuth
@@ -27,11 +28,22 @@ class SplashActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
 
     @Inject
+    lateinit var adManager: AdManager
+
+    @Inject
     lateinit var appPreferences: AppPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Splash screen'i yükle
         installSplashScreen()
+
+        // GDPR onayı ve reklam başlatma
+        adManager.initialize(this) {
+            // Reklamlar başlatıldı, uygulamaya devam edebiliriz
+            Handler(Looper.getMainLooper()).postDelayed({
+                navigateToMainActivity()
+            }, 2000)
+        }
 
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)

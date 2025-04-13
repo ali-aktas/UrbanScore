@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ads
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.aliaktas.urbanscore.BuildConfig
@@ -34,6 +35,9 @@ class AdManager @Inject constructor(
     // Ödüllü reklam yardımcı sınıfı
     private val rewardedAdHelper = RewardedAdHelper(context)
 
+    // GDPR onay yöneticisi
+    private val consentManager = ConsentManager(context)
+
     // Ziyaret edilen şehir sayısı
     private var cityVisitCount = 0
 
@@ -43,8 +47,21 @@ class AdManager @Inject constructor(
     // Pro kullanıcı durumu için değişken - başlangıçta false
     private var isPro: Boolean = false
 
+    /**
+     * AdManager'ı GDPR onayı ile başlat (ana metot)
+     */
+    fun initialize(activity: Activity, onInitialized: () -> Unit = {}) {
+        // Önce GDPR onayını kontrol et ve gerekirse formu göster
+        consentManager.checkAndRequestConsent(activity) {
+            // Onay işlemi tamamlandı veya gerekli değil, reklamları başlat
+            initializeAds(onInitialized)
+        }
+    }
 
-    fun initialize() {
+    /**
+     * Reklamları başlat
+     */
+    private fun initializeAds(onInitialized: () -> Unit = {}) {
         try {
             Log.d(TAG, "AdManager is starting")
 
@@ -52,7 +69,7 @@ class AdManager @Inject constructor(
             if (BuildConfig.DEBUG) {
                 // Sadece debug build'de test cihazlarını ekle ve logla
                 logTestDeviceId()
-                val testDeviceIds = listOf("B61A84F9F07EDF07D5D6F290DD880708", "123456ABCDEF")
+                val testDeviceIds = listOf(AdRequest.DEVICE_ID_EMULATOR)
                 val configuration = RequestConfiguration.Builder()
                     .setTestDeviceIds(testDeviceIds)
                     .build()
@@ -71,6 +88,7 @@ class AdManager @Inject constructor(
 
                 // Başlangıçta reklamları yükle
                 preloadAds()
+                onInitialized()
             }
 
             // Başlangıç Pro durumunu logla (sadece debug modda)
@@ -108,12 +126,13 @@ class AdManager @Inject constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "AdMob başlatma hatası", e)
+            onInitialized()
         }
     }
 
+    // Test cihaz ID'si için yardımcı metot
     private fun logTestDeviceId() {
         try {
-            // Bu kısmı mevcut initialize() metodunuza ekleyin
             val adRequest = AdRequest.Builder().build()
             Log.d(TAG, "Test Device ID için logları kontrol edin. 'Test device ID:' ifadesini arayın")
 
@@ -128,7 +147,7 @@ class AdManager @Inject constructor(
         }
     }
 
-    // recordCityVisit metodunu güncelleyelim
+    // Şehir ziyareti sayacı
     fun recordCityVisit(): Boolean {
         Log.d(TAG, "recordCityVisit çağrıldı, isPro: $isPro, mevcut sayaç: $cityVisitCount")
         if (isPro) {
@@ -146,11 +165,11 @@ class AdManager @Inject constructor(
         return false
     }
 
-    // showInterstitialAd metodunu güncelleyelim
-    fun showInterstitialAd(activity: android.app.Activity, onAdClosed: () -> Unit) {
+    // Interstitial reklam gösterimi
+    fun showInterstitialAd(activity: Activity, onAdClosed: () -> Unit) {
         Log.d(TAG, "showInterstitialAd çağrıldı, isPro: $isPro")
-        if (isPro) {
-            Log.d(TAG, "Kullanıcı Pro, reklam gösterimi atlanıyor ve onAdClosed çağrılıyor")
+        if (isPro || !canShowAds()) {
+            Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam gösterimi atlanıyor ve onAdClosed çağrılıyor")
             onAdClosed()
             return
         }
@@ -159,11 +178,11 @@ class AdManager @Inject constructor(
         interstitialAdHelper.showAd(activity, onAdClosed)
     }
 
-    // preloadAds metodunu güncelleyelim
+    // Reklam ön yüklemesi
     private fun preloadAds() {
         Log.d(TAG, "preloadAds çağrıldı, isPro: $isPro")
-        if (isPro) {
-            Log.d(TAG, "Kullanıcı Pro, reklam ön yüklemesi atlanıyor")
+        if (isPro || !canShowAds()) {
+            Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam ön yüklemesi atlanıyor")
             return
         }
 
@@ -172,21 +191,20 @@ class AdManager @Inject constructor(
         rewardedAdHelper.loadAd()
     }
 
-
     /**
      * Banner reklam döndürür.
      */
-    fun getBannerAd() = if (!isPro) bannerAdHelper.getBannerAd() else null
+    fun getBannerAd() = if (!isPro && canShowAds()) bannerAdHelper.getBannerAd() else null
 
     /**
      * Ödüllü reklamı gösterir.
      */
     fun showRewardedAd(
-        activity: android.app.Activity,
+        activity: Activity,
         onRewarded: () -> Unit,
         onAdClosed: () -> Unit
     ) {
-        if (isPro) {
+        if (isPro || !canShowAds()) {
             onRewarded()
             onAdClosed()
             return
@@ -194,7 +212,6 @@ class AdManager @Inject constructor(
 
         rewardedAdHelper.showAd(activity, onRewarded, onAdClosed)
     }
-
 
     /**
      * Pro abonelik sayfasına gitme önerisi gösterilmeli mi?
@@ -204,8 +221,15 @@ class AdManager @Inject constructor(
         // Kullanıcı zaten Pro ise öneri gösterme
         if (isPro) return false
 
-        // Gerekli koşulları kontrol et (örneğin: belirli bir sayıda reklam görüntülendi mi?)
+        // Gerekli koşulları kontrol et
         return cityVisitCount >= CITY_VISIT_THRESHOLD - 1
+    }
+
+    /**
+     * Reklam gösterimi için GDPR onayını kontrol et
+     */
+    private fun canShowAds(): Boolean {
+        return consentManager.canShowPersonalizedAds()
     }
 
     companion object {

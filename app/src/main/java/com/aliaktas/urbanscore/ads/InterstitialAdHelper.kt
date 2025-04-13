@@ -28,11 +28,11 @@ class InterstitialAdHelper(private val context: Context) {
 
         Log.d(TAG, "Interstitial reklam yükleniyor")
         val adRequest = AdRequest.Builder().build()
+        val adUnitId = if (BuildConfig.DEBUG) TEST_INTERSTITIAL_AD_UNIT_ID else INTERSTITIAL_AD_UNIT_ID
 
         InterstitialAd.load(
             context,
-            // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
-            TEST_INTERSTITIAL_AD_UNIT_ID,
+            adUnitId,
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
@@ -92,7 +92,7 @@ class InterstitialAdHelper(private val context: Context) {
         // Test interstitial reklam ID
         private const val TEST_INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
 
-        // Gerçek interstitial reklam ID - değiştirilecek
-        private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-XXXXXXXXXXXX/YYYYYYYYYY"
+        // Gerçek interstitial reklam ID
+        private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-5728309332567964/4319899243"
     }
 }

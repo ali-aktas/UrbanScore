@@ -24,11 +24,11 @@ class RewardedAdHelper(private val context: Context) {
         if (rewardedAd != null) return
 
         val adRequest = AdRequest.Builder().build()
+        val adUnitId = if (BuildConfig.DEBUG) TEST_REWARDED_AD_UNIT_ID else REWARDED_AD_UNIT_ID
 
         RewardedAd.load(
             context,
-            // ÖNEMLİ DEĞİŞİKLİK: Her zaman test ID'sini kullan
-            TEST_REWARDED_AD_UNIT_ID,
+            adUnitId,
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdLoaded(ad: RewardedAd) {
@@ -85,7 +85,7 @@ class RewardedAdHelper(private val context: Context) {
         // Test ödüllü reklam ID
         private const val TEST_REWARDED_AD_UNIT_ID = "ca-app-pub-3940256099942544/5224354917"
 
-        // Gerçek ödüllü reklam ID - değiştirilecek
-        private const val REWARDED_AD_UNIT_ID = "ca-app-pub-XXXXXXXXXXXX/YYYYYYYYYY"
+        // Gerçek ödüllü reklam ID
+        private const val REWARDED_AD_UNIT_ID = "ca-app-pub-5728309332567964/8522744429"
     }
 }

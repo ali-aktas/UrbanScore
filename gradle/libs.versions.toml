@@ -34,6 +34,7 @@ baselibrary = "3.2.0-alpha11"
 play-services-ads = "22.6.0"
 billing = "6.1.0"
 revenuecat = "8.14.2"
+ump = "2.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -79,6 +80,7 @@ androidx-baselibrary = { group = "androidx.databinding", name = "baseLibrary", v
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "play-services-ads" }
 billing = { group = "com.android.billingclient", name = "billing", version.ref = "billing" }
 revenuecat = { module = "com.revenuecat.purchases:purchases", version.ref = "revenuecat" }
+ump = { module = "com.google.android.ump:user-messaging-platform", version.ref = "ump" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
