@@ -101,7 +101,7 @@ class ProSubscriptionFragment : Fragment() {
             Log.d(TAG, "Gizlilik politikası linki tıklandı")
             try {
                 val intent = Intent(Intent.ACTION_VIEW).apply {
-                    data = Uri.parse("https://raw.githubusercontent.com/ali-aktas/travelr-privacy-policy/refs/heads/main/TravlR%20Privacy%20Policy.txt")
+                    data = Uri.parse("https://ali-aktas.github.io/roamly-policies/index.html")
                 }
                 startActivity(intent)
             } catch (e: Exception) {

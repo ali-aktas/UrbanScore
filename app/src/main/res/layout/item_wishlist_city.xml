@@ -35,7 +35,7 @@
         app:layout_constraintEnd_toStartOf="@id/btnRemove"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Tokyo, Japan" />
+        tools:text="All Galaxy" />
 
     <ImageButton
         android:id="@+id/btnRemove"

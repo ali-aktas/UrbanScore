@@ -65,51 +65,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        if (BuildConfig.DEBUG) {
-            binding.mainContainer.setOnLongClickListener {
-                lifecycleScope.launch {
-                    try {
-                        // Mevcut kod
-                        val firestore = FirebaseFirestore.getInstance()
-                        val snapshot = firestore.collection("cities").get().await()
 
-                        if (snapshot.isEmpty) {
-                            Toast.makeText(this@MainActivity, "30 şehir ekleniyor...", Toast.LENGTH_SHORT).show()
-                            TestDataGenerator.addCities(30)
-                            Toast.makeText(this@MainActivity, "30 şehir başarıyla eklendi!", Toast.LENGTH_SHORT).show()
-                        } else {
-                            // Dialog kısmı
-                            AlertDialog.Builder(this@MainActivity)
-                                .setTitle("Test Verilerini Yenile")
-                                .setMessage("Mevcut ${snapshot.size()} şehir var. Tümünü silip 30 yeni şehir eklemek ister misiniz?")
-                                .setPositiveButton("Evet") { _, _ ->
-                                    lifecycleScope.launch {
-                                        try {
-                                            Toast.makeText(this@MainActivity, "Şehirler siliniyor...", Toast.LENGTH_SHORT).show()
-                                            TestDataGenerator.clearAllCities()
-
-                                            Toast.makeText(this@MainActivity, "30 yeni şehir ekleniyor...", Toast.LENGTH_SHORT).show()
-                                            TestDataGenerator.addCities(30)
-
-                                        } catch (e: Exception) {
-                                            Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
-                                            Log.e("MainActivity", "Error refreshing cities", e)
-                                        }
-                                    }
-                                }
-                                .setNegativeButton("Hayır", null)
-                                .show()
-                        }
-
-
-                    } catch (e: Exception) {
-                        Toast.makeText(this@MainActivity, "Hata: ${e.message}", Toast.LENGTH_SHORT).show()
-                        Log.e("MainActivity", "Error checking cities", e)
-                    }
-                }
-                true
-            }
-        }
 
 
         // Yönetici sınıfları başlat

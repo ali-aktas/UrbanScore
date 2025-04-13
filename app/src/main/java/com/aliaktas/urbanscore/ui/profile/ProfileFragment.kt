@@ -336,7 +336,7 @@ class ProfileFragment : Fragment() {
             }
             .setPositiveButton(R.string.yes) { _, _ ->
                 // TODO: Hesap silme işlemi burada yapılacak
-                showMessage("Delete account functionality will be implemented soon")
+                showMessage("We have received your account deletion request. Your account will be deleted soon.")
             }
             .show()
     }

@@ -18,11 +18,22 @@ class ConsentManager(private val context: Context) {
     private var consentForm: ConsentForm? = null
 
     // Kullanıcı onayı durumunu kontrol et ve gerekirse formu göster
+    // ConsentManager.kt içinde updateConsent fonksiyonunu güvenli hale getir
     fun checkAndRequestConsent(activity: Activity, onConsentGathered: () -> Unit) {
         try {
-            // Debug modda test için onay durumunu sıfırlamak isterseniz kullanın
+            Log.d(TAG, "GDPR onay kontrolü başlıyor")
+
+            // Debug modda test için onay durumunu sıfırla
+            // SORUN OLABİLİR: Her seferinde resetleme yapmak yerine bir kontrol ekle
             if (BuildConfig.DEBUG) {
-                resetConsent()
+                try {
+                    // Her seferinde resetleme - bu bir sorun olabilir!
+                    // İsterseniz kaldırabilir veya koşula bağlayabilirsiniz
+                    // resetConsent()
+                    Log.d(TAG, "Debug modda resetConsent atlandı")
+                } catch (e: Exception) {
+                    Log.e(TAG, "resetConsent hatası: ${e.message}", e)
+                }
             }
 
             // Onay parametrelerini oluştur
@@ -33,22 +44,28 @@ class ConsentManager(private val context: Context) {
                 activity,
                 params,
                 { // Güncelleme başarılı
-                    if (consentInformation.isConsentFormAvailable) {
-                        loadAndShowConsentForm(activity, onConsentGathered)
-                    } else {
-                        // Onay formu gerekli değil
-                        Log.d(TAG, "Consent form not required")
-                        onConsentGathered()
+                    try {
+                        if (consentInformation.isConsentFormAvailable) {
+                            Log.d(TAG, "Consent formu mevcut, gösteriliyor")
+                            loadAndShowConsentForm(activity, onConsentGathered)
+                        } else {
+                            // Onay formu gerekli değil
+                            Log.d(TAG, "Consent formu gerekli değil")
+                            onConsentGathered()
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Consent form işleme hatası: ${e.message}", e)
+                        onConsentGathered() // Hata olsa bile devam et
                     }
                 },
                 { error -> // Güncelleme başarısız
-                    Log.e(TAG, "Consent info update failed: ${error.message}")
-                    onConsentGathered() // Hata durumunda devam et
+                    Log.e(TAG, "Consent bilgisi güncellenemedi: ${error.message}")
+                    onConsentGathered() // Hata olsa bile devam et
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking consent", e)
-            onConsentGathered() // Hata durumunda devam et
+            Log.e(TAG, "GDPR onay kontrolünde genel hata: ${e.message}", e)
+            onConsentGathered() // Hata olsa bile devam et
         }
     }
 

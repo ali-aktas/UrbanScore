@@ -37,14 +37,6 @@ class SplashActivity : AppCompatActivity() {
         // Splash screen'i yükle
         installSplashScreen()
 
-        // GDPR onayı ve reklam başlatma
-        adManager.initialize(this) {
-            // Reklamlar başlatıldı, uygulamaya devam edebiliriz
-            Handler(Looper.getMainLooper()).postDelayed({
-                navigateToMainActivity()
-            }, 2000)
-        }
-
         super.onCreate(savedInstanceState)
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -55,31 +47,34 @@ class SplashActivity : AppCompatActivity() {
             insets
         }
 
-        // Uygulama sürümünü kontrol et (büyük güncellemelerde gösterimi uzatmak için)
+        // Uygulama sürümünü kontrol et
         checkAppVersion()
 
-        // Oturum ve ilk açılış durumuna göre gecikme süresi belirle
-        val isUserLoggedIn = auth.currentUser != null
-        val isFirstLaunch = appPreferences.isFirstLaunch
+        // UI hazır olduktan sonra GDPR ve reklam başlatma
+        adManager.initialize(this) {
+            // Reklamlar başlatıldı, uygulamaya devam edebiliriz
+            val isUserLoggedIn = auth.currentUser != null
+            val isFirstLaunch = appPreferences.isFirstLaunch
 
-        val delayMillis = when {
-            isFirstLaunch -> 3000 // İlk açılışta uzun splash
-            !isUserLoggedIn -> 2500 // Oturum açılmamışsa orta uzunlukta
-            else -> 2500 // Oturum açıksa ve ilk açılış değilse çok kısa
-        }
-
-        // Animasyonu başlat
-        binding.lottieAnimation.playAnimation()
-
-        // Belirlenen süre sonra ana aktiviteye geç
-        Handler(Looper.getMainLooper()).postDelayed({
-            navigateToMainActivity()
-
-            // İlk açılış ise, işareti güncelle
-            if (isFirstLaunch) {
-                appPreferences.setFirstLaunchComplete()
+            val delayMillis = when {
+                isFirstLaunch -> 3000 // İlk açılışta uzun splash
+                !isUserLoggedIn -> 2500 // Oturum açılmamışsa orta uzunlukta
+                else -> 2500 // Oturum açıksa kısa
             }
-        }, delayMillis.toLong())
+
+            // Animasyonu başlat
+            binding.lottieAnimation.playAnimation()
+
+            // Belirlenen süre sonra ana aktiviteye geç
+            Handler(Looper.getMainLooper()).postDelayed({
+                navigateToMainActivity()
+
+                // İlk açılış ise, işareti güncelle
+                if (isFirstLaunch) {
+                    appPreferences.setFirstLaunchComplete()
+                }
+            }, delayMillis.toLong())
+        }
     }
 
     private fun checkAppVersion() {

@@ -38,7 +38,7 @@
             android:fontFamily="@font/montserrat_alternates_bold"
             app:layout_constraintBottom_toBottomOf="@id/imgEditorsChoiceCity"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="İstanbul" />
+            tools:text="Krakow" />
 
         <TextView
             android:id="@+id/txtEditorsChoiceCountry"
@@ -51,7 +51,7 @@
             android:fontFamily="@font/montserrat_alternates_regular"
             app:layout_constraintBottom_toTopOf="@id/txtEditorsChoiceCityName"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="Türkiye" />
+            tools:text="Poland" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

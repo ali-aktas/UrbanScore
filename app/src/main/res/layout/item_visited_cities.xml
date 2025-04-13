@@ -51,7 +51,7 @@
         app:layout_constraintEnd_toStartOf="@id/ratingContainer"
         app:layout_constraintStart_toEndOf="@id/imageFlag"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Istanbul, Turkey" />
+        tools:text="My best city" />
 
     <LinearLayout
         android:id="@+id/ratingContainer"
@@ -84,7 +84,7 @@
             android:fontFamily="@font/poppins_medium"
             android:textSize="14sp"
             android:textStyle="bold"
-            tools:text="9.12" />
+            tools:text="9.99" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

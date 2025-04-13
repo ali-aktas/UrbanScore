@@ -50,11 +50,26 @@ class AdManager @Inject constructor(
     /**
      * AdManager'ı GDPR onayı ile başlat (ana metot)
      */
+    // AdManager.kt içindeki initialize metodunu güçlendir
     fun initialize(activity: Activity, onInitialized: () -> Unit = {}) {
-        // Önce GDPR onayını kontrol et ve gerekirse formu göster
-        consentManager.checkAndRequestConsent(activity) {
-            // Onay işlemi tamamlandı veya gerekli değil, reklamları başlat
-            initializeAds(onInitialized)
+        try {
+            Log.d(TAG, "AdManager başlatılıyor")
+
+            // Önce GDPR onayını kontrol et ve gerekirse formu göster
+            consentManager.checkAndRequestConsent(activity) {
+                try {
+                    Log.d(TAG, "GDPR onayı tamamlandı, reklamları başlatma")
+                    // Onay işlemi tamamlandı veya gerekli değil, reklamları başlat
+                    initializeAds(onInitialized)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Reklam başlatma hatası: ${e.message}", e)
+                    onInitialized() // Hata olsa bile devam et
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "AdManager.initialize genel hatası: ${e.message}", e)
+            // Ciddi bir hata durumunda bile uygulamanın devam etmesini sağla
+            onInitialized()
         }
     }
 

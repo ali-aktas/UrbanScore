@@ -39,6 +39,7 @@
         android:text="(edited)"
         android:textColor="#B3FFFFFF"
         android:textSize="12sp"
+        android:maxLines="4"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/txtUsername"
         app:layout_constraintStart_toEndOf="@+id/txtUsername"

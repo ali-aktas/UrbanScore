@@ -13,10 +13,10 @@
     <ImageView
         android:id="@+id/ivLogo"
         android:layout_width="120dp"
-        android:layout_height="140dp"
+        android:layout_height="100dp"
         android:layout_gravity="center"
-        android:layout_marginTop="32dp"
-        android:src="@drawable/loginicon2"/>
+        android:layout_marginTop="42dp"
+        android:src="@drawable/roamly_icon"/>
 
     <LinearLayout
         android:id="@+id/txtAppName"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Roamly"
-            android:fontFamily="@font/montserrat_alternates_bold"
+            android:fontFamily="@font/montserrat_alternates_regular"
             android:textColor="@color/primary_purple"
             android:textSize="32sp" />
     </LinearLayout>
@@ -39,10 +39,10 @@
         android:id="@+id/tvTagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_medium"
+        android:fontFamily="@font/montserrat_alternates_light"
         android:text="@string/for_travellers"
         android:textColor="#CCFFFFFF"
-        android:textSize="12sp"
+        android:textSize="14sp"
         android:gravity="center"
         android:layout_gravity="center"/>
 
@@ -57,7 +57,7 @@
         android:text="Continue with Google"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        android:fontFamily="@font/montserrat_medium"
+        android:fontFamily="@font/montserrat_alternates_regular"
         app:cornerRadius="12dp"
         app:backgroundTint="@color/primary_purple"
         app:icon="@drawable/ic_google"
@@ -94,7 +94,7 @@
             android:textColor="#CCFFFFFF"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:fontFamily="@font/montserrat_medium"/>
+            android:fontFamily="@font/montserrat_alternates_regular"/>
 
         <View
             android:layout_width="0dp"
@@ -125,7 +125,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:fontFamily="@font/montserrat_medium"
+            android:fontFamily="@font/montserrat_alternates_regular"
             android:textColor="#FFFFFF"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -152,7 +152,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:fontFamily="@font/montserrat_medium"
+            android:fontFamily="@font/montserrat_alternates_regular"
             android:textColor="#FFFFFF"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -166,7 +166,7 @@
         android:layout_gravity="end"
         android:text="Forgot Password?"
         android:textColor="@color/primary_light"
-        android:fontFamily="@font/montserrat_medium"
+        android:fontFamily="@font/montserrat_alternates_regular"
         android:padding="8dp"
         android:foreground="?attr/selectableItemBackground"/>
 
@@ -181,7 +181,7 @@
         android:text="Login"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        android:fontFamily="@font/montserrat_medium"
+        android:fontFamily="@font/montserrat_alternates_regular"
         app:cornerRadius="12dp"
         app:backgroundTint="@color/primary_gray"
         android:elevation="4dp"/>
@@ -195,7 +195,7 @@
         android:text="Create an Account"
         android:textColor="#CCFFFFFF"
         android:textSize="14sp"
-        android:fontFamily="@font/montserrat_medium"
+        android:fontFamily="@font/montserrat_alternates_regular"
         android:layout_gravity="center"
         android:padding="8dp"
         android:background="?attr/selectableItemBackground"/>
