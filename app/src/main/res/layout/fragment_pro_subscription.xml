@@ -39,70 +39,231 @@
             app:tint="@color/white"/>
     </LinearLayout>
 
-    <!-- Get Premium Title -->
-    <TextView
-        android:id="@+id/tvProTitle"
-        android:layout_width="wrap_content"
+    <!-- Premium Content Container - Tüm premium bilgilerini içeren tek container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/premiumContentContainer"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Get Premium"
-        android:textColor="@color/primary_purple"
-        android:textSize="32sp"
-        android:fontFamily="@font/montserrat_alternates_black"
         android:layout_marginTop="220dp"
-        app:layout_constraintBottom_toBottomOf="@+id/proHeader"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Unlock all Features Subtitle -->
-    <TextView
-        android:id="@+id/tvProDescription"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Unlock all Features"
-        android:textColor="@color/primary_light"
-        android:textSize="16sp"
-        android:fontFamily="@font/montserrat_alternates_bold"
-        android:gravity="center"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvProTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Free vs Pro Labels in Table Layout -->
-    <LinearLayout
-        android:id="@+id/headerLabels"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginHorizontal="34dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvProDescription">
-
+        <!-- Get Premium Title -->
         <TextView
-            android:id="@+id/tvFreeText"
-            android:layout_width="42dp"
+            android:id="@+id/tvProTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Free"
-            android:gravity="center"
-            android:layout_marginEnd="8dp"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:fontFamily="@font/poppins_medium" />
-
-        <TextView
-            android:id="@+id/tvProText"
-            android:layout_width="42dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="PRO"
-            android:gravity="center"
+            android:text="Get Premium"
             android:textColor="@color/primary_purple"
+            android:textSize="32sp"
+            android:fontFamily="@font/montserrat_alternates_black"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Unlock all Features Subtitle -->
+        <TextView
+            android:id="@+id/tvProDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Unlock all Features"
+            android:textColor="@color/primary_light"
             android:textSize="16sp"
-            android:fontFamily="@font/poppins_bold" />
-    </LinearLayout>
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:gravity="center"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            app:layout_constraintTop_toBottomOf="@id/tvProTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Free vs Pro Labels in Table Layout -->
+        <LinearLayout
+            android:id="@+id/headerLabels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginHorizontal="34dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvProDescription">
+
+            <TextView
+                android:id="@+id/tvFreeText"
+                android:layout_width="42dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Free"
+                android:gravity="center"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins_medium" />
+
+            <TextView
+                android:id="@+id/tvProText"
+                android:layout_width="42dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="PRO"
+                android:gravity="center"
+                android:textColor="@color/primary_purple"
+                android:textSize="16sp"
+                android:fontFamily="@font/poppins_bold" />
+        </LinearLayout>
+
+        <!-- Feature comparison table -->
+        <TableLayout
+            android:id="@+id/featureTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="32dp"
+            app:layout_constraintTop_toBottomOf="@id/headerLabels"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- No Ads Feature -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="No ADS"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="start"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_close"
+                    android:layout_marginEnd="18dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_light"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_check"
+                    android:layout_marginEnd="6dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_purple"/>
+            </TableRow>
+
+            <!-- Priority access feature -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Priority access to features"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="start"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_close"
+                    android:layout_marginEnd="18dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_light"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_check"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="6dp"
+                    app:tint="@color/primary_purple"/>
+            </TableRow>
+
+            <!-- City presentation feature -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="City presentation in explore"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="start"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_close"
+                    android:layout_marginEnd="18dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_light"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_check"
+                    android:layout_marginEnd="6dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_purple"/>
+            </TableRow>
+
+            <!-- Premium comments feature -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Premium comment features"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:fontFamily="@font/montserrat_medium"
+                    android:gravity="start"
+                    android:maxLines="2"
+                    android:ellipsize="end"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_close"
+                    android:layout_marginEnd="18dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_light"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_check"
+                    android:layout_marginEnd="6dp"
+                    android:layout_gravity="center"
+                    app:tint="@color/primary_purple"/>
+            </TableRow>
+        </TableLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Progress Bar -->
     <ProgressBar
@@ -112,7 +273,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:indeterminateTint="@color/primary_purple"
-        app:layout_constraintTop_toBottomOf="@id/headerLabels"
+        app:layout_constraintTop_toBottomOf="@id/premiumContentContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -124,7 +285,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:fillViewport="true"
-        app:layout_constraintTop_toBottomOf="@id/headerLabels"
+        app:layout_constraintTop_toBottomOf="@id/premiumContentContainer"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -136,152 +297,6 @@
             android:paddingBottom="16dp"
             android:visibility="gone"
             tools:visibility="visible">
-
-            <!-- Feature comparison table -->
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
-
-                <!-- No Ads Feature -->
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="No ADS"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/montserrat_medium"
-                        android:gravity="start"
-                        android:maxLines="2"
-                        android:ellipsize="end"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_close"
-                        android:layout_marginEnd="18dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_light"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_check"
-                        android:layout_marginEnd="6dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_purple"/>
-                </TableRow>
-
-                <!-- Priority access feature -->
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="Priority access to features"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/montserrat_medium"
-                        android:gravity="start"
-                        android:maxLines="2"
-                        android:ellipsize="end"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_close"
-                        android:layout_marginEnd="18dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_light"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_check"
-                        android:layout_gravity="center"
-                        android:layout_marginEnd="6dp"
-                        app:tint="@color/primary_purple"/>
-                </TableRow>
-
-                <!-- City presentation feature -->
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="City presentation in explore"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/montserrat_medium"
-                        android:gravity="start"
-                        android:maxLines="2"
-                        android:ellipsize="end"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_close"
-                        android:layout_marginEnd="18dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_light"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_check"
-                        android:layout_marginEnd="6dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_purple"/>
-                </TableRow>
-
-                <!-- Premium comments feature -->
-                <TableRow
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="Premium comment features"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/montserrat_medium"
-                        android:gravity="start"
-                        android:maxLines="2"
-                        android:ellipsize="end"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_close"
-                        android:layout_marginEnd="18dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_light"/>
-
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_check"
-                        android:layout_marginEnd="6dp"
-                        android:layout_gravity="center"
-                        app:tint="@color/primary_purple"/>
-                </TableRow>
-            </TableLayout>
 
             <!-- Subscription Plan Cards -->
             <RadioGroup
@@ -488,7 +503,7 @@
         android:gravity="center"
         android:visibility="gone"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvProDescription"
+        app:layout_constraintTop_toBottomOf="@id/premiumContentContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:visibility="gone">
 

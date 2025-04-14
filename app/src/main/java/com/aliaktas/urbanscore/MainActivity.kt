@@ -29,7 +29,6 @@ import com.aliaktas.urbanscore.ui.detail.CityDetailFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
 import com.aliaktas.urbanscore.ui.home.HomeViewModel
 import com.aliaktas.urbanscore.ui.subscription.ProSubscriptionFragment
-import com.aliaktas.urbanscore.util.TestDataGenerator
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -64,9 +63,6 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
-
 
         // Yönetici sınıfları başlat
         setupManagers()

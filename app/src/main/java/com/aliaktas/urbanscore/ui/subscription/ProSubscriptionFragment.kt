@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.airbnb.lottie.LottieDrawable
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentProSubscriptionBinding
@@ -185,53 +186,51 @@ class ProSubscriptionFragment : Fragment() {
         }
     }
 
-    private fun updatePackagesInfo(state: SubscriptionUIState.ReadyForPurchase) {
-        Log.d(TAG, "Paket bilgileri güncelleniyor")
-        // identifier yerine product.identifier kullanımı
-        Log.d(TAG, "Aylık paket: ${state.monthlyPackage?.packageType ?: "Bulunamadı"}")
-        Log.d(TAG, "Yıllık paket: ${state.yearlyPackage?.packageType ?: "Bulunamadı"}")
+    private fun hideAllContentLayouts() {
+        binding.subscriptionOptionsLayout.visibility = View.GONE
+        binding.proStatusLayout.visibility = View.GONE
+        // Premium içerik container'ı görünür bırakıyoruz, ancak içeriği değişecek
+    }
 
-        // Aylık fiyat
-        state.monthlyPackage?.let { pkg ->
-            binding.tvMonthlyPrice.text = pkg.product.price.formatted
-            binding.cardMonthlyPlan.isEnabled = true
-        } ?: run {
-            binding.tvMonthlyPrice.text = "Kullanılamıyor"
-            binding.cardMonthlyPlan.isEnabled = false
-        }
+    private fun showSubscriptionOptions() {
+        // Premium başlık ve açıklamayı normal hale getir
+        binding.tvProTitle.text = "Get Premium"
+        binding.tvProDescription.text = "Unlock all Features"
 
-        // Yıllık fiyat
-        state.yearlyPackage?.let { pkg ->
-            binding.tvYearlyPrice.text = pkg.product.price.formatted
-            binding.cardYearlyPlan.isEnabled = true
+        // Premium içeriği göster
+        binding.premiumContentContainer.visibility = View.VISIBLE
+        binding.headerLabels.visibility = View.VISIBLE
+        binding.featureTable.visibility = View.VISIBLE
 
-            // Tasarruf hesaplama
-            val savingsPercent = viewModel.calculateSavingsPercentage()
-            if (savingsPercent > 0) {
-                binding.tvSavings.visibility = View.VISIBLE
-                binding.tvSavings.text = " (Save $savingsPercent%)"
+        // Abonelik seçeneklerini göster
+        binding.subscriptionOptionsLayout.visibility = View.VISIBLE
+
+        // Pro durumunu gizle
+        binding.proStatusLayout.visibility = View.GONE
+    }
+
+    private fun showActiveSubscription() {
+        // Premium başlık ve açıklamayı güncelle
+        binding.tvProTitle.text = "Enjoy Premium"
+        binding.tvProDescription.text = "All features unlocked"
+
+        // Premium içeriğini göster ama karşılaştırma kısmını gizle
+        binding.premiumContentContainer.visibility = View.VISIBLE
+        binding.headerLabels.visibility = View.GONE
+        binding.featureTable.visibility = View.GONE
+
+        // Abonelik seçeneklerini gizle
+        binding.subscriptionOptionsLayout.visibility = View.GONE
+
+        // Pro durumu UI'ını göster
+        binding.proStatusLayout.visibility = View.VISIBLE
+
+        // Bitiş tarihini al
+        viewModel.getExpiryDate { expiryDate ->
+            if (expiryDate != null) {
+                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
             } else {
-                binding.tvSavings.visibility = View.GONE
-            }
-        } ?: run {
-            binding.tvYearlyPrice.text = "Not available"
-            binding.cardYearlyPlan.isEnabled = false
-            binding.tvSavings.visibility = View.GONE
-        }
-
-        // Satın alma butonu
-        binding.btnSubscribe.setOnClickListener {
-            Log.d(TAG, "Satın al butonu tıklandı")
-
-            // Lottie animasyonunu başlat
-            binding.btnSubscribe.playAnimation()
-
-            // Continue Butonu
-            binding.btnSubscribe.setOnClickListener {
-                Log.d(TAG, "Satın al butonu tıklandı")
-
-                // Direkt olarak satın alma işlemini başlat
-                viewModel.purchaseSelectedPlan(requireActivity())
+                binding.tvExpiryDate.text = "Active subscription"
             }
         }
     }
@@ -244,8 +243,8 @@ class ProSubscriptionFragment : Fragment() {
         val unselectedStrokeColor = R.color.primary_gray
 
         // Arka plan renkleri için drawable
-        val selectedBackground = R.drawable.profilelistbg
-        val transparentBackground = android.R.color.transparent
+        val selectedBackground = R.drawable.purplebutonbg
+        val transparentBackground = android.R.color.holo_purple
 
         // Aylık plan kartı güncelleme
         binding.cardMonthlyPlan.apply {
@@ -286,42 +285,61 @@ class ProSubscriptionFragment : Fragment() {
         binding.radioYearly.isChecked = packageId == RevenueCatManager.PLAN_YEARLY
     }
 
-    private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-    }
+    private fun updatePackagesInfo(state: SubscriptionUIState.ReadyForPurchase) {
+        Log.d(TAG, "Paket bilgileri güncelleniyor")
+        // identifier yerine product.identifier kullanımı
+        Log.d(TAG, "Aylık paket: ${state.monthlyPackage?.packageType ?: "Bulunamadı"}")
+        Log.d(TAG, "Yıllık paket: ${state.yearlyPackage?.packageType ?: "Bulunamadı"}")
 
-    private fun hideAllContentLayouts() {
-        binding.subscriptionOptionsLayout.visibility = View.GONE
-        binding.proStatusLayout.visibility = View.GONE
-    }
+        // Aylık fiyat
+        state.monthlyPackage?.let { pkg ->
+            binding.tvMonthlyPrice.text = pkg.product.price.formatted
+            binding.cardMonthlyPlan.isEnabled = true
+        } ?: run {
+            binding.tvMonthlyPrice.text = "Kullanılamıyor"
+            binding.cardMonthlyPlan.isEnabled = false
+        }
 
-    private fun showSubscriptionOptions() {
-        binding.subscriptionOptionsLayout.visibility = View.VISIBLE
-        binding.proStatusLayout.visibility = View.GONE
-    }
+        // Yıllık fiyat
+        state.yearlyPackage?.let { pkg ->
+            binding.tvYearlyPrice.text = pkg.product.price.formatted
+            binding.cardYearlyPlan.isEnabled = true
 
-    private fun showActiveSubscription() {
-        // Premium UI bileşenlerini gizle
-        binding.tvProTitle.visibility = View.GONE
-        binding.tvProDescription.visibility = View.GONE
-        binding.headerLabels.visibility = View.GONE
-        binding.tvProText.visibility = View.GONE
-        binding.tvFreeText.visibility = View.GONE
-
-        // Abonelik seçeneklerini gizle
-        binding.subscriptionOptionsLayout.visibility = View.GONE
-
-        // Pro durumu UI'ını göster
-        binding.proStatusLayout.visibility = View.VISIBLE
-
-        // Bitiş tarihini al
-        viewModel.getExpiryDate { expiryDate ->
-            if (expiryDate != null) {
-                binding.tvExpiryDate.text = "Your subscription expires on $expiryDate"
+            // Tasarruf hesaplama
+            val savingsPercent = viewModel.calculateSavingsPercentage()
+            if (savingsPercent > 0) {
+                binding.tvSavings.visibility = View.VISIBLE
+                binding.tvSavings.text = " (Save $savingsPercent%)"
             } else {
-                binding.tvExpiryDate.text = "Active subscription"
+                binding.tvSavings.visibility = View.GONE
+            }
+        } ?: run {
+            binding.tvYearlyPrice.text = "Not available"
+            binding.cardYearlyPlan.isEnabled = false
+            binding.tvSavings.visibility = View.GONE
+        }
+
+        // Satın alma butonu - Düzeltilmiş versiyon
+        binding.btnSubscribe.apply {
+            // Animasyonu otomatik başlat
+            setAnimation(R.raw.button_animation_subs)
+            repeatCount = LottieDrawable.INFINITE
+            playAnimation()
+
+            // Tek bir click listener tanımla
+            setOnClickListener {
+                Log.d(TAG, "Satın al butonu tıklandı")
+
+                // Direkt olarak satın alma işlemini başlat
+                viewModel.purchaseSelectedPlan(requireActivity())
             }
         }
+    }
+
+
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun showSnackbar(message: String) {
