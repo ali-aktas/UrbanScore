@@ -65,4 +65,8 @@ class UserRepositoryAdapter @Inject constructor(
 
     override fun hasUserRatedCity(cityId: String): Flow<Boolean> =
         userCitiesRepository.hasUserRatedCity(cityId)
+
+    override suspend fun requestAccountDeletion(reason: String?): Result<Unit> =
+        authRepository.requestAccountDeletion(reason)
+
 }

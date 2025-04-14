@@ -249,13 +249,15 @@
                         android:id="@+id/btnAddToWishlist"
                         android:layout_height="64dp"
                         android:layout_width="match_parent"
-                        android:background="@drawable/btn_gradient_secondary"
+                        android:background="@drawable/btn_gradient_third"
                         android:textSize="14sp"
                         android:fontFamily="@font/montserrat_alternates_regular"
                         android:text="@string/add_to_wishlist"
+                        app:strokeColor="@color/primary"
+                        app:strokeWidth="1dp"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
-                        app:backgroundTint="@color/primary_gray" />
+                        app:backgroundTint="@null" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 

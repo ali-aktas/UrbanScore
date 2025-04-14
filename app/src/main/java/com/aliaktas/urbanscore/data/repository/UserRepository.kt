@@ -28,4 +28,7 @@ interface UserRepository {
 
     // Şehir puanlama kontrolü
     fun hasUserRatedCity(cityId: String): Flow<Boolean>
+
+    // Hesap silme talebi oluşturma
+    suspend fun requestAccountDeletion(reason: String? = null): Result<Unit>
 }

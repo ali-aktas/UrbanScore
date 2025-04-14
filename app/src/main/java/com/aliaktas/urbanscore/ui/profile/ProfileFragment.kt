@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -326,20 +327,26 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    // Delete account için dialog ekle
+
     private fun showDeleteAccountConfirmationDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_delete_account, null)
+        val reasonEditText = dialogView.findViewById<EditText>(R.id.editTextReason)
+
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.delete_account)
+            .setView(dialogView)
             .setMessage(R.string.delete_account_confirmation)
             .setNegativeButton(R.string.cancel) { dialog, _ ->
                 dialog.dismiss()
             }
             .setPositiveButton(R.string.yes) { _, _ ->
-                // TODO: Hesap silme işlemi burada yapılacak
-                showMessage("We have received your account deletion request. Your account will be deleted soon.")
+                val reason = reasonEditText.text.toString()
+                viewModel.requestAccountDeletion(reason)
             }
             .show()
     }
+
+
     private fun showLogoutConfirmationDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.logout)

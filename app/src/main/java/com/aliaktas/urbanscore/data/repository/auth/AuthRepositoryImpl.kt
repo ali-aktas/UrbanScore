@@ -192,4 +192,25 @@ class AuthRepositoryImpl @Inject constructor(
         Log.e(TAG, "signOut failed", e)
         Result.failure(e)
     }
+
+    override suspend fun requestAccountDeletion(reason: String?): Result<Unit> = try {
+        val currentUser = auth.currentUser ?: throw Exception("No user logged in")
+
+        val requestData = hashMapOf(
+            "userId" to currentUser.uid,
+            "email" to (currentUser.email ?: ""),
+            "displayName" to (currentUser.displayName ?: ""),
+            "timestamp" to com.google.firebase.Timestamp.now(),
+            "reason" to (reason ?: "No reason provided"),
+            "status" to "pending" // pending, approved, rejected
+        )
+
+        firestore.collection("deletion_requests").document(currentUser.uid)
+            .set(requestData).await()
+
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Log.e(TAG, "requestAccountDeletion failed", e)
+        Result.failure(e)
+    }
 }

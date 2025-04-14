@@ -394,6 +394,24 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun requestAccountDeletion(reason: String? = null) {
+        viewModelScope.launch {
+            try {
+                val result = userRepository.requestAccountDeletion(reason)
+                result.fold(
+                    onSuccess = {
+                        emitEvent(UiEvent.Success("Account deletion request received. Your account will be processed soon."))
+                    },
+                    onFailure = { e ->
+                        emitEvent(UiEvent.Error("Failed to submit deletion request: ${e.message}"))
+                    }
+                )
+            } catch (e: Exception) {
+                emitEvent(UiEvent.Error("Error: ${e.message}"))
+            }
+        }
+    }
+
     // Hata ayıklama için yardımcı fonksiyon
     private fun logError(message: String, error: Throwable) {
         Log.e(TAG, message, error)

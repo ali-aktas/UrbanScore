@@ -1,10 +1,12 @@
 package com.aliaktas.urbanscore.ui.detail.controllers
 
+import android.content.res.ColorStateList
 import android.view.View
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.detail.CityDetailState
 import com.aliaktas.urbanscore.ui.detail.CityDetailViewModel
+import android.graphics.Color
 
 /**
  * Eylem butonlarını (Şehri puanla, İstek listesine ekle) yöneten controller
@@ -32,19 +34,34 @@ class ActionButtonsController(
         binding.btnAddToWishlist.apply {
             if (state.isInWishlist) {
                 text = context.getString(R.string.in_your_list)
-                setBackgroundColor(context.getColor(android.R.color.black))
+                // Outline stil (beyaz çerçeveli, içi boş)
+                backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
+                strokeColor = ColorStateList.valueOf(Color.WHITE)
+                strokeWidth = 1
+                setTextColor(Color.WHITE)
             } else {
                 text = context.getString(R.string.add_to_wishlist)
-                setBackgroundColor(context.getColor(R.color.primary_purple))
+                // Orijinal görünüm
+                setBackgroundResource(R.drawable.btn_gradient_secondary)
+                backgroundTintList = null
+                strokeWidth = 0
+                setTextColor(Color.WHITE)
             }
         }
 
         // Puanlama butonunu güncelle
         binding.btnRateCity.apply {
-            text = if (state.hasUserRated) {
-                context.getString(R.string.update_rating)
+            if (state.hasUserRated) {
+                text = context.getString(R.string.update_rating)
+                // Beyaz arka plan
+                backgroundTintList = ColorStateList.valueOf(Color.GRAY)
+                setTextColor(context.getColor(R.color.primary))
             } else {
-                context.getString(R.string.rate_this_city)
+                text = context.getString(R.string.rate_this_city)
+                // Orijinal gradient görünüm
+                setBackgroundResource(R.drawable.btn_gradient_primary)
+                backgroundTintList = null
+                setTextColor(Color.WHITE)
             }
         }
     }
