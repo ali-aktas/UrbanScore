@@ -31,4 +31,6 @@ interface UserRepository {
 
     // Hesap silme talebi oluşturma
     suspend fun requestAccountDeletion(reason: String? = null): Result<Unit>
+
+    suspend fun saveUserCountry(countryId: String): Result<Unit>
 }

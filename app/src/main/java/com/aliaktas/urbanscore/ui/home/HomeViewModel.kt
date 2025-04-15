@@ -156,6 +156,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+
     override fun onCleared() {
         super.onCleared()
         networkObserver?.cancel()
@@ -168,5 +169,9 @@ class HomeViewModel @Inject constructor(
     fun refreshOnReturn() {
         // No force refresh needed - will use cache if available
         loadTopRatedCities(false)
+
+        // Popular Cities'i de yenileme mantığı eklendi
+        popularCitiesLoaded = false
+        loadPopularCities()
     }
 }

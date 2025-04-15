@@ -62,4 +62,17 @@ class ProfileRepositoryImpl @Inject constructor(
         Log.e(TAG, "updateUserProfile failed", e)
         Result.failure(e)
     }
+
+    override suspend fun saveUserCountry(countryId: String): Result<Unit> = try {
+        val currentUser = auth.currentUser ?: throw Exception("No user logged in")
+
+        firestore.collection(USERS_COLLECTION).document(currentUser.uid)
+            .update("country", countryId)
+            .await()
+
+        Result.success(Unit)
+    } catch (e: Exception) {
+        Log.e(TAG, "saveUserCountry failed", e)
+        Result.failure(e)
+    }
 }

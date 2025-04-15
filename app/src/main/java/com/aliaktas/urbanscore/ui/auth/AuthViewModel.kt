@@ -6,12 +6,15 @@ import androidx.lifecycle.viewModelScope
 import com.aliaktas.urbanscore.data.model.UserModel
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.google.firebase.FirebaseNetworkException
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -92,6 +95,21 @@ class AuthViewModel @Inject constructor(
                     _state.value = AuthState.Error(formatErrorMessage(exception))
                 }
             )
+        }
+    }
+
+
+    fun saveUserCountry(countryId: String) {
+        viewModelScope.launch {
+            try {
+                val result = userRepository.saveUserCountry(countryId)
+                result.onFailure { e ->
+                    _state.value = AuthState.Error("Failed to save country: ${e.message}")
+                }
+            } catch (e: Exception) {
+                Log.e("AuthViewModel", "Error saving user country", e)
+                _state.value = AuthState.Error("Failed to save country: ${e.message}")
+            }
         }
     }
 

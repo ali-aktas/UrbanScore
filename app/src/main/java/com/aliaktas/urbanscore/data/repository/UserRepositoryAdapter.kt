@@ -69,4 +69,7 @@ class UserRepositoryAdapter @Inject constructor(
     override suspend fun requestAccountDeletion(reason: String?): Result<Unit> =
         authRepository.requestAccountDeletion(reason)
 
+    override suspend fun saveUserCountry(countryId: String): Result<Unit> =
+        profileRepository.saveUserCountry(countryId)
+
 }

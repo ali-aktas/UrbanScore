@@ -101,21 +101,24 @@
                 </TextView>
 
                 <!-- Cities List Section -->
-                <FrameLayout
+                <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardCitiesList"
                     android:layout_width="match_parent"
                     android:layout_height="340dp"
-                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginHorizontal="8dp"
                     android:focusable="true"
-                    android:background="@drawable/mainlistbg"
+                    app:strokeColor="@color/primary_purple"
+                    android:background="#00FFFFFF"
+                    app:cardCornerRadius="24dp"
                     android:clickable="true"
                     app:layout_constraintTop_toBottomOf="@id/txtTopRatedTitle">
 
                     <LinearLayout
                         android:id="@+id/topCitiesListLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="340dp"
+                        android:layout_height="match_parent"
                         android:clipToPadding="true"
+                        android:background="@drawable/profilelistbg"
                         android:orientation="vertical">
 
                         <FrameLayout
@@ -153,7 +156,7 @@
                             android:textSize="11sp"
                             android:textStyle="bold" />
                     </LinearLayout>
-                </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
 
 
                 <!-- Editör Seçimleri Bölümü -->

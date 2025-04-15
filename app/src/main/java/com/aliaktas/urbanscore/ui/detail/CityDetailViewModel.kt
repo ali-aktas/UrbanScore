@@ -411,7 +411,8 @@ class CityDetailViewModel @Inject constructor(
                                 comments = currentComments,
                                 hasMoreComments = result.hasMoreItems,
                                 isLoadingComments = false,
-                                showComments = true
+                                showComments = true,
+                                isPartialUpdate = true
                             )
                         }
                     }
@@ -509,13 +510,12 @@ class CityDetailViewModel @Inject constructor(
         }
     }
 
-    // Yorum görünürlüğünü değiştir
     fun toggleComments() {
         val currentState = _detailState.value
         if (currentState !is CityDetailState.Success) return
 
         val newShowComments = !currentState.showComments
-        updateSuccessState { copy(showComments = newShowComments) }
+        updateSuccessState { copy(showComments = newShowComments, isPartialUpdate = true) }
 
         if (newShowComments && currentState.comments.isEmpty()) {
             loadComments(true)

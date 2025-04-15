@@ -21,6 +21,7 @@ import com.aliaktas.urbanscore.databinding.ActivityMainBinding
 import com.aliaktas.urbanscore.navigation.BackStackManager
 import com.aliaktas.urbanscore.navigation.BottomNavigationManager
 import com.aliaktas.urbanscore.navigation.NavigationManager
+import com.aliaktas.urbanscore.ui.auth.CountrySelectionFragment
 import com.aliaktas.urbanscore.ui.auth.ForgotPasswordFragment
 import com.aliaktas.urbanscore.ui.auth.LoginFragment
 import com.aliaktas.urbanscore.ui.auth.RegisterFragment
@@ -29,10 +30,13 @@ import com.aliaktas.urbanscore.ui.detail.CityDetailFragment
 import com.aliaktas.urbanscore.ui.home.HomeFragment
 import com.aliaktas.urbanscore.ui.home.HomeViewModel
 import com.aliaktas.urbanscore.ui.subscription.ProSubscriptionFragment
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -237,17 +241,10 @@ class MainActivity : AppCompatActivity() {
 
     fun navigateToHomeAfterLogin() {
         try {
-            // Bottom navigation'ı görünür yap - BU SATIR EKSİKTİ!
-            bottomNavigationManager.showBottomNavigation()
-
-            // Start with a synthetic "home" backstack entry
-            val homeFragment = HomeFragment()
-            navigationManager.showBottomNavFragment(homeFragment, R.id.homeFragment, "HOME_FRAGMENT")
-
-            // Home tab'ı seçili yapın
-            binding.bottomNavigation.selectedItemId = R.id.homeFragment
+            // Önce kullanıcının ülke bilgisini kontrol et
+            checkUserCountryAndNavigate()
         } catch (e: Exception) {
-            Log.e(TAG, "Error navigating to home: ${e.message}")
+            Log.e(TAG, "Error navigating after login: ${e.message}")
         }
     }
 
@@ -289,6 +286,69 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt("activeTabId", navigationManager.getActiveTabId())
+    }
+
+    private fun showCountrySelectionFragment() {
+        // Bottom navigation'ı gizle
+        bottomNavigationManager.hideBottomNavigation()
+
+        // Yeni bir ülke seçim fragment'ı ekle
+        val countrySelectionFragment = CountrySelectionFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, countrySelectionFragment, "COUNTRY_SELECTION_FRAGMENT")
+            .commit()
+
+        // NavigationManager'ı güncelle
+        navigationManager.setActiveFragment(countrySelectionFragment)
+    }
+
+    private fun checkUserCountryAndNavigate() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            // CoroutineScope'u değiştir ve error handling ekle
+            lifecycleScope.launch(Dispatchers.IO) {
+                try {
+                    val userDoc = FirebaseFirestore.getInstance().collection("users")
+                        .document(currentUser.uid)
+                        .get()
+                        .await()
+
+                    // UI işlemlerini Main thread'e taşı
+                    withContext(Dispatchers.Main) {
+                        if (userDoc.exists() && userDoc.contains("country")) {
+                            // Ülke bilgisi var, ana sayfaya git
+                            showHomeFragment()
+                        } else {
+                            // Ülke bilgisi yok, ülke seçim ekranını göster
+                            showCountrySelectionFragment()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error checking user country", e)
+
+                    // UI işlemlerini Main thread'e taşı
+                    withContext(Dispatchers.Main) {
+                        // Hata durumunda ana sayfaya yönlendir
+                        showHomeFragment()
+                    }
+                }
+            }
+        } else {
+            // Kullanıcı oturum açmamış, login ekranına geri dön
+            showLoginFragment()
+        }
+    }
+
+    private fun showHomeFragment() {
+        // Bottom navigation'ı görünür yap
+        bottomNavigationManager.showBottomNavigation()
+
+        // Home fragment'ini göster
+        val homeFragment = HomeFragment()
+        navigationManager.showBottomNavFragment(homeFragment, R.id.homeFragment, "HOME_FRAGMENT")
+
+        // Home tab'ı seçili yapın
+        binding.bottomNavigation.selectedItemId = R.id.homeFragment
     }
 
 }
