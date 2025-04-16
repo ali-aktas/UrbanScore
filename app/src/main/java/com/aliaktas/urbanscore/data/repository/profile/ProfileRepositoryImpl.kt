@@ -5,6 +5,7 @@ import com.aliaktas.urbanscore.data.model.UserModel
 import com.aliaktas.urbanscore.data.repository.auth.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
@@ -66,8 +67,12 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun saveUserCountry(countryId: String): Result<Unit> = try {
         val currentUser = auth.currentUser ?: throw Exception("No user logged in")
 
+        // Firestore'a ülke bilgisini kaydet
         firestore.collection(USERS_COLLECTION).document(currentUser.uid)
-            .update("country", countryId)
+            .update(mapOf(
+                "country" to countryId.lowercase(), // Küçük harfe çevir
+                "updatedAt" to FieldValue.serverTimestamp() // Güncelleme zamanını da ekle
+            ))
             .await()
 
         Result.success(Unit)

@@ -12,6 +12,8 @@ import com.aliaktas.urbanscore.data.repository.city.CityRatingRepository
 import com.aliaktas.urbanscore.data.repository.city.CityRatingRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.city.CuratedCityRepository
 import com.aliaktas.urbanscore.data.repository.city.CuratedCityRepositoryImpl
+import com.aliaktas.urbanscore.data.repository.stats.CityStatsRepository
+import com.aliaktas.urbanscore.data.repository.stats.CityStatsRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -57,4 +59,14 @@ abstract class CityModule {
     abstract fun bindCityRepository(
         cityRepositoryAdapter: CityRepositoryAdapter
     ): CityRepository
+
+    @Module
+    @InstallIn(SingletonComponent::class)
+    abstract class CityStatsModule {
+        @Binds
+        @Singleton
+        abstract fun bindCityStatsRepository(
+            cityStatsRepositoryImpl: CityStatsRepositoryImpl
+        ): CityStatsRepository
+    }
 }

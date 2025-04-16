@@ -6,6 +6,7 @@ import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.data.model.CityModel
 import com.aliaktas.urbanscore.data.model.CuratedCityItem
 import com.aliaktas.urbanscore.data.repository.CityRepository
+import com.aliaktas.urbanscore.data.repository.stats.CityStatsRepository
 import com.aliaktas.urbanscore.util.NetworkUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val cityRepository: CityRepository,
+    private val cityStatsRepository: CityStatsRepository,
     private val networkUtil: NetworkUtil
 ) : BaseViewModel() {
 
@@ -42,6 +44,22 @@ class HomeViewModel @Inject constructor(
 
     private var networkObserver: Job? = null
     private var wasInErrorState = false
+
+    fun loadTopCitiesByStats() {
+        viewModelScope.launch {
+            val result = cityStatsRepository.getTopCitiesByCategory()
+            result.fold(
+                onSuccess = { cities ->
+                    // Listeyi işle
+                    _topRatedCitiesState.value = HomeState.Success(cities)
+                },
+                onFailure = { error ->
+                    // Hata yönetimi
+                    _topRatedCitiesState.value = HomeState.Error(error.message ?: "Unknown error")
+                }
+            )
+        }
+    }
 
     init {
         // İnternet bağlantısı değişikliklerini gözlemle
