@@ -14,6 +14,7 @@ import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -74,6 +75,12 @@ object AppModule {
         auth: FirebaseAuth
     ): CityRecommendationRepository {
         return CityRecommendationRepositoryImpl(firestore, auth)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFunctions(): FirebaseFunctions {
+        return FirebaseFunctions.getInstance()
     }
 
     @Provides

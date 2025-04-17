@@ -8,6 +8,7 @@ import com.aliaktas.urbanscore.data.model.UserRatingModel
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.RatingEventBus
+import com.aliaktas.urbanscore.util.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,7 +30,43 @@ class RateCityViewModel @Inject constructor(
     private val _ratingState = MutableStateFlow<RateCityState>(RateCityState.Initial)
     val ratingState: StateFlow<RateCityState> = _ratingState.asStateFlow()
 
-    // RateCityViewModel.kt içindeki submitRating fonksiyonunun tam hali:
+    // RateCityViewModel.kt dosyasına eklenecek
+    /**
+     * Kullanıcının şehirle aynı ülkeden olup olmadığını kontrol eder
+     * @param cityId Şehir ID'si
+     * @param callback Sonuç (aynı ülkeden ise true)
+     */
+    fun checkUserCountry(cityId: String, callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // Kullanıcı bilgisini al
+                val currentUser = auth.currentUser ?: return@launch callback(false)
+
+                // Şehir belgesini al
+                val cityDoc = firestore.collection("cities").document(cityId).get().await()
+                if (!cityDoc.exists()) return@launch callback(false)
+
+                // Kullanıcı belgesini al
+                val userDoc = firestore.collection("users").document(currentUser.uid).get().await()
+                if (!userDoc.exists()) return@launch callback(false)
+
+                // Ülke bilgilerini karşılaştır
+                val userCountry = userDoc.getString("country")?.lowercase() ?: ""
+                val cityCountry = cityDoc.getString("country")?.lowercase() ?: ""
+
+                val isSameCountry = userCountry.isNotEmpty() &&
+                        cityCountry.isNotEmpty() &&
+                        userCountry == cityCountry
+
+                callback(isSameCountry)
+            } catch (e: Exception) {
+                Log.e("RateCityViewModel", "Error checking user country: ${e.message}", e)
+                callback(false)
+            }
+        }
+    }
+
+
     fun submitRating(cityId: String, ratings: CategoryRatings) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -39,54 +76,22 @@ class RateCityViewModel @Inject constructor(
 
         _ratingState.value = RateCityState.Loading
 
-        // TEST için log
-        Log.d("RateCityViewModel", "Starting rating for cityId: $cityId, userId: ${currentUser.uid}")
-
         viewModelScope.launch {
             try {
-                // 1. Ortalama puanı hesapla
-                val averageRating = calculateAverageRating(ratings)
-                Log.d("RateCityViewModel", "Calculated average rating: $averageRating")
-
-                // 2. Şehre puanlamayı gönder
+                // Cloud Function tüm işi yapacak, sadece rateCity çağırıyoruz
                 val result = cityRepository.rateCity(cityId, currentUser.uid, ratings)
 
                 result.fold(
                     onSuccess = {
-                        Log.d("RateCityViewModel", "CityRepository.rateCity successful")
-                        viewModelScope.launch {
-                            try {
-                                // 3. Kullanıcının ziyaret ettiği şehirler listesine ekle
-                                val visitedResult = userRepository.addToVisitedCities(cityId, averageRating)
-
-                                visitedResult.fold(
-                                    onSuccess = {
-                                        Log.d("RateCityViewModel", "SUCCESSFULLY added to visited_cities")
-                                    },
-                                    onFailure = { e ->
-                                        Log.e("RateCityViewModel", "FAILED to add to visited_cities: ${e.message}", e)
-                                    }
-                                )
-
-                                // 4. Başarılı state'i ayarla
-                                _ratingState.value = RateCityState.Success
-
-                                // 5. Event'i yayınla (YENİ EKLENDİ)
-                                RatingEventBus.emitRatingSubmitted(cityId)
-
-                            } catch (e: Exception) {
-                                Log.e("RateCityViewModel", "Error in adding to visited cities: ${e.message}", e)
-                                _ratingState.value = RateCityState.Error("Error updating profile: ${e.message}")
-                            }
-                        }
+                        _ratingState.value = RateCityState.Success
+                        // Event'i yayınla
+                        RatingEventBus.emitRatingSubmitted(cityId)
                     },
                     onFailure = { exception ->
-                        Log.e("RateCityViewModel", "CityRepository.rateCity failed: ${exception.message}", exception)
                         _ratingState.value = RateCityState.Error(exception.message ?: "Failed to submit rating")
                     }
                 )
             } catch (e: Exception) {
-                Log.e("RateCityViewModel", "Unexpected error in submitRating: ${e.message}", e)
                 _ratingState.value = RateCityState.Error(e.message ?: "An unexpected error occurred")
             }
         }

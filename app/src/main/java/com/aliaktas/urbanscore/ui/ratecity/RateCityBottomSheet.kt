@@ -120,6 +120,19 @@ class RateCityBottomSheet : BottomSheetDialogFragment() {
                     hospitality = binding.sliderHospitality.value.toDouble()
                 )
 
+                // Kullanıcının ülke bilgisini ve şehrin ülkesini kontrol et
+                // Bu kodu ekleyin
+//                viewModel.checkUserCountry(id) { isHomeCountry ->
+//                    if (isHomeCountry) {
+//                        // Bilgi mesajı göster
+//                        Toast.makeText(
+//                            requireContext(),
+//                            "This city is in your country. Your rating will have 10% of the normal impact to ensure fair global rankings.",
+//                            Toast.LENGTH_LONG
+//                        ).show()
+//                    }
+//                }
+
                 // Gönderim sırasında kapatmayı engelle
                 isSubmitting = true
                 isCancelable = false
