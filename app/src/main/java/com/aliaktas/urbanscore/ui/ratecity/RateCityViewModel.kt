@@ -1,5 +1,6 @@
 package com.aliaktas.urbanscore.ui.ratecity
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import com.aliaktas.urbanscore.util.RatingEventBus
 import com.aliaktas.urbanscore.util.await
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,6 +69,8 @@ class RateCityViewModel @Inject constructor(
     }
 
 
+    // app/src/main/java/com/aliaktas/urbanscore/ui/ratecity/RateCityViewModel.kt
+
     fun submitRating(cityId: String, ratings: CategoryRatings) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -78,34 +82,47 @@ class RateCityViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // Cloud Function tüm işi yapacak, sadece rateCity çağırıyoruz
-                val result = cityRepository.rateCity(cityId, currentUser.uid, ratings)
-
-                result.fold(
-                    onSuccess = {
-                        _ratingState.value = RateCityState.Success
-                        // Event'i yayınla
-                        RatingEventBus.emitRatingSubmitted(cityId)
-                    },
-                    onFailure = { exception ->
-                        _ratingState.value = RateCityState.Error(exception.message ?: "Failed to submit rating")
-                    }
+                // Cloud Function için veri hazırla
+                val data = mapOf(
+                    "cityId" to cityId,
+                    "ratings" to mapOf(
+                        "gastronomy" to ratings.gastronomy,
+                        "aesthetics" to ratings.aesthetics,
+                        "safety" to ratings.safety,
+                        "culture" to ratings.culture,
+                        "livability" to ratings.livability,
+                        "social" to ratings.social,
+                        "hospitality" to ratings.hospitality
+                    )
                 )
+
+                Log.d(TAG, "Submitting rating for city: $cityId")
+
+                // Cloud Function çağrısı
+                val functions = FirebaseFunctions.getInstance()
+                val result = functions
+                    .getHttpsCallable("updateRatingOnSubmit")
+                    .call(data)
+                    .await()
+
+                // Sonucu işle
+                val response = result.data as? Map<String, Any>
+                val success = response?.get("success") as? Boolean ?: false
+
+                if (success) {
+                    Log.d(TAG, "Rating submitted successfully: ${response?.get("message")}")
+                    _ratingState.value = RateCityState.Success
+                    RatingEventBus.emitRatingSubmitted(cityId)
+                } else {
+                    val errorMessage = response?.get("message") as? String ?: "Failed to submit rating"
+                    Log.e(TAG, "Rating submission failed: $errorMessage")
+                    _ratingState.value = RateCityState.Error(errorMessage)
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "Error submitting rating", e)
                 _ratingState.value = RateCityState.Error(e.message ?: "An unexpected error occurred")
             }
         }
     }
 
-    private fun calculateAverageRating(ratings: CategoryRatings): Double {
-        // Weighted average calculation
-        val sum = (ratings.gastronomy * 1.0 +
-                ratings.aesthetics * 1.1 +
-                ratings.safety * 1.2 +
-                ratings.culture * 1.0 +
-                ratings.livability * 1.0 +
-                ratings.social * 0.9 +
-                ratings.hospitality * 0.8)
-        return (sum / 7.0).let { Math.round(it * 100) / 100.0 } // Round to 2 decimal places
-    }
 }

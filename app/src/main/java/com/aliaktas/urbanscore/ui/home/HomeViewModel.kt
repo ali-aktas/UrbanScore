@@ -89,12 +89,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Loads the top rated cities based on average rating.
-     * Always uses averageRating for HomeFragment, regardless of any category selection.
-     *
-     * @param forceRefresh If true, ignores cache and forces a new network request
-     */
+    // app/src/main/java/com/aliaktas/urbanscore/ui/home/HomeViewModel.kt
+
     fun loadTopRatedCities(forceRefresh: Boolean = false) {
         // Always use "averageRating" for HomeFragment
         val categoryToUse = "averageRating"
@@ -109,12 +105,11 @@ class HomeViewModel @Inject constructor(
         if (!networkUtil.isNetworkAvailable()) {
             if (cachedTopRatedCities != null) {
                 _topRatedCitiesState.value = HomeState.Success(cachedTopRatedCities!!)
-                // Coroutine scope içinde emitEvent çağrısı
                 viewModelScope.launch {
                     emitEvent(UiEvent.Error("No internet connection. Showing cached data."))
                 }
             } else {
-                wasInErrorState = true // Hata durumunu işaretle
+                wasInErrorState = true
                 _topRatedCitiesState.value = HomeState.Error("No internet connection. Please try again later.")
             }
             return
@@ -131,14 +126,40 @@ class HomeViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // ÖNEMLİ DEĞİŞİKLİK: Flow yerine doğrudan liste metodu çağırıyoruz
+                // CityStatsRepository'yi kullan (Cloud Function'ı çağırır)
                 val result = withContext(Dispatchers.IO) {
-                    cityRepository.getCitiesByCategoryRatingOneTime(categoryToUse, 20)
+                    cityStatsRepository.getTopCitiesByCategory(categoryToUse, 50, 20)
                 }
 
-                cachedTopRatedCities = result
-                _topRatedCitiesState.value = HomeState.Success(result)
+                result.fold(
+                    onSuccess = { cities ->
+                        Log.d("HomeViewModel", "Loaded ${cities.size} cities from Cloud Function")
+                        cachedTopRatedCities = cities
+                        _topRatedCitiesState.value = HomeState.Success(cities)
+                    },
+                    onFailure = { error ->
+                        Log.w("HomeViewModel", "Cloud Function failed, trying backup method", error)
+
+                        // Yedek metot - doğrudan repository'den al
+                        try {
+                            val backupCities = withContext(Dispatchers.IO) {
+                                cityRepository.getCitiesByCategoryRatingOneTime(categoryToUse, 20)
+                            }
+
+                            if (backupCities.isNotEmpty()) {
+                                cachedTopRatedCities = backupCities
+                                _topRatedCitiesState.value = HomeState.Success(backupCities)
+                            } else {
+                                _topRatedCitiesState.value = HomeState.Error("Failed to load cities")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("HomeViewModel", "Backup method also failed", e)
+                            _topRatedCitiesState.value = HomeState.Error("Failed to load cities. Please try again.")
+                        }
+                    }
+                )
             } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading top cities", e)
                 handleError(e)
                 wasInErrorState = true
                 _topRatedCitiesState.value = HomeState.Error(getErrorMessage(e))

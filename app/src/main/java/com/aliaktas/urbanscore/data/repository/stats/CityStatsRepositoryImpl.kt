@@ -10,6 +10,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// app/src/main/java/com/aliaktas/urbanscore/data/repository/stats/CityStatsRepositoryImpl.kt
+
 @Singleton
 class CityStatsRepositoryImpl @Inject constructor() : CityStatsRepository {
     override suspend fun getTopCitiesByCategory(
@@ -18,32 +20,47 @@ class CityStatsRepositoryImpl @Inject constructor() : CityStatsRepository {
         limit: Int
     ): Result<List<CityModel>> = withContext(Dispatchers.IO) {
         try {
+            val data = mapOf(
+                "category" to category,
+                "minRatings" to minRatings,
+                "limit" to limit
+            )
+
             val functions = FirebaseFunctions.getInstance()
             val result = functions
-                .getHttpsCallable("getTopCitiesByMinRatings")
-                .call(mapOf(
-                    "category" to category,
-                    "minRatings" to minRatings,
-                    "limit" to limit
-                ))
+                .getHttpsCallable("getTopCitiesByCategory")
+                .call(data)
                 .await()
 
             val response = result.data as? Map<String, Any>
-            if (response?.get("success") == true) {
-                val cities = (response["cities"] as? List<Map<String, Any>>)?.map { cityData ->
-                    CityModel(
-                        id = cityData["id"] as? String ?: "",
-                        cityName = cityData["cityName"] as? String ?: "",
-                        country = cityData["country"] as? String ?: "",
-                        averageRating = (cityData["averageRating"] as? Number)?.toDouble() ?: 0.0,
-                        population = (cityData["population"] as? Number)?.toLong() ?: 0,
-                        flagUrl = cityData["flagUrl"] as? String ?: "",
-                        ratings = cityData["ratings"] as? CategoryRatings ?: CategoryRatings()
-                    )
-                } ?: emptyList()
+            val success = response?.get("success") as? Boolean ?: false
+
+            if (success) {
+                @Suppress("UNCHECKED_CAST")
+                val citiesData = response?.get("cities") as? List<Map<String, Any>> ?: emptyList()
+
+                val cities = citiesData.mapNotNull { cityData ->
+                    try {
+                        CityModel(
+                            id = cityData["id"] as? String ?: "",
+                            cityName = cityData["cityName"] as? String ?: "",
+                            country = cityData["country"] as? String ?: "",
+                            flagUrl = cityData["flagUrl"] as? String ?: "",
+                            region = cityData["region"] as? String ?: "",
+                            population = (cityData["population"] as? Number)?.toLong() ?: 0,
+                            averageRating = (cityData["averageRating"] as? Number)?.toDouble() ?: 0.0,
+                            ratingCount = (cityData["ratingCount"] as? Number)?.toInt() ?: 0,
+                            ratings = cityData["ratings"] as? CategoryRatings ?: CategoryRatings()
+                        )
+                    } catch (e: Exception) {
+                        Log.e("CityStatsRepositoryImpl", "Error converting city data", e)
+                        null
+                    }
+                }
+
                 Result.success(cities)
             } else {
-                Result.failure(Exception(response?.get("error") as? String ?: "Unknown error"))
+                Result.failure(Exception("Cloud Function failed: ${response?.get("error") ?: "Unknown error"}"))
             }
         } catch (e: Exception) {
             Log.e("CityStatsRepositoryImpl", "Error fetching top cities", e)
