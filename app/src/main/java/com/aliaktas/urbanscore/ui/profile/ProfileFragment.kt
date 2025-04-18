@@ -28,6 +28,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -36,6 +38,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private var isMyTopListSelected = true
+    private var collectJob: Job? = null
     private val viewModel: ProfileViewModel by viewModels()
 
     // Adaptörleri lazy olarak başlat - sadece kullanıldığında oluşturulur
@@ -58,6 +61,44 @@ class ProfileFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Önceki işi iptal et
+        collectJob?.cancel()
+
+        // Yeni işi başlat
+        collectJob = viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Paralel flow toplama işlemleri yerine, launch'ları kaldırın
+                // ve collectLatest kullanın
+
+                // State flow
+                launch {
+                    viewModel.profileState.collectLatest { state ->
+                        updateUI(state)
+                    }
+                }
+
+                // Intent flow
+                launch {
+                    viewModel.shareIntent.collectLatest { intent ->
+                        intent?.let {
+                            try {
+                                startActivity(Intent.createChooser(it, "Share via"))
+                            } catch (e: Exception) {
+                                showMessage("Error sharing: ${e.localizedMessage}")
+                            }
+                        }
+                    }
+                }
+
+                // Event flow
+                launch {
+                    viewModel.events.collectLatest { event ->
+                        handleEvent(event)
+                    }
+                }
+            }
+        }
 
         setupRecyclerViews()
         setupClickListeners()
@@ -365,7 +406,10 @@ class ProfileFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        // İşi temizle
+        collectJob?.cancel()
+        collectJob = null
         _binding = null
+        super.onDestroyView()
     }
 }

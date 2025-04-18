@@ -99,13 +99,22 @@ class AuthViewModel @Inject constructor(
     }
 
 
+    // AuthViewModel.kt - saveUserCountry metodunu güncelle
     fun saveUserCountry(countryId: String) {
         viewModelScope.launch {
             try {
+                Log.d("AuthViewModel", "Saving user country: $countryId")
                 val result = userRepository.saveUserCountry(countryId)
-                result.onFailure { e ->
-                    _state.value = AuthState.Error("Failed to save country: ${e.message}")
-                }
+                result.fold(
+                    onSuccess = {
+                        Log.d("AuthViewModel", "✓ Country saved successfully: $countryId")
+                        // Kayıt başarılı mesajı ekleyebiliriz
+                    },
+                    onFailure = { e ->
+                        Log.e("AuthViewModel", "✗ Failed to save country: ${e.message}")
+                        _state.value = AuthState.Error("Failed to save country: ${e.message}")
+                    }
+                )
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Error saving user country", e)
                 _state.value = AuthState.Error("Failed to save country: ${e.message}")

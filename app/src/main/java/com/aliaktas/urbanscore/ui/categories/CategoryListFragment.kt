@@ -59,6 +59,12 @@ class CategoryListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d("CategoryListFragment", "onViewCreated")
 
+        if (!networkUtil.isNetworkAvailable()) {
+            binding.progressBar.visibility = View.GONE
+            Snackbar.make(binding.root, "No internet connection", Snackbar.LENGTH_LONG).show()
+            return
+        }
+
         setCategoryTitle()
         setupRecyclerView()
         setupButtons()

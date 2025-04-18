@@ -123,5 +123,11 @@ dependencies {
     implementation(libs.revenuecat)
     //implementation(libs.revenuecat.purchases.ui)
 
+    // Hızlı kaydırma için
+    implementation(libs.fastscroller)
+
+    // Opsiyonel: Bayrak gösterimi için CircleImageView
+    implementation(libs.circle.imageview)
+
     implementation(libs.ump)
 }

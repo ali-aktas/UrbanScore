@@ -6,5 +6,6 @@ data class UserModel(
     val displayName: String = "",
     val photoUrl: String = "",
     val visited_cities: Map<String, Double> = emptyMap(),
-    val wishlist_cities: List<String> = emptyList()
+    val wishlist_cities: List<String> = emptyList(),
+    val country: String = "" // Ülke alanı eklendi
 )
