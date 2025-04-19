@@ -63,15 +63,17 @@ class CityDetailViewModel @Inject constructor(
     private val _showComments = MutableStateFlow(false)
 
 
-    // CityDetailViewModel.kt içindeki init bloğuna şu güncellemeyi yap
     init {
         loadCityDetails()
 
-        // Rating event'lerini dinle (güncellendi)
+        // Rating event'lerini dinle
         viewModelScope.launch {
             RatingEventBus.events.collect { event ->
                 if (event.cityId == cityId) {
                     Log.d("CityDetailViewModel", "Rating event received, refreshing data silently: ${event.silentRefresh}")
+
+                    // Başarılı puanlama animasyonunu göster
+                    _detailEvents.emit(CityDetailEvent.ShowRatingSuccessAnimation)
 
                     if (event.silentRefresh) {
                         // Sessiz yenileme yap (Loading state göstermeden)
@@ -85,7 +87,6 @@ class CityDetailViewModel @Inject constructor(
         }
     }
 
-    // Yeni metot ekle - sessiz yenileme için
     private fun loadCityDetailsSilently() {
         viewModelScope.launch {
             try {
@@ -119,8 +120,6 @@ class CityDetailViewModel @Inject constructor(
         }
     }
 
-
-    // CityDetailViewModel.kt içindeki loadCityDetails fonksiyonunu değiştirin:
 
     fun loadCityDetails() {
         if (!networkUtil.isNetworkAvailable()) {

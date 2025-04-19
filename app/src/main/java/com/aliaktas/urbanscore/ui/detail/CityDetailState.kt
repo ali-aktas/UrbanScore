@@ -46,7 +46,7 @@ sealed class CityDetailEvent {
     data class ShowMessage(val message: String) : CityDetailEvent()
     data class ShareCity(val shareIntent: android.content.Intent) : CityDetailEvent()
     data object DismissRatingSheet : CityDetailEvent()
-
+    data object ShowRatingSuccessAnimation : CityDetailEvent()
     data class ShowCommentBottomSheet(val cityId: String) : CityDetailEvent()
     data class LikeCommentResult(val success: Boolean, val message: String) : CityDetailEvent()
     data class AddCommentResult(val success: Boolean, val message: String) : CityDetailEvent()

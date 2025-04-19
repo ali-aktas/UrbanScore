@@ -142,7 +142,28 @@ class CityDetailFragment : Fragment() {
         }
     }
 
-    // CityDetailFragment.kt içine ekleyin
+    fun showRatingSuccessAnimation() {
+        // Overlay'i görünür yap
+        binding.ratingSuccessOverlay.visibility = View.VISIBLE
+
+        // Animasyonu oynat
+        binding.animationSuccess.playAnimation()
+
+        // Animasyon bittiğinde overlay'i kapat
+        binding.animationSuccess.addAnimatorListener(object : android.animation.Animator.AnimatorListener {
+            override fun onAnimationStart(animation: android.animation.Animator) {}
+            override fun onAnimationCancel(animation: android.animation.Animator) {}
+            override fun onAnimationRepeat(animation: android.animation.Animator) {}
+
+            override fun onAnimationEnd(animation: android.animation.Animator) {
+                // Overlay'i 1 saniye daha gösterip sonra kapat
+                binding.animationSuccess.postDelayed({
+                    binding.ratingSuccessOverlay.visibility = View.GONE
+                }, 1000)
+            }
+        })
+    }
+
     fun navigateBack() {
         try {
             (requireActivity() as? MainActivity)?.handleBackPressed() ?:

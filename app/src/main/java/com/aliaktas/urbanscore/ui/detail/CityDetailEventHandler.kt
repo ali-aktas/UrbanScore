@@ -23,6 +23,7 @@ class CityDetailEventHandler @Inject constructor(
 ) {
     private val TAG = "CityDetailEventHandler"
 
+    // CityDetailEventHandler.kt içindeki handleEvent metodunu güncelle
     fun handleEvent(event: CityDetailEvent, fragment: Fragment) {
         when (event) {
             is CityDetailEvent.OpenUrl -> openUrl(event.url, fragment)
@@ -30,6 +31,11 @@ class CityDetailEventHandler @Inject constructor(
             is CityDetailEvent.ShareCity -> fragment.startActivity(Intent.createChooser(event.shareIntent, "Share via"))
             is CityDetailEvent.ShowRatingSheet -> showRatingBottomSheet(event.cityId, fragment)
             is CityDetailEvent.ShowCommentBottomSheet -> showCommentBottomSheet(event.cityId, fragment)
+            is CityDetailEvent.ShowRatingSuccessAnimation -> {
+                if (fragment is CityDetailFragment) {
+                    fragment.showRatingSuccessAnimation()
+                }
+            }
             else -> {
                 // Diğer olayları işle
             }

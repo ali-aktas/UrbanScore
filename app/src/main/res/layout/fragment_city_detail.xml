@@ -25,7 +25,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="14dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -44,9 +44,10 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Close button"
             android:src="@drawable/ic_close"
+            android:layout_marginTop="14dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary_purple" />
+            app:tint="@color/primary_light" />
 
         <!-- Şehir Adı -->
         <TextView
@@ -217,8 +218,7 @@
                     <com.github.mikephil.charting.charts.RadarChart
                         android:id="@+id/radarChart"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        />
+                        android:layout_height="match_parent" />
                 </FrameLayout>
 
                 <!-- Rate City ve Bucket List Butonları -->
@@ -237,7 +237,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="64dp"
                         android:layout_marginBottom="12dp"
-                        android:background="@drawable/btn_gradient_primary"
+                        android:background="@drawable/btn_gradient_third"
                         android:textSize="14sp"
                         android:fontFamily="@font/montserrat_alternates_regular"
                         android:text="@string/rate_this_city"
@@ -249,11 +249,10 @@
                         android:id="@+id/btnAddToWishlist"
                         android:layout_height="64dp"
                         android:layout_width="match_parent"
-                        android:background="@drawable/btn_gradient_third"
+                        android:background="@drawable/btn_gradient_secondary"
                         android:textSize="14sp"
                         android:fontFamily="@font/montserrat_alternates_regular"
                         android:text="@string/add_to_wishlist"
-                        app:strokeColor="@color/primary"
                         app:strokeWidth="1dp"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
@@ -287,7 +286,7 @@
                     android:textSize="11sp"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:backgroundTint="@color/primary_gray" />
+                    app:backgroundTint="@null" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAddComment"
@@ -295,13 +294,13 @@
                     android:layout_height="32dp"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
-                    android:background="@drawable/btn_gradient_secondary"
+                    android:background="@drawable/btn_gradient_third"
                     android:fontFamily="@font/montserrat_alternates_regular"
                     android:text="Add comment"
                     android:textSize="11sp"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
-                    app:backgroundTint="@color/primary_gray" />
+                    app:backgroundTint="@null" />
             </LinearLayout>
 
             <View
@@ -606,11 +605,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Explore this city on.."
+                android:text="Explore this city on"
                 android:textColor="@color/white"
-                android:textSize="24sp"
-                android:fontFamily="@font/montserrat_bold"
-                android:layout_marginBottom="12dp"/>
+                android:textSize="14sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_alternates_light"
+                android:layout_marginBottom="8dp"/>
 
             <!-- Explore Butonları -->
             <LinearLayout
@@ -623,9 +624,10 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExploreYouTube"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="38dp"
                     android:layout_weight="1"
-                    android:background="@drawable/btn_gradient_primary"
+                    android:backgroundTint="#E10000"
+                    app:cornerRadius="18dp"
                     android:fontFamily="@font/montserrat_alternates_regular"
                     android:text="YouTube"
                     android:textAllCaps="false"
@@ -643,9 +645,10 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExploreGoogle"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="38dp"
                     android:layout_weight="1"
-                    android:background="@drawable/btn_gradient_secondary"
+                    app:cornerRadius="18dp"
+                    android:backgroundTint="#174E7E"
                     android:fontFamily="@font/montserrat_alternates_regular"
                     android:text="Google"
                     android:textAllCaps="false"
@@ -760,4 +763,43 @@
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/loading_animation" />
     </FrameLayout>
+
+    <!-- Rating Success Animation Overlay -->
+    <FrameLayout
+        android:id="@+id/ratingSuccessOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/animationSuccess"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                app:lottie_autoPlay="false"
+                app:lottie_loop="false"
+                app:lottie_rawRes="@raw/succesfully_animation" />
+
+            <TextView
+                android:id="@+id/tvRatingSuccess"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="You've rated this city!"
+                android:layout_marginTop="-20dp"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:textAlignment="center" />
+        </LinearLayout>
+    </FrameLayout>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
