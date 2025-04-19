@@ -43,12 +43,13 @@
     <style name="CustomSliderStyle" parent="Widget.MaterialComponents.Slider">
         <item name="tickVisible">false</item>
         <item name="labelBehavior">gone</item>
-        <item name="thumbRadius">24dp</item>
-        <item name="thumbHeight">18dp</item>
-        <item name="trackHeight">8dp</item>
+        <item name="thumbRadius">36dp</item>
+        <item name="thumbHeight">24dp</item>
+        <item name="thumbWidth">24dp</item>
+        <item name="trackHeight">18dp</item>
         <item name="trackColorInactive">#E0E0E0</item>
         <item name="trackColorActive">@color/primary_purple</item>
-        <item name="thumbColor">@color/primary_purple</item>
+        <item name="thumbColor">#1BA4C6</item>
         <item name="thumbElevation">1dp</item>
         <item name="haloColor">#882D6D62</item>
         <item name="haloRadius">2dp</item>

@@ -15,331 +15,504 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
+            <!-- Main Title -->
             <TextView
                 android:id="@+id/tvRateTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:fontFamily="@font/roboto_extralight"
-                android:text="Rate This City"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/city_rating_main_title"
                 android:textColor="@color/white"
-                android:textSize="18sp"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_marginBottom="16dp"/>
+                android:textSize="22sp"
+                android:layout_marginBottom="24dp"/>
 
-            <!-- Gastronomy & Diversity Category -->
-            <LinearLayout
+            <!-- Culinary Experience (Gastronomy) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/gastronomy_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderGastronomy"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    android:value="5.0"
-                    style="@style/CustomSliderStyle"/>
+                    <!-- Category Title -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_gastronomy_title" />
 
-                <TextView
-                    android:id="@+id/tvGastronomyRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <!-- Category Description -->
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_gastronomy_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- City Aesthetics Category -->
-            <LinearLayout
+                    <!-- Slider and Rating -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderGastronomy"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvGastronomyRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Urban Beauty (Aesthetics) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/aesthetics_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderAesthetics"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_aesthetics_title" />
 
-                <TextView
-                    android:id="@+id/tvAestheticsRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_aesthetics_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- Safety & Peace Category -->
-            <LinearLayout
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderAesthetics"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvAestheticsRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Security and Comfort (Safety) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/safety_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderSafety"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_safety_title" />
 
-                <TextView
-                    android:id="@+id/tvSafetyRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_safety_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- Cultural Heritage Category -->
-            <LinearLayout
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderSafety"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvSafetyRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Cultural Richness (Culture) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/culture_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderCulture"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_culture_title" />
 
-                <TextView
-                    android:id="@+id/tvCultureRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_culture_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- Livability & Nature Category -->
-            <LinearLayout
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderCulture"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvCultureRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Urban Convenience (Livability) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/livability_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderLivability"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_livability_title" />
 
-                <TextView
-                    android:id="@+id/tvLivabilityRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_livability_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- Social Life & Affordability Category -->
-            <LinearLayout
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderLivability"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvLivabilityRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Social Vibrancy (Social) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:text="@string/social_title"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderSocial"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_social_title" />
 
-                <TextView
-                    android:id="@+id/tvSocialRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_social_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
 
-            <!-- Local Hospitality Category -->
-            <LinearLayout
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderSocial"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvSocialRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Local Warmth (Hospitality) Category -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:strokeColor="@color/primary_light"
+                app:strokeWidth="1dp">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.3"
-                    android:fontFamily="@font/poppins_medium"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:text="@string/hospitality_title"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                    android:textStyle="bold" />
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sliderHospitality"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
-                    android:valueFrom="0.0"
-                    android:valueTo="10.0"
-                    android:stepSize="0.1"
-                    style="@style/CustomSliderStyle"
-                    android:value="5.0"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:text="@string/city_rating_hospitality_title" />
 
-                <TextView
-                    android:id="@+id/tvHospitalityRating"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.1"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center"
-                    android:textSize="18sp"
-                    android:fontFamily="@font/poppins_bold"
-                    android:textColor="#1BA4C6"
-                    android:text="5.0"/>
-            </LinearLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:textColor="@color/primary_light"
+                        android:textSize="13sp"
+                        android:text="@string/city_rating_hospitality_desc"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderHospitality"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.85"
+                            android:valueFrom="0.0"
+                            android:valueTo="10.0"
+                            android:stepSize="0.05"
+                            android:value="5.0"
+                            style="@style/CustomSliderStyle"/>
+
+                        <TextView
+                            android:id="@+id/tvHospitalityRating"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0.15"
+                            android:layout_marginStart="8dp"
+                            android:gravity="center"
+                            android:textSize="18sp"
+                            android:fontFamily="@font/montserrat_alternates_black"
+                            android:textColor="#1BA4C6"
+                            android:text="5.0"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Submit Button -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmitRating"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/poppins_medium"
-                android:text="Submit Your Rating"
-                android:backgroundTint="@color/primary"
-                android:textAllCaps="false"/>
+                android:layout_height="58dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/montserrat_alternates_bold"
+                android:text="@string/city_rating_submit_button"
+                android:backgroundTint="@color/primary_purple"
+                android:textAllCaps="false"
+                android:textSize="16sp"/>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

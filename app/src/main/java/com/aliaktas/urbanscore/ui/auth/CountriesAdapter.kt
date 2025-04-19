@@ -4,22 +4,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.data.model.CountryModel
 import com.aliaktas.urbanscore.databinding.ItemCountrySelectionBinding
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import me.zhanghai.android.fastscroll.PopupTextProvider
 import java.util.Locale
 
 class CountriesAdapter :
     RecyclerView.Adapter<CountriesAdapter.CountryViewHolder>(),
-    PopupTextProvider {  // Yeni FastScroller için implementasyon
+    PopupTextProvider {
 
     private var allCountries: List<CountryModel> = listOf()
     private var filteredCountries: List<CountryModel> = listOf()
     private var selectedPosition = -1
 
-    // Ülke seçildiğinde çağrılacak metot
+    // Harf => Pozisyon indeks haritası (hızlı kaydırma için)
+    private val letterToPositionMap = mutableMapOf<String, Int>()
+
+    // Ülke seçildiğinde çağrılacak lambda
     var onItemClick: ((CountryModel) -> Unit)? = null
 
     // Seçilen ülkeyi döndürür
@@ -31,29 +36,34 @@ class CountriesAdapter :
         }
     }
 
-    // Tüm ülkeleri set et
+    // Tüm ülkeleri ayarla ve harf indekslerini güncelle
     fun setCountries(countries: List<CountryModel>) {
-        this.allCountries = countries.sortedBy { it.name } // Alfabetik sırala
+        this.allCountries = countries.sortedBy { it.name }
         this.filteredCountries = allCountries
+        updateLetterPositionMap()
         notifyDataSetChanged()
     }
 
-    // Arama metodu
+    // Sadece arama fonksiyonunu düzeltiyoruz - diğer her şey aynı kalıyor
     fun filter(query: String) {
-        // Eski seçimi temizle
+        // Eski seçimi hatırla
         val oldSelectedCountry = getSelectedCountry()
         selectedPosition = -1
 
-        // Filtreleme
-        filteredCountries = if (query.isEmpty()) {
-            allCountries
+        // Arama terimi boşsa tüm ülkeleri göster
+        if (query.isEmpty()) {
+            filteredCountries = allCountries
         } else {
-            allCountries.filter {
-                it.name.lowercase(Locale.getDefault()).contains(query.lowercase(Locale.getDefault()))
+            // Normalize edilmiş arama terimi
+            val normalizedQuery = normalizeForSearch(query.trim())
+
+            // Basit ve etkili arama algoritması
+            filteredCountries = allCountries.filter { country ->
+                normalizeForSearch(country.name).contains(normalizedQuery)
             }
         }
 
-        // Eğer seçili bir ülke varsa ve filtrede hala mevcutsa, seçili kalsın
+        // Eğer seçilen ülke filtrede hala varsa, seçili olarak işaretle
         if (oldSelectedCountry != null) {
             val newPos = filteredCountries.indexOfFirst { it.id == oldSelectedCountry.id }
             if (newPos >= 0) {
@@ -61,7 +71,40 @@ class CountriesAdapter :
             }
         }
 
+        // Harf indekslerini güncelle
+        updateLetterPositionMap()
         notifyDataSetChanged()
+    }
+
+    // Türkçe karakterleri normalize etmek için yardımcı fonksiyon
+    private fun normalizeForSearch(text: String): String {
+        return text.lowercase(Locale.getDefault())
+            .replace("i̇", "i") // büyük İ'nin lowercase hali
+            .replace("İ", "i")
+            .replace("ı", "i")
+            .replace("ğ", "g")
+            .replace("ü", "u")
+            .replace("ş", "s")
+            .replace("ö", "o")
+            .replace("ç", "c")
+    }
+
+    // Harf => pozisyon haritasını güncelle
+    private fun updateLetterPositionMap() {
+        letterToPositionMap.clear()
+        filteredCountries.forEachIndexed { index, country ->
+            val firstLetter = country.name.substring(0, 1).uppercase(Locale.getDefault())
+            if (!letterToPositionMap.containsKey(firstLetter)) {
+                letterToPositionMap[firstLetter] = index
+            }
+        }
+    }
+
+    // FastScroller için popup metni sağlayan metot (ilk harf)
+    override fun getPopupText(view: View, position: Int): CharSequence {
+        if (position < 0 || position >= filteredCountries.size) return ""
+        val country = filteredCountries[position]
+        return country.name.substring(0, 1).uppercase(Locale.getDefault())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CountryViewHolder {
@@ -79,11 +122,6 @@ class CountriesAdapter :
 
     override fun getItemCount() = filteredCountries.size
 
-    // Yeni FastScroller için popup metin sağlayıcı (ilk harf)
-    override fun getPopupText(view: View, position: Int): CharSequence {
-        return filteredCountries[position].name.substring(0, 1).uppercase(Locale.getDefault())
-    }
-
     inner class CountryViewHolder(
         private val binding: ItemCountrySelectionBinding
     ) : RecyclerView.ViewHolder(binding.root) {
@@ -95,7 +133,7 @@ class CountriesAdapter :
                     val oldPosition = selectedPosition
                     selectedPosition = position
 
-                    // Görünümü güncelle
+                    // Eski ve yeni seçili öğeleri güncelle
                     if (oldPosition >= 0 && oldPosition < filteredCountries.size) {
                         notifyItemChanged(oldPosition)
                     }
@@ -108,20 +146,21 @@ class CountriesAdapter :
         }
 
         fun bind(country: CountryModel, isSelected: Boolean) {
-            // Ülke adı
+            // Ülke adı ayarla
             binding.textCountryName.text = country.name
 
-            // Bayrak - Glide ile optimize edilmiş yükleme
+            // Bayrak resmini yükle - optimize edilmiş şekilde
             if (country.flagUrl.isNotEmpty()) {
                 Glide.with(binding.root.context)
                     .load(country.flagUrl)
                     .apply(RequestOptions()
-                        .placeholder(com.aliaktas.urbanscore.R.drawable.ic_flag)
-                        .error(com.aliaktas.urbanscore.R.drawable.ic_flag)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.ic_flag)
+                        .error(R.drawable.ic_flag)
                     )
                     .into(binding.imageCountryFlag)
             } else {
-                binding.imageCountryFlag.setImageResource(com.aliaktas.urbanscore.R.drawable.ic_flag)
+                binding.imageCountryFlag.setImageResource(R.drawable.ic_flag)
             }
 
             // Seçim durumunu güncelle

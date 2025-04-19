@@ -66,6 +66,32 @@
     <string name="best_cities_social">Best Cities for Social Life &amp; Affordability</string>
     <string name="best_cities_hospitality">Best Cities for Local Hospitality</string>
 
+    <!-- Main Title -->
+    <string name="city_rating_main_title">Explore and Rate Your City</string>
+
+    <!-- Category Titles -->
+    <string name="city_rating_gastronomy_title">Culinary Experience</string>
+    <string name="city_rating_aesthetics_title">Urban Beauty</string>
+    <string name="city_rating_safety_title">Security and Comfort</string>
+    <string name="city_rating_culture_title">Cultural Richness</string>
+    <string name="city_rating_livability_title">Urban Convenience</string>
+    <string name="city_rating_social_title">Social Vibrancy</string>
+    <string name="city_rating_hospitality_title">Local Warmth</string>
+
+    <!-- Category Descriptions -->
+    <string name="city_rating_gastronomy_desc">Discover the city\'s culinary diversity: From street food to gourmet restaurants, how exciting are the dining experiences?</string>
+    <string name="city_rating_aesthetics_desc">Capture the city\'s visual essence: How beautiful and photogenic are its streets, architecture, and landscapes?</string>
+    <string name="city_rating_safety_desc">Evaluate your sense of security: How safe and comfortable do you feel exploring the city day and night?</string>
+    <string name="city_rating_culture_desc">Experience the city\'s cultural heartbeat: How rich are its museums, historical sites, and cultural traditions?</string>
+    <string name="city_rating_livability_desc">Assess urban comfort: How convenient are transportation, green spaces, and daily living?</string>
+    <string name="city_rating_social_desc">Feel the city\'s energy: How diverse and exciting are entertainment, social events, and meeting spots?</string>
+    <string name="city_rating_hospitality_desc">Measure local friendliness: How welcoming and helpful are the residents to visitors?</string>
+
+    <!-- Button and Additional Texts -->
+    <string name="city_rating_submit_button">Share Your City Experience</string>
+    <string name="city_rating_submit_success">Thank you for rating this city!</string>
+    <string name="city_rating_submit_error">Oops! Something went wrong. Please try again.</string>
+
     <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_explore">Explore</string>

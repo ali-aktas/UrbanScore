@@ -23,6 +23,8 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.zhanghai.android.fastscroll.FastScrollerBuilder
+import me.zhanghai.android.fastscroll.FastScroller
 
 @AndroidEntryPoint
 class CountrySelectionFragment : Fragment() {
@@ -31,8 +33,9 @@ class CountrySelectionFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: CountrySelectionViewModel by viewModels()
     private lateinit var countriesAdapter: CountriesAdapter
+    private var fastScroller: FastScroller? = null
 
-    // Arama gecikme işleyicisi
+    // Arama gecikmesi için handler
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
 
@@ -54,31 +57,40 @@ class CountrySelectionFragment : Fragment() {
         observeViewModel()
     }
 
-    // CountrySelectionFragment.kt içindeki setupRecyclerView metodunu güncelle
-
     private fun setupRecyclerView() {
+        // Adapter'ı yapılandır
         countriesAdapter = CountriesAdapter()
+
+        // RecyclerView'ı yapılandır
         binding.recyclerViewCountries.apply {
             adapter = countriesAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
         }
 
-        // Hızlı kaydırma ayarları - Yeni kütüphane ile
-        me.zhanghai.android.fastscroll.FastScrollerBuilder(binding.fastScroller)
-            .setPopupTextProvider(countriesAdapter)
-            .build()
+        // FastScroller oluştur
+        try {
+            fastScroller = FastScrollerBuilder(binding.recyclerViewCountries)
+                .useMd2Style() // Material Design 2 stili
+                .setPopupTextProvider(countriesAdapter)
+                .build()
 
-        // Ülke seçimi callback'i
+            Log.d("CountrySelection", "FastScroller successfully initialized")
+        } catch (e: Exception) {
+            Log.e("CountrySelection", "Error initializing FastScroller", e)
+            // FastScroller olmadan devam et
+        }
+
+        // Ülke seçim callback'i
         countriesAdapter.onItemClick = { country ->
             Log.d("CountrySelection", "Selected country: ${country.name} (${country.id})")
-            // Hata mesajını gizle
+            // Hata mesajını gizle (eğer görünüyorsa)
             binding.tvError.visibility = View.GONE
         }
     }
 
     private fun setupSearchView() {
-        // Arama kutusu değişikliklerini dinle
+        // Arama kutusuna metin değişikliği dinleyicisi ekle
         binding.etSearch.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -86,7 +98,7 @@ class CountrySelectionFragment : Fragment() {
                 // Mevcut aramayı iptal et
                 searchRunnable?.let { searchHandler.removeCallbacks(it) }
 
-                // 300ms sonra filtreleme yap (performans için)
+                // 300ms gecikme ile filtreleme yap (performans için)
                 searchRunnable = Runnable {
                     countriesAdapter.filter(s.toString())
                 }
@@ -94,7 +106,7 @@ class CountrySelectionFragment : Fragment() {
             }
         })
 
-        // Klavyeden aramayı yap
+        // Klavyeden arama yapıldığında
         binding.etSearch.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 // Klavyeyi kapat
@@ -108,18 +120,18 @@ class CountrySelectionFragment : Fragment() {
 
     private fun setupButtons() {
         binding.btnContinue.setOnClickListener {
-            // Seçili ülke yoksa uyarı göster
+            // Seçili ülke var mı kontrol et
             val selectedCountry = countriesAdapter.getSelectedCountry()
             if (selectedCountry == null) {
                 binding.tvError.visibility = View.VISIBLE
                 return@setOnClickListener
             }
 
-            // Butonu devre dışı bırak
+            // Buton ve UI durum güncellemesi
             binding.btnContinue.isEnabled = false
             binding.progressBar.visibility = View.VISIBLE
 
-            // Ülke ID'sini kaydet
+            // Ülke bilgisini kaydet
             viewModel.saveUserCountry(selectedCountry.id)
         }
     }
@@ -127,7 +139,7 @@ class CountrySelectionFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                // Ülke listesi
+                // Ülke listesini izle
                 launch {
                     viewModel.countries.collectLatest { countries ->
                         Log.d("CountrySelection", "Loaded ${countries.size} countries")
@@ -135,7 +147,7 @@ class CountrySelectionFragment : Fragment() {
                     }
                 }
 
-                // Yükleme durumu
+                // Yükleme durumunu izle
                 launch {
                     viewModel.isLoading.collectLatest { isLoading ->
                         binding.progressBar.isVisible = isLoading
@@ -143,7 +155,7 @@ class CountrySelectionFragment : Fragment() {
                     }
                 }
 
-                // Hata durumu
+                // Hata durumunu izle
                 launch {
                     viewModel.error.collectLatest { errorMsg ->
                         if (errorMsg != null) {
@@ -153,11 +165,11 @@ class CountrySelectionFragment : Fragment() {
                     }
                 }
 
-                // Ülke kaydedildi
+                // Ülke kaydedildi durumunu izle
                 launch {
                     viewModel.countrySaved.collectLatest { saved ->
                         if (saved) {
-                            // Ana sayfaya git
+                            // Ana sayfaya yönlendir
                             (requireActivity() as MainActivity).navigateToHomeAfterLogin()
                         }
                     }
@@ -168,8 +180,14 @@ class CountrySelectionFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Arama işleyiciyi temizle
+
+        // Handler'ı temizle
         searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+        // Binding'i temizle
         _binding = null
+
+        // FastScroller referansını temizle
+        fastScroller = null
     }
 }
