@@ -20,8 +20,8 @@
         <!-- Logo -->
         <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="120dp"
-            android:layout_height="100dp"
+            android:layout_width="80dp"
+            android:layout_height="70dp"
             android:contentDescription="@string/app_logo"
             android:src="@drawable/roamly_icon"
             app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/montserrat_alternates_bold"
+            android:fontFamily="@font/montserrat_alternates_regular"
             android:text="@string/app_name"
             android:textColor="@color/primary_purple"
             android:textSize="42sp"
@@ -47,10 +47,10 @@
             android:id="@+id/tvTagline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/montserrat_alternates_regular"
+            android:fontFamily="@font/montserrat_alternates_bold"
             android:text="@string/for_travellers"
             android:textColor="@color/primary_light"
-            android:textSize="18sp"
+            android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvAppName" />

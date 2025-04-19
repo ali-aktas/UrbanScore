@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="4dp">
+
+    <TextView
+        android:id="@+id/tvRank"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/primary_purple"
+        android:textSize="12sp"
+        android:fontFamily="@font/montserrat_alternates_bold"
+        android:layout_marginStart="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/ivCityFlag"
+        android:layout_width="20dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="12dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tvRank"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/RoundedFlagStyle"
+        android:background="@null"
+        tools:src="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/tvCityName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:gravity="center_vertical"
+        android:fontFamily="@font/montserrat_bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ratingContainer"
+        app:layout_constraintStart_toEndOf="@id/ivCityFlag"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="My best city" />
+
+    <LinearLayout
+        android:id="@+id/ratingContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/imgStar"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_star"
+            android:contentDescription="@string/rating_star" />
+
+        <TextView
+            android:id="@+id/tvRating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:textColor="#F3A303"
+            android:gravity="center"
+            android:layout_gravity="center_vertical"
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="9.99" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

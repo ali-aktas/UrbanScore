@@ -6,7 +6,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowBackground">@drawable/category_social_bg</item>
+        <item name="android:windowBackground">@drawable/appmainbg</item>
     </style>
 
     <style name="Theme.UrbanScore" parent="Base.Theme.UrbanScore" />
@@ -45,11 +45,11 @@
         <item name="labelBehavior">gone</item>
         <item name="thumbRadius">36dp</item>
         <item name="thumbHeight">24dp</item>
-        <item name="thumbWidth">24dp</item>
+        <item name="thumbWidth">20dp</item>
         <item name="trackHeight">18dp</item>
         <item name="trackColorInactive">#E0E0E0</item>
         <item name="trackColorActive">@color/primary_purple</item>
-        <item name="thumbColor">#1BA4C6</item>
+        <item name="thumbColor">#883EFF</item>
         <item name="thumbElevation">1dp</item>
         <item name="haloColor">#882D6D62</item>
         <item name="haloRadius">2dp</item>
@@ -67,6 +67,7 @@
     <style name="CustomBottomSheetStyle" parent="Widget.MaterialComponents.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
         <item name="behavior_peekHeight">0dp</item>
+        <item name="android:radius">18dp</item>
         <item name="behavior_fitToContents">true</item>
         <item name="behavior_hideable">true</item>
     </style>
@@ -74,6 +75,12 @@
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+
+    <!-- bayrak layoutu -->
+    <style name="RoundedFlagStyle">
+        <item name="cornerSize">30%</item>
+        <item name="cornerFamily">rounded</item>
     </style>
 
 </resources>

@@ -5,18 +5,24 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Environment
 import androidx.core.content.FileProvider
+import com.aliaktas.urbanscore.data.model.ShareCityItem
 import com.aliaktas.urbanscore.ui.profile.VisitedCityItem
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// app/src/main/java/com/aliaktas/urbanscore/util/ImageUtils.kt içinde değişiklik
+
 @Singleton
 class ImageUtils @Inject constructor(
     private val context: Context
 ) {
-    // ShareImageGenerator'ı burada kullanıyoruz
+    // Eski ShareImageGenerator'ı referans olarak tutalım
     private val shareImageGenerator = ShareImageGenerator(context)
+
+    // Yeni layout tabanlı generator'ı ekleyelim
+    private val shareLayoutGenerator = ShareLayoutGenerator(context)
 
     /**
      * Ziyaret edilen şehirler için paylaşım görseli oluşturur
@@ -25,12 +31,24 @@ class ImageUtils @Inject constructor(
      * @param totalCount Toplam şehir sayısı
      * @return Oluşturulan bitmap
      */
-    fun createVisitedCitiesImage(
+    suspend fun createVisitedCitiesImage(
         cities: List<VisitedCityItem>,
         totalCount: Int
     ): Bitmap {
-        // Görüntü oluşturma işini ShareImageGenerator'a delege ediyoruz
-        return shareImageGenerator.createVisitedCitiesImage(cities, totalCount)
+        // VisitedCityItem'dan ShareCityItem'a dönüştür
+        val shareCities = cities.mapIndexed { index, city ->
+            ShareCityItem(
+                id = city.id,
+                name = city.name,
+                country = city.country,
+                flagUrl = city.flagUrl,
+                rating = city.userRating,
+                position = index + 1
+            )
+        }
+
+        // Yeni layout generator'ı kullan
+        return shareLayoutGenerator.createCitiesShareImage(shareCities, totalCount)
     }
 
     /**

@@ -154,7 +154,7 @@
     <string name="yes">Yes</string>
     <string name="logout_success">Logged out successfully.</string>
     <string name="web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
-
+    <string name="share_visit_count">I\'ve visited %d cities around the world</string>
 
     <!-- Auth Strings -->
     <string name="email_or_phone">Email or Phone</string>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="1080px"
+    android:layout_height="1920px"
+    android:background="@drawable/appmainbg">
+
+    <LinearLayout
+        android:id="@+id/titleLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Logo ve Başlık -->
+        <ImageView
+            android:id="@+id/ivAppLogo"
+            android:layout_width="32dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:src="@drawable/roamly_icon"/>
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginStart="2dp"
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:text="Roamly App"
+            android:textColor="@color/primary_purple"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvShareTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/montserrat_black"
+        android:text="My Top Rated Cities"
+        android:textColor="@color/primary_light"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleLayout" />
+
+    <TextView
+        android:id="@+id/tvVisitCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/montserrat_alternates_light"
+        android:text="I've visited 42 cities around the world"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvShareTitle" />
+
+    <!-- Şehir Listesi Kartı -->
+    <FrameLayout
+        android:id="@+id/cardCitiesList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="40dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="8dp"
+        android:background="@drawable/profilelistbg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvVisitCount"
+        app:layout_constraintVertical_bias="0.0">
+
+        <!-- Şehir Listesi -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvShareCities"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="14dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="18dp"
+            tools:listitem="@layout/item_share_city" />
+    </FrameLayout>
+
+
+    <!-- Alt Promo Metin -->
+    <TextView
+        android:id="@+id/tvPromoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/montserrat_alternates_regular"
+        android:text="Wanna rate your cities in 7 ways? → Get the app."
+        android:textColor="@color/primary_light"
+        android:textSize="10sp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/appStoreLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <!-- App Store ve Google Play Logoları -->
+    <LinearLayout
+        android:id="@+id/appStoreLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/ivGooglePlay"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/google_play_badge" />
+
+        <ImageView
+            android:id="@+id/ivAppStore"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="12dp"
+            android:src="@drawable/app_store_badge" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
