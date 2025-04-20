@@ -27,7 +27,6 @@ class AuthRepositoryImpl @Inject constructor(
     override fun getCurrentUser(): Flow<UserModel?> = callbackFlow {
         val authStateListener = FirebaseAuth.AuthStateListener { auth ->
             if (auth.currentUser != null) {
-                // Kullanıcı giriş yapmış, Firestore'dan detaylı bilgileri al
                 firestore.collection(USERS_COLLECTION).document(auth.currentUser!!.uid)
                     .addSnapshotListener { documentSnapshot, error ->
                         if (error != null) {
@@ -40,14 +39,16 @@ class AuthRepositoryImpl @Inject constructor(
                             val user = auth.currentUser!!
                             val data = documentSnapshot.data ?: mapOf<String, Any>()
 
-                            // visited_cities ve wishlist_cities alanlarını dikkatlice al
                             @Suppress("UNCHECKED_CAST")
                             val visitedCities = data["visited_cities"] as? Map<String, Double> ?: emptyMap()
 
                             @Suppress("UNCHECKED_CAST")
                             val wishlistCities = data["wishlist_cities"] as? List<String> ?: emptyList()
 
-                            Log.d(TAG, "Loaded user with ${visitedCities.size} visited cities and ${wishlistCities.size} wishlist cities")
+                            // country alanını al
+                            val country = data["country"] as? String ?: ""
+
+                            Log.d(TAG, "User data loaded: ${user.uid}, country=$country, has ${visitedCities.size} visited cities")
 
                             val userModel = UserModel(
                                 id = user.uid,
@@ -55,16 +56,15 @@ class AuthRepositoryImpl @Inject constructor(
                                 displayName = user.displayName ?: data["display_name"] as? String ?: "",
                                 photoUrl = user.photoUrl?.toString() ?: data["photo_url"] as? String ?: "",
                                 visited_cities = visitedCities,
-                                wishlist_cities = wishlistCities
+                                wishlist_cities = wishlistCities,
+                                country = country
                             )
                             trySend(userModel)
                         } else {
-                            // Firestore'da kullanıcı verisi yok
                             trySend(null)
                         }
                     }
             } else {
-                // Kullanıcı çıkış yapmış
                 trySend(null)
             }
         }
@@ -118,27 +118,35 @@ class AuthRepositoryImpl @Inject constructor(
             "photo_url" to "",
             "visited_cities" to emptyMap<String, Double>(),
             "wishlist_cities" to emptyList<String>()
+            // country alanını eklemeyin; cloud function bunu otomatik ekleyecek
         )
 
         try {
             Log.d(TAG, "Saving user data to Firestore...")
-            firestore.collection(USERS_COLLECTION).document(user.uid)
-                .set(userData).await()
+            // withTimeout ile süre sınırı ekleyelim
+            kotlinx.coroutines.withTimeout(5000) {
+                firestore.collection(USERS_COLLECTION).document(user.uid)
+                    .set(userData).await()
+            }
             Log.d(TAG, "User data saved to Firestore successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving user data to Firestore", e)
+            // Hata detaylarını kaydet
+            Log.e(TAG, "Error saving user data to Firestore: ${e.javaClass.simpleName} - ${e.message}")
+            // Ama hatayı tekrar fırlatma - işlemi tamamlamaya çalışalım
         }
 
         val userModel = UserModel(
             id = user.uid,
             email = email,
             displayName = displayName,
-            photoUrl = ""
+            photoUrl = "",
+            // country alanını boş bırakarak başlatalım
+            country = ""
         )
 
         Result.success(userModel)
     } catch (e: Exception) {
-        Log.e(TAG, "signUpWithEmail failed", e)
+        Log.e(TAG, "signUpWithEmail failed: ${e.javaClass.simpleName} - ${e.message}")
         Result.failure(e)
     }
 
@@ -176,7 +184,8 @@ class AuthRepositoryImpl @Inject constructor(
             displayName = user.displayName ?: "",
             photoUrl = user.photoUrl?.toString() ?: "",
             visited_cities = visitedCities,
-            wishlist_cities = wishlistCities
+            wishlist_cities = wishlistCities,
+            country = ""
         )
 
         Result.success(userModel)

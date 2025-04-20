@@ -305,7 +305,6 @@ class MainActivity : AppCompatActivity() {
     private fun checkUserCountryAndNavigate() {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
-            // CoroutineScope'u değiştir ve error handling ekle
             lifecycleScope.launch(Dispatchers.IO) {
                 try {
                     val userDoc = FirebaseFirestore.getInstance().collection("users")
@@ -313,20 +312,22 @@ class MainActivity : AppCompatActivity() {
                         .get()
                         .await()
 
-                    // UI işlemlerini Main thread'e taşı
                     withContext(Dispatchers.Main) {
-                        if (userDoc.exists() && userDoc.contains("country")) {
-                            // Ülke bilgisi var, ana sayfaya git
+                        // country alanı var mı VE değeri boş değil mi kontrol et
+                        val countryValue = userDoc.getString("country") ?: ""
+                        if (userDoc.exists() && userDoc.contains("country") && countryValue.isNotEmpty()) {
+                            // Ülke bilgisi var VE boş değil, ana sayfaya git
+                            Log.d(TAG, "User has selected country: $countryValue, going to home")
                             showHomeFragment()
                         } else {
-                            // Ülke bilgisi yok, ülke seçim ekranını göster
+                            // Ülke bilgisi yok VEYA boş, ülke seçim ekranını göster
+                            Log.d(TAG, "User has no country or empty country, showing country selection")
                             showCountrySelectionFragment()
                         }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error checking user country", e)
 
-                    // UI işlemlerini Main thread'e taşı
                     withContext(Dispatchers.Main) {
                         // Hata durumunda ana sayfaya yönlendir
                         showHomeFragment()
