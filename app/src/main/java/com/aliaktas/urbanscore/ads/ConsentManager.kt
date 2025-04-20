@@ -127,7 +127,9 @@ class ConsentManager(private val context: Context) {
 
     // Reklam gösterimi için onay durumunu kontrol et
     fun canShowPersonalizedAds(): Boolean {
-        return consentInformation.canRequestAds()
+        Log.d(TAG, "canShowPersonalizedAds çağrıldı - TEST İÇİN TRUE DÖNÜYORUZ")
+        return true  // Geçici olarak her zaman true dön, sonra kaldır
+        // return consentInformation.canRequestAds()  // Asıl kod bu
     }
 
     companion object {

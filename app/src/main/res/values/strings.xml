@@ -3,15 +3,15 @@
     <string name="app_name">Roamly</string>
 
     <!-- Home Screen -->
-    <string name="search_hint">Search cities…</string>
+    <string name="search_hint">Search a city</string>
     <string name="top_rated_cities">Top Rated Cities</string>
-    <string name="view_all_cities">View all cities</string>
-    <string name="loading_cities">Loading cities…</string>
+    <string name="view_all_cities">See all the list</string>
+    <string name="loading_cities">Loading…</string>
     <string name="retry">Retry</string>
-    <string name="home_text">If we can rate cafes, we can rate cities!</string>
+    <string name="home_text">If we can rate hotels, so we can rate the cities!</string>
     <string name="top_rated_cities_in">Top Rated Cities in %1$s</string>
     <string name="continent_image">Continent image</string>
-    <string name="rate_cities_slogan">If we can rate hotels so we can rate cities! </string>
+    <string name="rate_cities_slogan">If we can rate hotels, so we can rate the cities! </string>
 
     <!-- Error messages -->
     <string name="error_no_internet">No internet connection. Please check your network and try again.</string>
@@ -71,12 +71,12 @@
 
     <!-- Category Titles -->
     <string name="city_rating_gastronomy_title">Culinary Experience</string>
-    <string name="city_rating_aesthetics_title">Urban Beauty</string>
-    <string name="city_rating_safety_title">Security and Comfort</string>
+    <string name="city_rating_aesthetics_title">Impressive Landscapes</string>
+    <string name="city_rating_safety_title">Safety and Peace</string>
     <string name="city_rating_culture_title">Cultural Richness</string>
-    <string name="city_rating_livability_title">Urban Convenience</string>
+    <string name="city_rating_livability_title">City livability</string>
     <string name="city_rating_social_title">Social Vibrancy</string>
-    <string name="city_rating_hospitality_title">Local Warmth</string>
+    <string name="city_rating_hospitality_title">Local Vibe</string>
 
     <!-- Category Descriptions -->
     <string name="city_rating_gastronomy_desc">Discover the city\'s culinary diversity: From street food to gourmet restaurants, how exciting are the dining experiences?</string>
@@ -136,7 +136,7 @@
     <!-- Explore Screen -->
     <string name="discover_new_cities">Discover new cities</string>
     <string name="search_cities">Search cities</string>
-    <string name="for_you_text">For you, out of a thousand cities</string>
+    <string name="for_you_text">Special choices of our users</string>
     <string name="couldnt_find_city">Couldn\'t find any city?</string>
     <string name="let_us_know_city">Let us add the city</string>
     <string name="search_icon">Search icon</string>
@@ -186,7 +186,7 @@
     <string name="please_agree_terms">Please agree to the terms and privacy policy</string>
     <string name="reset_password">Reset Password</string>
     <string name="back_to_login">Back to Login</string>
-    <string name="for_travellers">Rate cities you visited!</string>
+    <string name="for_travellers">Rate the cities you visited!</string>
     <string name="default_web_client_id">93543473476-tm532unfq01kth8nh7e83hpr3sjf6eon.apps.googleusercontent.com</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
@@ -214,7 +214,7 @@
     <string name="pro_description">Enhance your travel experience with premium features and ad-free browsing</string>
     <string name="pro_features_title">Pro Features:</string>
     <string name="feature_no_ads">Ad-free experience</string>
-    <string name="feature_suggests">Unlimited city suggestions</string>
+    <string name="feature_suggests">City suggestion to show on app</string>
     <string name="feature_premium_comment">Premium comment experience</string>
     <string name="monthly_subscription">Monthly Plan</string>
     <string name="yearly_subscription">Yearly Plan</string>

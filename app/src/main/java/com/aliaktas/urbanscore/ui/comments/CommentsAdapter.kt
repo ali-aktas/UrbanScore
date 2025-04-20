@@ -43,7 +43,7 @@ class CommentsAdapter(
             binding.apply {
                 txtUsername.text = comment.userName
                 txtComment.text = comment.text
-                txtLikeCount.text = comment.likeCount.toString()
+                //txtLikeCount.text = comment.likeCount.toString()
                 txtTimeAgo.text = getTimeAgo(comment.timestamp)
 
                 // Kullanıcı resmi
@@ -56,27 +56,27 @@ class CommentsAdapter(
                     imgUserAvatar.setImageResource(R.drawable.loginicon2)
                 }
 
-                // Beğeni durumuna göre butonu güncelle
-                if (comment.isLikedByUser) {
-                    btnLike.setImageResource(R.drawable.ic_liked) // Beğenilmiş ikon
-                } else {
-                    btnLike.setImageResource(R.drawable.ic_like) // Normal beğeni ikonu
-                }
-
-                btnLike.setOnClickListener {
-                    onLikeClick(comment, !comment.isLikedByUser)
-                    // Optimistik UI güncelleme - hemen görünümü değiştir
-                    // İşlem başarısız olursa ViewModel tarafından geri alınacak
-                    comment.isLikedByUser = !comment.isLikedByUser
-                    if (comment.isLikedByUser) {
-                        comment.likeCount++
-                        btnLike.setImageResource(R.drawable.ic_liked)
-                    } else {
-                        if (comment.likeCount > 0) comment.likeCount--
-                        btnLike.setImageResource(R.drawable.ic_like)
-                    }
-                    txtLikeCount.text = comment.likeCount.toString()
-                }
+//                // Beğeni durumuna göre butonu güncelle
+//                if (comment.isLikedByUser) {
+//                    btnLike.setImageResource(R.drawable.ic_liked) // Beğenilmiş ikon
+//                } else {
+//                    btnLike.setImageResource(R.drawable.ic_like) // Normal beğeni ikonu
+//                }
+//
+//                btnLike.setOnClickListener {
+//                    onLikeClick(comment, !comment.isLikedByUser)
+//                    // Optimistik UI güncelleme - hemen görünümü değiştir
+//                    // İşlem başarısız olursa ViewModel tarafından geri alınacak
+//                    comment.isLikedByUser = !comment.isLikedByUser
+//                    if (comment.isLikedByUser) {
+//                        comment.likeCount++
+//                        btnLike.setImageResource(R.drawable.ic_liked)
+//                    } else {
+//                        if (comment.likeCount > 0) comment.likeCount--
+//                        btnLike.setImageResource(R.drawable.ic_like)
+//                    }
+//                    txtLikeCount.text = comment.likeCount.toString()
+//                }
 
                 // Kullanıcının kendi yorumu ise silme butonu göster
                 val currentUserId = FirebaseAuth.getInstance().currentUser?.uid

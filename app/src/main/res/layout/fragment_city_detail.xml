@@ -655,6 +655,35 @@
                     android:textColor="@color/white"
                     app:backgroundTint="@null" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primary_gray"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/txtDetailAdTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ads"
+                android:textColor="@color/primary_gray"
+                android:textSize="12sp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:fontFamily="@font/montserrat_alternates_regular"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone"/>
+
+            <FrameLayout
+                android:id="@+id/detailNativeAdContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"/>
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

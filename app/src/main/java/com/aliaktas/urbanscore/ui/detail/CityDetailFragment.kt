@@ -1,6 +1,8 @@
 package com.aliaktas.urbanscore.ui.detail
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +26,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
+import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 private const val TAG = "CityDetailFragment"
 
@@ -40,6 +47,7 @@ class CityDetailFragment : Fragment() {
     @Inject lateinit var uiControllerFactory: CityDetailUiControllerFactory
     @Inject lateinit var eventHandler: CityDetailEventHandler
     private var isFirstInteraction = true
+    private var nativeAd: NativeAd? = null
 
     private var _binding: FragmentCityDetailBinding? = null
     private val binding get() = _binding!!
@@ -84,6 +92,18 @@ class CityDetailFragment : Fragment() {
         binding.toolbar.setOnClickListener {
             (requireActivity() as MainActivity).handleBackPressed()
         }
+
+        setupAdLoading()
+
+    }
+
+    private fun setupAdLoading() {
+        // Belli bir gecikme ile (şehir verileri yüklendikten sonra) reklamı yükle
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (isAdded && !isRemoving) {
+                loadNativeAd()
+            }
+        }, 1500) // 1.5 saniye bekle
     }
 
     private fun setupAds() {
@@ -97,6 +117,63 @@ class CityDetailFragment : Fragment() {
 
         if (adManager.shouldSuggestProSubscription()) {
             showProSubscriptionSuggestion()
+        }
+    }
+
+    private fun loadNativeAd() {
+        try {
+            Log.d(TAG, "City Detail sayfasında Native Ad yükleniyor")
+
+            // Önceki reklamı temizle
+            if (nativeAd != null) {
+                nativeAd?.destroy()
+                nativeAd = null
+            }
+
+            binding.detailNativeAdContainer.removeAllViews()
+            binding.txtDetailAdTitle.visibility = View.GONE
+
+            // Reklam yükleme
+            adManager.loadNativeAd(
+                onAdLoaded = { ad ->
+                    // UI thread'de işlem yap
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                        try {
+                            nativeAd = ad
+
+                            // Native Ad View'ı inflate et
+                            val adView = layoutInflater.inflate(
+                                R.layout.item_native_ad,
+                                binding.detailNativeAdContainer,
+                                false
+                            ) as NativeAdView
+
+                            // Native Ad'i view'a yerleştir
+                            adManager.populateNativeAdView(ad, adView)
+
+                            // Container'a ekle ve göster
+                            binding.detailNativeAdContainer.removeAllViews()
+                            binding.detailNativeAdContainer.addView(adView)
+                            binding.detailNativeAdContainer.visibility = View.VISIBLE
+                            binding.txtDetailAdTitle.visibility = View.VISIBLE
+
+                            Log.d(TAG, "City Detail sayfasında Native Ad başarıyla gösterildi")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "City Detail sayfasında Native Ad UI güncelleme hatası: ${e.message}", e)
+                        }
+                    }
+                },
+                onAdFailed = {
+                    // Reklam yüklenemezse konteyneri gizle
+                    binding.detailNativeAdContainer.visibility = View.GONE
+                    binding.txtDetailAdTitle.visibility = View.GONE
+                    Log.d(TAG, "City Detail sayfasında Native Ad yüklenemedi")
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "City Detail sayfasında Native Ad yükleme hatası: ${e.message}", e)
+            binding.detailNativeAdContainer.visibility = View.GONE
+            binding.txtDetailAdTitle.visibility = View.GONE
         }
     }
 
@@ -190,8 +267,16 @@ class CityDetailFragment : Fragment() {
     }
 
     override fun onDestroyView() {
+        // Native Ad'i temizle - BU KOD PARÇASINI METHODUN BAŞINA EKLEYİN
+        if (nativeAd != null) {
+            nativeAd?.destroy()
+            nativeAd = null
+        }
+        binding.detailNativeAdContainer.removeAllViews()
+
+        // Mevcut kodlar...
         super.onDestroyView()
-        _binding = null
-        ratingBottomSheet = null
+
+        // Mevcut diğer temizleme kodları...
     }
 }

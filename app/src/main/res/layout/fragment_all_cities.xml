@@ -23,20 +23,20 @@
             android:layout_height="wrap_content"
             android:text="Roamly"
             android:fontFamily="@font/montserrat_alternates_bold"
-            android:textColor="@color/primary_purple"
+            android:textColor="@color/white"
             android:textSize="32sp" />
     </LinearLayout>
 
     <!-- Slogan -->
     <TextView
         android:id="@+id/txtSlogan"
-        android:layout_width="260dp"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/montserrat_bold"
+        android:fontFamily="@font/montserrat_alternates_regular"
         android:text="@string/rate_cities_slogan"
         android:textColor="@color/primary_light"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:paddingEnd="20dp"
         app:layout_constraintStart_toStartOf="@id/txtAppName"
         app:layout_constraintTop_toBottomOf="@id/txtAppName" />

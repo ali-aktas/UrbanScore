@@ -47,14 +47,14 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardSearch"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="42dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
         app:cardBackgroundColor="#00FFFFFF"
         app:cardCornerRadius="18dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/primary_purple"
+        app:strokeWidth="0.7dp"
+        app:strokeColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtDiscover">
@@ -83,10 +83,10 @@
                 android:text="@string/search_cities"
                 android:textColor="@color/primary_light"
                 android:textSize="14sp"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@+id/iconSearch"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/iconSearch"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="@+id/iconSearch" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
@@ -124,8 +124,8 @@
                 android:layout_marginTop="8dp"
                 android:fontFamily="@font/montserrat_alternates_bold"
                 android:text="@string/for_you_text"
-                android:textColor="#BCBCBC"
-                android:textSize="14sp"
+                android:textColor="@color/primary_purple"
+                android:textSize="16sp"
                 android:layout_gravity="center"/>
 
             <!-- City Carousel -->
@@ -146,28 +146,40 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
                 android:layout_marginTop="32dp"
-                android:fontFamily="@font/montserrat_medium"
+                android:fontFamily="@font/montserrat_alternates_bold"
                 android:text="@string/couldnt_find_city"
                 android:textColor="#CCFFFFFF"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:layout_gravity="center"/>
 
             <!-- Let Us Know Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSuggestCity"
                 android:layout_width="260dp"
-                android:layout_height="34dp"
+                android:layout_height="42dp"
                 android:layout_marginStart="24dp"
                 android:layout_marginEnd="24dp"
                 android:layout_marginBottom="24dp"
                 android:fontFamily="@font/montserrat_medium"
                 android:text="@string/let_us_know_city"
                 android:textColor="#FFFFFF"
+                android:textAlignment="center"
+                android:backgroundTint="@color/primary"
                 android:gravity="center"
                 app:cornerRadius="18dp"
                 app:icon="@drawable/ic_add"
                 app:iconTint="#FFFFFF"
                 android:layout_gravity="center"/>
+
+            <!-- "Couldn't find city" mesajından hemen sonra, Let Us Know butonundan önce ekleyin -->
+            <FrameLayout
+                android:id="@+id/nativeAdContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
 
         </LinearLayout>
 
@@ -219,14 +231,5 @@
             android:textAllCaps="false" />
     </LinearLayout>
 
-    <!-- fragment_explore.xml dosyasının sonuna eklenecek -->
-    <FrameLayout
-        android:id="@+id/adContainerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

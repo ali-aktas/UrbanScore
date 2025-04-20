@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.ItemFeaturedCityBinding
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,6 +37,8 @@ class ExploreFragment : Fragment() {
     private val viewModel: ExploreViewModel by viewModels()
     private lateinit var cityAdapter: FeaturedCityAdapter
     private val allCities = mutableListOf<CityModel>()
+
+    private var nativeAd: NativeAd? = null
 
     @Inject
     lateinit var adManager: AdManager
@@ -64,10 +68,12 @@ class ExploreFragment : Fragment() {
         setupAnimations()
         observeViewModel()
         observeNetworkState()
-        loadBannerAd()
+        // Banner yerine Native Ad yükle
+        loadNativeAd()
 
         // İlk açılışta internet kontrolü yap
         checkInternetConnection()
+
     }
 
     private fun setupAnimations() {
@@ -113,19 +119,48 @@ class ExploreFragment : Fragment() {
         binding.contentContainer.visibility = View.VISIBLE
     }
 
-    private fun loadBannerAd() {
-        val adContainerView = binding.adContainerView
-        adManager.getBannerAd()?.let { adView ->
-            // AdView'i daha önce bir parent'a eklenmiş olabilir, önce kaldır
-            (adView.parent as? ViewGroup)?.removeView(adView)
+    private fun loadNativeAd() {
+        try {
+            Log.d("ExploreFragment", "Native Ad yükleniyor")
 
-            // AdView'i container'a ekle
-            adContainerView.removeAllViews()
-            adContainerView.addView(adView)
-            adContainerView.visibility = View.VISIBLE
-        } ?: run {
-            // Pro kullanıcı veya reklam yüklenemedi
-            adContainerView.visibility = View.GONE
+            // Önceki reklamı temizle
+            if (nativeAd != null) {
+                nativeAd?.destroy()
+                nativeAd = null
+            }
+
+            binding.nativeAdContainer.removeAllViews()
+
+            // Reklam yükleme
+            adManager.loadNativeAd(
+                onAdLoaded = { ad ->
+                    nativeAd = ad
+
+                    // Native Ad View'ı inflate et
+                    val adView = layoutInflater.inflate(
+                        R.layout.item_native_ad,
+                        binding.nativeAdContainer,
+                        false
+                    ) as NativeAdView
+
+                    // Native Ad'i view'a yerleştir
+                    adManager.populateNativeAdView(ad, adView)
+
+                    // Container'a ekle ve göster
+                    binding.nativeAdContainer.removeAllViews()
+                    binding.nativeAdContainer.addView(adView)
+                    binding.nativeAdContainer.visibility = View.VISIBLE
+
+                    Log.d("ExploreFragment", "Native Ad başarıyla gösterildi")
+                },
+                onAdFailed = {
+                    binding.nativeAdContainer.visibility = View.GONE
+                    Log.d("ExploreFragment", "Native Ad yüklenemedi")
+                }
+            )
+        } catch (e: Exception) {
+            Log.e("ExploreFragment", "Native Ad yükleme hatası: ${e.message}", e)
+            binding.nativeAdContainer.visibility = View.GONE
         }
     }
 
@@ -264,9 +299,10 @@ class ExploreFragment : Fragment() {
 
     private fun showMockCities() {
         val mockCities = listOf(
-            MockCity("1", "Istanbul", "https://example.com/istanbul.jpg"),
-            MockCity("2", "Barcelona", "https://example.com/barcelona.jpg"),
-            MockCity("3", "Paris", "https://example.com/paris.jpg")
+            MockCity("1", "Loading..", "https://example.com/istanbul.jpg"),
+            MockCity("2", "Loading..", "https://example.com/barcelona.jpg"),
+            MockCity("3", "Loading..", "https://example.com/paris.jpg"),
+            MockCity("3", "Loading..", "https://example.com/paris.jpg"),
         )
 
         val curatedItems = mockCities.map {
@@ -300,7 +336,14 @@ class ExploreFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        binding.adContainerView.removeAllViews()
+        // Native Ad'i temizle
+        if (nativeAd != null) {
+            nativeAd?.destroy()
+            nativeAd = null
+        }
+
+        binding.nativeAdContainer.removeAllViews()
+        // binding.adContainerView referansını kaldırdık
         super.onDestroyView()
         _binding = null
     }

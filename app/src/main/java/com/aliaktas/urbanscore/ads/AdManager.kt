@@ -7,8 +7,11 @@ import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +29,8 @@ class AdManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val preferenceManager: PreferenceManager
 ) {
+    private val TAG = "AdManager_Test"
+
     // Banner reklam yardımcı sınıfı
     private val bannerAdHelper = BannerAdHelper(context)
 
@@ -38,39 +43,58 @@ class AdManager @Inject constructor(
     // GDPR onay yöneticisi
     private val consentManager = ConsentManager(context)
 
+    private val nativeAdHelper = NativeAdHelper(context)
+
     // Ziyaret edilen şehir sayısı
     private var cityVisitCount = 0
 
-    // RevenueCat manager'a referans
-    private val revenueCatManager by lazy { RevenueCatManager.getInstance() }
-
-    // Pro kullanıcı durumu için değişken - başlangıçta false
+    // Pro kullanıcı durumu için değişken - TEST İÇİN FALSE
     private var isPro: Boolean = false
 
     /**
      * AdManager'ı GDPR onayı ile başlat (ana metot)
      */
-    // AdManager.kt içindeki initialize metodunu güçlendir
     fun initialize(activity: Activity, onInitialized: () -> Unit = {}) {
         try {
-            Log.d(TAG, "AdManager başlatılıyor")
+            Log.d(TAG, "AdManager başlatılıyor - TEST MODU")
 
-            // Önce GDPR onayını kontrol et ve gerekirse formu göster
-            consentManager.checkAndRequestConsent(activity) {
-                try {
-                    Log.d(TAG, "GDPR onayı tamamlandı, reklamları başlatma")
-                    // Onay işlemi tamamlandı veya gerekli değil, reklamları başlat
-                    initializeAds(onInitialized)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Reklam başlatma hatası: ${e.message}", e)
-                    onInitialized() // Hata olsa bile devam et
-                }
-            }
+            // GDPR kontrolünü atlıyoruz, doğrudan reklamları başlat
+            initializeAds(onInitialized)
+
+            // Normalde bu kısım GDPR onayı sonrası çalışırdı
+            // consentManager.checkAndRequestConsent(activity) {
+            //    initializeAds(onInitialized)
+            // }
         } catch (e: Exception) {
-            Log.e(TAG, "AdManager.initialize genel hatası: ${e.message}", e)
-            // Ciddi bir hata durumunda bile uygulamanın devam etmesini sağla
-            onInitialized()
+            Log.e(TAG, "AdManager.initialize hatası: ${e.message}", e)
+            onInitialized() // Hata olsa bile devam et
         }
+    }
+
+    // AdManager.kt içine yeni metot ekle
+    /**
+     * Native reklam yükleme işlemini başlatır ve callback ile sonucu bildirir
+     */
+    fun loadNativeAd(
+        onAdLoaded: (NativeAd) -> Unit,
+        onAdFailed: () -> Unit
+    ) {
+        Log.d(TAG, "loadNativeAd çağrıldı, isPro: $isPro")
+
+        // TEST MODU: Native Ad yükleme
+        nativeAdHelper.loadNativeAd(onAdLoaded, onAdFailed)
+
+        // Normal çalışma modunda:
+        // if (isPro || !canShowAds()) {
+        //     Log.d(TAG, "Pro kullanıcı veya reklam onayı yok, Native Ad atlanıyor")
+        //     onAdFailed()
+        //     return
+        // }
+        // nativeAdHelper.loadNativeAd(onAdLoaded, onAdFailed)
+    }
+
+    fun populateNativeAdView(nativeAd: NativeAd, adView: NativeAdView) {
+        nativeAdHelper.populateNativeAdView(nativeAd, adView)
     }
 
     /**
@@ -78,66 +102,31 @@ class AdManager @Inject constructor(
      */
     private fun initializeAds(onInitialized: () -> Unit = {}) {
         try {
-            Log.d(TAG, "AdManager is starting")
+            Log.d(TAG, "AdManager reklamlar başlatılıyor")
 
-            // Debug modda test cihazlarını kullan, release modda kullanma
-            if (BuildConfig.DEBUG) {
-                // Sadece debug build'de test cihazlarını ekle ve logla
-                logTestDeviceId()
-                val testDeviceIds = listOf(AdRequest.DEVICE_ID_EMULATOR)
-                val configuration = RequestConfiguration.Builder()
-                    .setTestDeviceIds(testDeviceIds)
-                    .build()
-                MobileAds.setRequestConfiguration(configuration)
-            } else {
-                // Release modda test cihazları kullanma
-                val configuration = RequestConfiguration.Builder().build()
-                MobileAds.setRequestConfiguration(configuration)
-            }
+            // HER DURUMDA test cihazlarını kullan
+            val testDeviceIds = listOf(
+                AdRequest.DEVICE_ID_EMULATOR,
+                "33BE2250B43518CCDA7DE426D04EE231", // Genel test ID
+                "A74E9D91458A3D4A90127DD6C96D32C3"  // Başka bir genel test ID
+            )
+
+            val configuration = RequestConfiguration.Builder()
+                .setTestDeviceIds(testDeviceIds)
+                .build()
+
+            MobileAds.setRequestConfiguration(configuration)
 
             MobileAds.initialize(context) { status ->
-                // Debug modda log kaydı tut
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "AdMob başlatma tamamlandı. Durum: $status")
-                }
+                Log.d(TAG, "AdMob başlatma tamamlandı. Durum: $status")
 
                 // Başlangıçta reklamları yükle
                 preloadAds()
                 onInitialized()
             }
 
-            // Başlangıç Pro durumunu logla (sadece debug modda)
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Başlangıç isPro değeri: $isPro")
-            }
-
-            // Premium durumunu dinle
-            CoroutineScope(Dispatchers.Main).launch {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "isPremium akışı dinleniyor")
-                }
-
-                try {
-                    revenueCatManager.isPremium.collect { premiumStatus ->
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "Premium durum güncellendi: $premiumStatus")
-                        }
-
-                        isPro = premiumStatus
-
-                        if (BuildConfig.DEBUG) {
-                            Log.d(TAG, "AdManager'da premium durum güncellendi: $isPro")
-                        }
-
-                        // Eğer Pro durumu false ise reklamları yükle
-                        if (!isPro) {
-                            preloadAds()
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Premium durum dinlenirken hata", e)
-                }
-            }
+            // Log pro durumunu
+            Log.d(TAG, "isPro değeri (test için false): $isPro")
 
         } catch (e: Exception) {
             Log.e(TAG, "AdMob başlatma hatası", e)
@@ -150,13 +139,6 @@ class AdManager @Inject constructor(
         try {
             val adRequest = AdRequest.Builder().build()
             Log.d(TAG, "Test Device ID için logları kontrol edin. 'Test device ID:' ifadesini arayın")
-
-            // Bu satır, cihazınızın test ID'sini loglar
-            MobileAds.setRequestConfiguration(
-                RequestConfiguration.Builder()
-                    .setTestDeviceIds(listOf(AdRequest.DEVICE_ID_EMULATOR))
-                    .build()
-            )
         } catch (e: Exception) {
             Log.e(TAG, "Test cihaz ID'si alınamadı", e)
         }
@@ -183,33 +165,45 @@ class AdManager @Inject constructor(
     // Interstitial reklam gösterimi
     fun showInterstitialAd(activity: Activity, onAdClosed: () -> Unit) {
         Log.d(TAG, "showInterstitialAd çağrıldı, isPro: $isPro")
-        if (isPro || !canShowAds()) {
-            Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam gösterimi atlanıyor ve onAdClosed çağrılıyor")
-            onAdClosed()
-            return
-        }
 
-        Log.d(TAG, "Interstitial reklam gösteriliyor")
+        // Test için her zaman göster
+        Log.d(TAG, "TEST MODU: Interstitial reklam gösteriliyor")
         interstitialAdHelper.showAd(activity, onAdClosed)
+
+        // Normal durumda bu şekilde:
+        // if (isPro || !canShowAds()) {
+        //    Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam gösterimi atlanıyor")
+        //    onAdClosed()
+        //    return
+        // }
     }
 
     // Reklam ön yüklemesi
     private fun preloadAds() {
         Log.d(TAG, "preloadAds çağrıldı, isPro: $isPro")
-        if (isPro || !canShowAds()) {
-            Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam ön yüklemesi atlanıyor")
-            return
-        }
 
-        Log.d(TAG, "Interstitial ve ödüllü reklamlar ön yükleniyor")
+        // Test için her durumda yükle
+        Log.d(TAG, "TEST MODU: Interstitial ve ödüllü reklamlar ön yükleniyor")
         interstitialAdHelper.loadAd()
         rewardedAdHelper.loadAd()
+
+        // Normal durumda:
+        // if (isPro || !canShowAds()) {
+        //    Log.d(TAG, "Kullanıcı Pro veya reklam onayı yok, reklam ön yüklemesi atlanıyor")
+        //    return
+        // }
     }
 
     /**
      * Banner reklam döndürür.
      */
-    fun getBannerAd() = if (!isPro && canShowAds()) bannerAdHelper.getBannerAd() else null
+    fun getBannerAd(): AdView? {
+        Log.d(TAG, "getBannerAd çağrıldı (TEST MODU)")
+        return bannerAdHelper.getBannerAd()
+
+        // Normal durumda:
+        // return if (!isPro && canShowAds()) bannerAdHelper.getBannerAd() else null
+    }
 
     /**
      * Ödüllü reklamı gösterir.
@@ -219,36 +213,42 @@ class AdManager @Inject constructor(
         onRewarded: () -> Unit,
         onAdClosed: () -> Unit
     ) {
-        if (isPro || !canShowAds()) {
-            onRewarded()
-            onAdClosed()
-            return
-        }
-
+        Log.d(TAG, "showRewardedAd çağrıldı (TEST MODU)")
         rewardedAdHelper.showAd(activity, onRewarded, onAdClosed)
+
+        // Normal durumda:
+        // if (isPro || !canShowAds()) {
+        //    onRewarded()
+        //    onAdClosed()
+        //    return
+        // }
     }
 
     /**
      * Pro abonelik sayfasına gitme önerisi gösterilmeli mi?
-     * Eğer kullanıcı Pro değilse ve gerekli şartlar sağlanıyorsa true döner.
      */
     fun shouldSuggestProSubscription(): Boolean {
-        // Kullanıcı zaten Pro ise öneri gösterme
-        if (isPro) return false
+        // Geçici olarak false döndür
+        return false
 
-        // Gerekli koşulları kontrol et
-        return cityVisitCount >= CITY_VISIT_THRESHOLD - 1
+        // Normal durumda:
+        // if (isPro) return false
+        // return cityVisitCount >= CITY_VISIT_THRESHOLD - 1
     }
 
     /**
      * Reklam gösterimi için GDPR onayını kontrol et
      */
     private fun canShowAds(): Boolean {
-        return consentManager.canShowPersonalizedAds()
+        // TEST İÇİN HER ZAMAN TRUE
+        Log.d(TAG, "canShowAds çağrıldı - TEST MODUNDA HER ZAMAN TRUE")
+        return true
+
+        // Normal durumda:
+        // return consentManager.canShowPersonalizedAds()
     }
 
     companion object {
-        private const val TAG = "AdManager"
         private const val CITY_VISIT_THRESHOLD = 5
     }
 }

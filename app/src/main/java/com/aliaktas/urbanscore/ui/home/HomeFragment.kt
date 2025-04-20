@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
+import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.base.BaseViewModel
 import com.aliaktas.urbanscore.databinding.FragmentHomeBinding
 import com.aliaktas.urbanscore.ui.home.controllers.HomeController
@@ -20,6 +21,8 @@ import com.aliaktas.urbanscore.ui.home.controllers.HomeControllerFactory
 import com.aliaktas.urbanscore.ui.home.controllers.MainStateController
 import com.aliaktas.urbanscore.ui.home.controllers.SwipeRefreshController
 import com.aliaktas.urbanscore.ui.home.controllers.TopCitiesController
+import com.google.android.gms.ads.nativead.NativeAd
+import com.google.android.gms.ads.nativead.NativeAdView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +40,12 @@ class HomeFragment : Fragment() {
     // Skeleton View referansı
     private var skeletonView: View? = null
 
+    @Inject
+    lateinit var adManager: AdManager
+
     private val viewModel: HomeViewModel by viewModels()
+
+    private var nativeAd: NativeAd? = null
 
     @Inject
     lateinit var controllerFactory: HomeControllerFactory
@@ -82,6 +90,8 @@ class HomeFragment : Fragment() {
             delay(2500)
             hideSkeleton()
         }
+
+        loadNativeAd()
     }
 
     private fun showSkeleton() {
@@ -271,7 +281,78 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun loadNativeAd() {
+        try {
+            Log.d(TAG, "Native Ad yükleniyor")
+
+            // Önceki reklamı temizle
+            if (nativeAd != null) {
+                nativeAd?.destroy()
+                nativeAd = null
+            }
+
+            binding.homeNativeAdContainer.removeAllViews()
+            binding.txtNativeAdTitle.visibility = View.GONE
+
+            // AdManager henüz inject edilmediyse erken çık
+            if (!::adManager.isInitialized) {
+                Log.d(TAG, "AdManager henüz initialize edilmemiş")
+                return
+            }
+
+            // Reklam yükleme
+            adManager.loadNativeAd(
+                onAdLoaded = { ad ->
+                    // UI thread'de işlem yap
+                    viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+                        try {
+                            nativeAd = ad
+
+                            // Native Ad View'ı inflate et
+                            val adView = layoutInflater.inflate(
+                                R.layout.item_native_ad,
+                                binding.homeNativeAdContainer,
+                                false
+                            ) as NativeAdView
+
+                            // Native Ad'i view'a yerleştir
+                            adManager.populateNativeAdView(ad, adView)
+
+                            // Container'a ekle ve göster
+                            binding.homeNativeAdContainer.removeAllViews()
+                            binding.homeNativeAdContainer.addView(adView)
+                            binding.homeNativeAdContainer.visibility = View.VISIBLE
+                            binding.txtNativeAdTitle.visibility = View.VISIBLE
+
+                            Log.d(TAG, "Native Ad başarıyla gösterildi")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Native Ad UI güncelleme hatası: ${e.message}", e)
+                        }
+                    }
+                },
+                onAdFailed = {
+                    // Reklam yüklenemezse konteyneri gizle
+                    binding.homeNativeAdContainer.visibility = View.GONE
+                    binding.txtNativeAdTitle.visibility = View.GONE
+                    Log.d(TAG, "Native Ad yüklenemedi")
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Native Ad yükleme hatası: ${e.message}", e)
+            binding.homeNativeAdContainer.visibility = View.GONE
+            binding.txtNativeAdTitle.visibility = View.GONE
+        }
+    }
+
     override fun onDestroyView() {
+        // Native Ad'i temizle - BU KOD PARÇASINI METHODUN BAŞINA EKLEYİN
+        if (nativeAd != null) {
+            nativeAd?.destroy()
+            nativeAd = null
+        }
+        binding.homeNativeAdContainer.removeAllViews()
+
+        // Mevcut kodlar...
         super.onDestroyView()
         Log.d(TAG, "onDestroyView")
         skeletonView = null
