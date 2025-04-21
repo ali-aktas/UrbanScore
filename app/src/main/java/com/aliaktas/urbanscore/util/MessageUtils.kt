@@ -18,11 +18,6 @@ object MessageUtils {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Snackbar gösterimi için
-    fun showSnackbar(view: View, @StringRes messageResId: Int, duration: Int = Snackbar.LENGTH_SHORT) {
-        Snackbar.make(view, messageResId, duration).show()
-    }
-
     fun showSnackbar(
         view: View,
         @StringRes messageResId: Int,

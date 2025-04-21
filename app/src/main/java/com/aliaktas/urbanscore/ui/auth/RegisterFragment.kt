@@ -1,5 +1,8 @@
 package com.aliaktas.urbanscore.ui.auth
 
+import android.content.ContentValues.TAG
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,6 +20,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentRegisterBinding
+import com.aliaktas.urbanscore.util.MessageUtils.showSnackbar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -71,6 +75,17 @@ class RegisterFragment : Fragment() {
 
             if (validateInput(name, email, password, confirmPassword)) {
                 viewModel.signUpWithEmail(email, password, name)
+            }
+        }
+
+        binding.tvTerms.setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("https://ali-aktas.github.io/roamly-policies/index.html")
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Privacy policy could not be opened", e)
             }
         }
 

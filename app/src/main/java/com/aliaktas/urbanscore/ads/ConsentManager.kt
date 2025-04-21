@@ -14,26 +14,21 @@ import com.google.android.ump.UserMessagingPlatform
  * GDPR onayını yöneten sınıf
  */
 class ConsentManager(private val context: Context) {
+    private val TAG = "ConsentManager"
     private val consentInformation: ConsentInformation = UserMessagingPlatform.getConsentInformation(context)
     private var consentForm: ConsentForm? = null
 
-    // Kullanıcı onayı durumunu kontrol et ve gerekirse formu göster
-    // ConsentManager.kt içinde updateConsent fonksiyonunu güvenli hale getir
+    /**
+     * Kullanıcı onayı durumunu kontrol et ve gerekirse formu göster
+     */
     fun checkAndRequestConsent(activity: Activity, onConsentGathered: () -> Unit) {
         try {
-            Log.d(TAG, "GDPR onay kontrolü başlıyor")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "GDPR onay kontrolü başlıyor")
 
-            // Debug modda test için onay durumunu sıfırla
-            // SORUN OLABİLİR: Her seferinde resetleme yapmak yerine bir kontrol ekle
+            // Debug modunda uygulamayı yeniden başlattığınızda test için consent formunu sıfırlayalım
             if (BuildConfig.DEBUG) {
-                try {
-                    // Her seferinde resetleme - bu bir sorun olabilir!
-                    // İsterseniz kaldırabilir veya koşula bağlayabilirsiniz
-                    // resetConsent()
-                    Log.d(TAG, "Debug modda resetConsent atlandı")
-                } catch (e: Exception) {
-                    Log.e(TAG, "resetConsent hatası: ${e.message}", e)
-                }
+                Log.d(TAG, "Debug modunda - Test için consent durumu sıfırlanıyor")
+                consentInformation.reset()
             }
 
             // Onay parametrelerini oluştur
@@ -46,11 +41,11 @@ class ConsentManager(private val context: Context) {
                 { // Güncelleme başarılı
                     try {
                         if (consentInformation.isConsentFormAvailable) {
-                            Log.d(TAG, "Consent formu mevcut, gösteriliyor")
+                            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Consent formu mevcut, gösteriliyor")
                             loadAndShowConsentForm(activity, onConsentGathered)
                         } else {
                             // Onay formu gerekli değil
-                            Log.d(TAG, "Consent formu gerekli değil")
+                            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Consent formu gerekli değil")
                             onConsentGathered()
                         }
                     } catch (e: Exception) {
@@ -69,7 +64,9 @@ class ConsentManager(private val context: Context) {
         }
     }
 
-    // Onay formunu yükle ve göster
+    /**
+     * Onay formunu yükle ve göster
+     */
     private fun loadAndShowConsentForm(activity: Activity, onConsentGathered: () -> Unit) {
         UserMessagingPlatform.loadConsentForm(
             context,
@@ -81,9 +78,9 @@ class ConsentManager(private val context: Context) {
                         // Onay gerekli, formu göster
                         form.show(activity) { formError ->
                             if (formError != null) {
-                                Log.e(TAG, "Consent form error: ${formError.message}")
+                                Log.e(TAG, "Consent form hatası: ${formError.message}")
                             } else {
-                                Log.d(TAG, "Consent gathered successfully")
+                                if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Consent başarıyla alındı")
                             }
                             // Form gösterildikten sonra devam et
                             onConsentGathered()
@@ -91,25 +88,32 @@ class ConsentManager(private val context: Context) {
                     }
                     else -> {
                         // Onay zaten alınmış veya gerekli değil
-                        Log.d(TAG, "Consent already gathered: ${consentInformation.consentStatus}")
+                        if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Consent zaten alınmış: ${consentInformation.consentStatus}")
                         onConsentGathered()
                     }
                 }
             },
             { error ->
-                Log.e(TAG, "Consent form load failed: ${error.message}")
+                Log.e(TAG, "Consent form yüklenemedi: ${error.message}")
                 onConsentGathered() // Hata durumunda devam et
             }
         )
     }
 
-    // Onay durumunu sıfırla (sadece test için)
+    /**
+     * Onay durumunu sıfırla (sadece test için)
+     * Bu metodu doğrudan çağırmayın, geliştirme sırasında kullanılır.
+     */
     fun resetConsent() {
-        Log.d(TAG, "Resetting consent state")
-        consentInformation.reset()
+        if (BuildConfig.DEBUG) {
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Consent durumu sıfırlanıyor")
+            consentInformation.reset()
+        }
     }
 
-    // Onay parametrelerini oluştur
+    /**
+     * Onay parametrelerini oluştur
+     */
     private fun buildConsentRequestParameters(): ConsentRequestParameters {
         val builder = ConsentRequestParameters.Builder()
             .setTagForUnderAgeOfConsent(false)
@@ -117,7 +121,8 @@ class ConsentManager(private val context: Context) {
         // Debug modda test etmek için ek ayarlar
         if (BuildConfig.DEBUG) {
             val debugSettings = ConsentDebugSettings.Builder(context)
-                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA) // Avrupa bölgesi simüle et
+                .addTestDeviceHashedId("B61A84F9F07EDF07D5D6F290DD880708") // Test cihaz ID'sini ekleyin
                 .build()
             builder.setConsentDebugSettings(debugSettings)
         }
@@ -125,14 +130,14 @@ class ConsentManager(private val context: Context) {
         return builder.build()
     }
 
-    // Reklam gösterimi için onay durumunu kontrol et
+    // Bu metodu önceki haline getirin
     fun canShowPersonalizedAds(): Boolean {
-        Log.d(TAG, "canShowPersonalizedAds çağrıldı - TEST İÇİN TRUE DÖNÜYORUZ")
-        return true  // Geçici olarak her zaman true dön, sonra kaldır
-        // return consentInformation.canRequestAds()  // Asıl kod bu
-    }
-
-    companion object {
-        private const val TAG = "ConsentManager"
+        // Debug modunda her zaman true döndür
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "canShowPersonalizedAds çağrıldı - TEST MODU, TRUE DÖNÜYORUZ")
+            return true;
+        }
+        // Release modunda gerçek kontrolü yap
+        return consentInformation.canRequestAds()
     }
 }

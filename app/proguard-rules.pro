@@ -37,3 +37,9 @@
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep class * extends com.bumptech.glide.module.AppGlideModule
+
+# AdMob ve UMP (User Messaging Platform)
+-keep class com.google.android.gms.ads.** { *; }
+-dontwarn com.google.android.gms.ads.**
+-keep class com.google.android.ump.** { *; }
+-dontwarn com.google.android.ump.**

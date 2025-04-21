@@ -15,8 +15,8 @@ android {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.14-beta"
+        versionCode = 15
+        versionName = "1.15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -2,7 +2,6 @@ package com.aliaktas.urbanscore.ads
 
 import android.content.Context
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -35,7 +34,7 @@ class NativeAdHelper @Inject constructor(private val context: Context) {
     private val TEST_NATIVE_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"
 
     // Gerçek Native Ad ID
-    private val NATIVE_AD_UNIT_ID = "ca-app-pub-5728309332567964/XXXXXXXX" // Gerçek ID'nizi buraya yazın
+    private val NATIVE_AD_UNIT_ID = "ca-app-pub-5728309332567964/9762101065"
 
     /**
      * Native reklamı yükler ve callback ile bildirir
@@ -43,7 +42,7 @@ class NativeAdHelper @Inject constructor(private val context: Context) {
     fun loadNativeAd(onAdLoaded: (NativeAd) -> Unit, onAdFailed: () -> Unit) {
         // Eğer cache'lenmiş reklam varsa, onu kullan
         cachedNativeAd?.let {
-            Log.d(TAG, "Cache'lenmiş Native Ad kullanılıyor")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Cache'lenmiş Native Ad kullanılıyor")
             onAdLoaded(it)
             return
         }
@@ -55,7 +54,7 @@ class NativeAdHelper @Inject constructor(private val context: Context) {
 
         // Native Ad Listener
         builder.forNativeAd { nativeAd ->
-            Log.d(TAG, "Native Ad yüklendi")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Native Ad yüklendi")
             // Cache'e kaydet
             cachedNativeAd = nativeAd
             onAdLoaded(nativeAd)
@@ -80,7 +79,7 @@ class NativeAdHelper @Inject constructor(private val context: Context) {
         // AdLoader oluştur ve yükleme başlat
         val adLoader = builder.build()
         adLoader.loadAd(AdRequest.Builder().build())
-        Log.d(TAG, "Native Ad yükleme başlatıldı")
+        if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Native Ad yükleme başlatıldı")
     }
 
     /**
@@ -142,7 +141,7 @@ class NativeAdHelper @Inject constructor(private val context: Context) {
             // NativeAdView'a reklamı kaydet - bu adım çok önemli!
             adView.setNativeAd(nativeAd)
 
-            Log.d(TAG, "Native Ad görünüme yerleştirildi")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Native Ad görünüme yerleştirildi")
         } catch (e: Exception) {
             Log.e(TAG, "Native Ad görünüme yerleştirilirken hata: ${e.message}", e)
         }
