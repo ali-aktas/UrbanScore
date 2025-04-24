@@ -22,4 +22,5 @@ class MyApplication : Application() {
         RevenueCatManager.initialize(this)
     }
 
+
 }

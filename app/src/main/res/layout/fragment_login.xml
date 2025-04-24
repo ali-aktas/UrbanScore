@@ -12,10 +12,10 @@
     <!-- Logo ve Başlık Alanı -->
     <ImageView
         android:id="@+id/ivLogo"
-        android:layout_width="120dp"
-        android:layout_height="100dp"
+        android:layout_width="80dp"
+        android:layout_height="70dp"
         android:layout_gravity="center"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="100dp"
         android:src="@drawable/roamly_icon"/>
 
     <LinearLayout

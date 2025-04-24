@@ -5,9 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:layout_margin="6dp"
-    android:paddingHorizontal="4dp"
-    android:paddingVertical="1dp">
+    android:paddingHorizontal="8dp"
+    android:paddingVertical="6dp">
 
     <TextView
         android:id="@+id/textRatingCount"

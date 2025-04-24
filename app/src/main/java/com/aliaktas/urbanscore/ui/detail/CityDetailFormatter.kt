@@ -15,10 +15,29 @@ import javax.inject.Singleton
 class CityDetailFormatter @Inject constructor() {
 
     /**
-     * Format population number with locale-specific separators
+     * Format population number with appropriate scale
+     * For large numbers (millions+), uses M suffix
      */
     fun formatPopulation(population: Long): String {
-        return NumberFormat.getNumberInstance(Locale.getDefault()).format(population)
+        return when {
+            population >= 1_000_000 -> {
+                // Format in millions with one decimal place
+                val millions = population / 1_000_000.0
+                String.format("%.1fM", millions)
+            }
+            else -> {
+                // Use locale-specific number formatting for thousands
+                NumberFormat.getNumberInstance(Locale.getDefault()).format(population)
+            }
+        }
+    }
+
+    /**
+     * Get plural text for rating count
+     * @param resourceProvider Function to access string resources with plurals support
+     */
+    fun getRatingCountText(resourceProvider: (Int, Int, Int) -> String, count: Int): String {
+        return resourceProvider(R.plurals.based_on_ratings, count, count)
     }
 
     /**
@@ -27,6 +46,7 @@ class CityDetailFormatter @Inject constructor() {
     fun formatRating(rating: Double): String {
         return String.format("%.2f", rating)
     }
+
 
     /**
      * Extract readable city name from city ID
@@ -42,17 +62,9 @@ class CityDetailFormatter @Inject constructor() {
      * Create share text for city
      */
     fun createShareText(city: CityModel): String {
-        return "Check out ${city.cityName}, ${city.country} on UrbanRate! " +
+        return "Check out ${city.cityName}, ${city.country} on Roamly! " +
                 "It has an average rating of ${formatRating(city.averageRating)}/10. " +
                 "Download the app to explore more cities!"
-    }
-
-    /**
-     * Get plural text for rating count
-     * @param resourceProvider Function to access string resources with plurals support
-     */
-    fun getRatingCountText(resourceProvider: (Int, Int, Int) -> String, count: Int): String {
-        return resourceProvider(R.plurals.based_on_ratings, count, count)
     }
 
     /**
@@ -66,6 +78,6 @@ class CityDetailFormatter @Inject constructor() {
      * Format Google search query
      */
     fun formatGoogleSearchQuery(cityName: String): String {
-        return "Best Landscapes of $cityName"
+        return "Best views of $cityName"
     }
 }

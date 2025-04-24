@@ -68,7 +68,7 @@
                 android:hint="@string/full_name"
                 app:boxStrokeColor="@color/primary_purple"
                 app:hintTextColor="@color/primary_purple"
-                app:startIconDrawable="@drawable/ic_profile"
+                app:startIconDrawable="@drawable/ic_basic_profile"
                 app:startIconTint="@color/primary_purple">
 
                 <com.google.android.material.textfield.TextInputEditText

@@ -25,9 +25,7 @@
             android:id="@+id/mainHeader"
             android:layout_width="400dp"
             android:layout_height="220dp"
-            android:src="@drawable/homeheaderimage"
-            >
-
+            android:src="@drawable/homeheaderimage">
         </ImageView>
 
     </LinearLayout>
@@ -74,9 +72,9 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerViewCategories"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="match_parent"
                     android:foregroundGravity="center"
-                    android:clipToPadding="false"
+                    android:clipToPadding="true"
                     android:layout_marginTop="4dp"
                     android:layout_marginStart="18dp"
                     android:orientation="horizontal"
@@ -91,10 +89,10 @@
                     android:layout_height="wrap_content"
                     android:padding="4dp"
                     android:gravity="center"
-                    android:fontFamily="@font/montserrat_alternates_bold"
+                    android:fontFamily="@font/poppins_bold"
                     android:text="@string/top_rated_cities"
-                    android:textColor="@color/primary_purple"
-                    android:layout_marginTop="8dp"
+                    android:textColor="@color/white"
+                    android:layout_marginTop="12dp"
                     android:textSize="24sp"
                     app:layout_constraintTop_toBottomOf="@id/recyclerViewCategories">
                 </TextView>

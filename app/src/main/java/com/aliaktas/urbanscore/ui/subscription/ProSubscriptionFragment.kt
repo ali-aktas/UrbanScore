@@ -4,6 +4,8 @@ import android.animation.Animator
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -163,6 +165,16 @@ class ProSubscriptionFragment : Fragment() {
                 Log.d(TAG, "Premium active state gösteriliyor")
                 showLoading(false)
                 showActiveSubscription()
+
+                // Satın alma sonrası gecikme ile reklamların kaybolduğunu göstermek için
+                // fragment'ı güncelle
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (isAdded && !isDetached) {
+                        // Ekranın tamamen yenilenmesi için parent activity'yi yeniden başlat
+                        requireActivity().recreate()
+                    }
+                }, 2500) // 2.5 saniye sonra
+
             }
 
             is SubscriptionUIState.ReadyForPurchase -> {
@@ -176,7 +188,7 @@ class ProSubscriptionFragment : Fragment() {
                 Log.d(TAG, "Packages unavailable state gösteriliyor")
                 showLoading(false)
                 showSubscriptionOptions()
-                showSnackbar("Abonelik seçenekleri yüklenemedi. Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.")
+                showSnackbar("Failed to load subscription options. Please check your internet connection and try again.")
 
                 // Butonları devre dışı bırak
                 binding.btnSubscribe.isEnabled = false

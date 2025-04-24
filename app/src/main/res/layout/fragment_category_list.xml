@@ -15,15 +15,12 @@
         android:id="@+id/btnBack"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_close"
+        android:background="@drawable/close_btn"
         android:layout_marginEnd="24dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="Back"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@+id/txtAppName"
-        app:layout_constraintTop_toTopOf="@+id/txtAppName"
-        app:tint="@color/primary_light" />
+        app:layout_constraintTop_toTopOf="@+id/txtAppName" />
 
     <LinearLayout
         android:id="@+id/txtAppName"

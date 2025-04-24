@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:fontFamily="@font/montserrat_light"
-        android:text="Version 1.14"
+        android:text="Version 1.16"
         android:textColor="@color/primary_light"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"

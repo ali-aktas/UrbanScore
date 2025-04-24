@@ -384,6 +384,7 @@ class RevenueCatManager private constructor(application: Application) {
     /**
      * Bitiş tarihini döndürür
      */
+    // RevenueCatManager sınıfı içinde aşağıdaki metodu güncelle
     fun getExpiryDateFormatted(callback: (String?) -> Unit) {
         try {
             Purchases.sharedInstance.getCustomerInfoWith(
@@ -394,6 +395,9 @@ class RevenueCatManager private constructor(application: Application) {
                 onSuccess = { customerInfo ->
                     val entitlement = customerInfo.entitlements[ENTITLEMENT_PREMIUM]
                     if (entitlement?.isActive == true) {
+                        // Premium durumunu güncelleyelim
+                        updatePremiumStatus(customerInfo)
+
                         val expirationDate = entitlement.expirationDate
                         if (expirationDate != null) {
                             // Format: "15 Apr 2025"

@@ -12,7 +12,8 @@
     <!-- Üst kısım - Sabit kalacak (Şehir bilgileri ve line) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topContainer"
-        android:padding="8dp"
+        android:padding="10dp"
+        android:layout_marginBottom="4dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -41,12 +42,11 @@
             android:id="@+id/toolbar"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:background="@drawable/close_btn"
             android:contentDescription="Close button"
-            android:src="@drawable/ic_close"
-            android:layout_marginTop="14dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/titleLayout"
+            app:layout_constraintBottom_toBottomOf="@+id/titleLayout"
             app:tint="@color/primary_light" />
 
         <!-- Şehir Adı -->
@@ -54,10 +54,10 @@
             android:id="@+id/textCityName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="22dp"
             android:fontFamily="@font/montserrat_black"
             android:textColor="@color/white"
-            android:textSize="32sp"
+            android:textSize="36sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/titleLayout"
@@ -72,7 +72,7 @@
             android:gravity="center_vertical"
             app:layout_constraintTop_toBottomOf="@id/textCityName"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="4dp">
 
             <!-- Bayrak -->
             <com.google.android.material.imageview.ShapeableImageView
@@ -92,7 +92,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/montserrat_alternates_regular"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 tools:text="Spain" />
 
             <!-- Bölge Ayırıcı / Sembolü -->
@@ -104,7 +104,7 @@
                 android:text="/"
                 android:fontFamily="@font/montserrat_alternates_regular"
                 android:textColor="@color/white"
-                android:textSize="16sp" />
+                android:textSize="14sp" />
 
             <!-- Bölge Adı -->
             <TextView
@@ -114,7 +114,7 @@
                 android:layout_marginStart="8dp"
                 android:fontFamily="@font/montserrat_alternates_regular"
                 android:textColor="@color/white"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 tools:text="Europe" />
         </LinearLayout>
 
@@ -124,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/montserrat_alternates_regular"
+            android:fontFamily="@font/montserrat_medium"
             android:textColor="@color/white"
             android:textSize="14sp"
             app:layout_constraintTop_toBottomOf="@id/countryInfoLayout"
@@ -136,7 +136,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:fontFamily="@font/montserrat_alternates_bold"
+            android:fontFamily="@font/montserrat_light"
             android:textColor="@color/primary_light"
             android:textSize="14sp"
             app:layout_constraintTop_toBottomOf="@id/txtPopulation"
@@ -150,7 +150,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            app:layout_constraintTop_toBottomOf="@id/textCityName"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
@@ -185,10 +185,10 @@
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:layout_marginTop="200dp"
+        android:clipToPadding="true"
+        android:layout_marginTop="234dp"
         android:overScrollMode="never"
-        android:paddingTop="8dp"
+        android:paddingTop="-12dp"
         android:paddingBottom="16dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -265,7 +265,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/primary_gray"
-                android:layout_marginTop="-16dp"
+                android:layout_marginTop="-18dp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Yorumlar Kısmı -->
@@ -326,7 +326,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -336,14 +336,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/gastronomy_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -366,7 +367,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -376,14 +377,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/aesthetics_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -391,7 +393,7 @@
                         android:id="@+id/txtAestheticsRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -406,7 +408,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -416,14 +418,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/safety_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -431,7 +434,7 @@
                         android:id="@+id/txtSafetyRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -446,7 +449,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -456,14 +459,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/culture_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -471,7 +475,7 @@
                         android:id="@+id/txtCultureRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -486,7 +490,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -496,14 +500,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/livability_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -511,7 +516,7 @@
                         android:id="@+id/txtLivabilityRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -526,7 +531,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -536,14 +541,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/social_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -551,7 +557,7 @@
                         android:id="@+id/txtSocialRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -566,7 +572,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="18dp"
                 app:cardElevation="0dp"
                 app:cardBackgroundColor="@android:color/transparent">
 
@@ -576,14 +582,15 @@
                     android:background="@drawable/category_card_bg"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:padding="10dp">
+                    android:padding="6dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/hospitality_title"
-                        android:fontFamily="@font/montserrat_alternates_regular"
+                        android:layout_marginStart="8dp"
+                        android:fontFamily="@font/montserrat_alternates_bold"
                         android:textColor="@color/white"
                         android:textSize="16sp" />
 
@@ -591,7 +598,7 @@
                         android:id="@+id/txtHospitalityRating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/montserrat_alternates_bold"
+                        android:fontFamily="@font/montserrat_alternates_black"
                         android:textColor="@color/primary_light"
                         android:textSize="18sp"
                         android:background="@drawable/bg_rating"
@@ -600,6 +607,13 @@
                         tools:text="7.29" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primary_gray"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="22dp"/>
 
             <!-- Explore This City Başlık -->
             <TextView
@@ -610,7 +624,7 @@
                 android:textSize="14sp"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:fontFamily="@font/montserrat_alternates_light"
+                android:fontFamily="@font/montserrat_light"
                 android:layout_marginBottom="8dp"/>
 
             <!-- Explore Butonları -->
@@ -619,7 +633,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="22dp">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnExploreYouTube"
@@ -628,7 +642,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#E10000"
                     app:cornerRadius="18dp"
-                    android:fontFamily="@font/montserrat_alternates_regular"
+                    android:fontFamily="@font/montserrat_alternates_bold"
                     android:text="YouTube"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
@@ -639,7 +653,7 @@
                     android:layout_height="wrap_content"
                     android:text="or"
                     android:textColor="@color/white"
-                    android:fontFamily="@font/montserrat_alternates_regular"
+                    android:fontFamily="@font/montserrat_alternates_bold"
                     android:layout_marginHorizontal="16dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -649,7 +663,7 @@
                     android:layout_weight="1"
                     app:cornerRadius="18dp"
                     android:backgroundTint="#174E7E"
-                    android:fontFamily="@font/montserrat_alternates_regular"
+                    android:fontFamily="@font/montserrat_alternates_bold"
                     android:text="Google"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
@@ -660,8 +674,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/primary_gray"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="22dp" />
 
             <TextView
                 android:id="@+id/txtDetailAdTitle"

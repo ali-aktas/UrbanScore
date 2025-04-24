@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import com.aliaktas.urbanscore.BuildConfig
 import com.aliaktas.urbanscore.util.PreferenceManager
+import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
@@ -12,6 +13,11 @@ import com.google.android.gms.ads.RequestConfiguration
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +28,8 @@ import javax.inject.Singleton
 @Singleton
 class AdManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val preferenceManager: PreferenceManager
+    private val preferenceManager: PreferenceManager,
+    private val revenueCatManager: RevenueCatManager  // RevenueCat enjekte ettik
 ) {
     private val TAG = "AdManager"
 
@@ -46,6 +53,36 @@ class AdManager @Inject constructor(
 
     // Pro kullanıcı durumu için değişken
     private var isPro: Boolean = false
+
+    // Coroutine scope
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    init {
+        // Shared Preferences'dan Pro durumunu oku (başlangıç durumu)
+        isPro = preferenceManager.isProValid()
+
+        // RevenueCat durumunu takip et
+        observePremiumStatus()
+    }
+
+    private fun observePremiumStatus() {
+        scope.launch {
+            revenueCatManager.isPremium.collect { premium ->
+                if (isPro != premium) {
+                    Log.d(TAG, "Premium durumu değişti: $premium")
+                    isPro = premium
+
+                    // Preferences'a kaydet
+                    preferenceManager.setProUser(isPro)
+
+                    if (isPro) {
+                        // Cache'lenmiş reklamları temizle
+                        nativeAdHelper.clearCachedAd()
+                    }
+                }
+            }
+        }
+    }
 
     fun initialize(activity: Activity, onInitialized: () -> Unit = {}) {
         try {
@@ -71,7 +108,7 @@ class AdManager @Inject constructor(
         if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "loadNativeAd is called, isPro: $isPro")
 
         if (isPro || !canShowAds()) {
-            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "No Pro user or ad approval, Native Ad bypassed")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Pro user or no ad approval, Native Ad bypassed")
             onAdFailed()
             return
         }
@@ -140,7 +177,7 @@ class AdManager @Inject constructor(
     // Interstitial reklam gösterimi
     fun showInterstitialAd(activity: Activity, onAdClosed: () -> Unit) {
         if (isPro || !canShowAds()) {
-            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "No User Pro or ad approval, skipping ad display")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Pro user or no ad approval, skipping ad display")
             onAdClosed()
             return
         }
@@ -151,7 +188,7 @@ class AdManager @Inject constructor(
     // Reklam ön yüklemesi
     private fun preloadAds() {
         if (isPro || !canShowAds()) {
-            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "No User Pro or ad approval, skipping ad preload")
+            if (BuildConfig.ENABLE_LOGS) Log.d(TAG, "Pro user or no ad approval, skipping ad preload")
             return
         }
 
@@ -196,6 +233,11 @@ class AdManager @Inject constructor(
      */
     private fun canShowAds(): Boolean {
         return consentManager.canShowPersonalizedAds()
+    }
+
+    // Cleanup metodu - uygulama kapanırken çağrılabilir
+    fun cleanup() {
+        scope.cancel()
     }
 
     companion object {

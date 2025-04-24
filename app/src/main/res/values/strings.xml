@@ -110,10 +110,10 @@
     <!-- City Detail Screen -->
     <string name="city_image">City Image</string>
     <string name="country_flag">Country Flag</string>
-    <string name="population_format">Population: %s</string>
+    <string name="population_format">Population: %s </string>
     <plurals name="based_on_ratings">
-        <item quantity="one">By %d traveller</item>
-        <item quantity="other">By %d traveller</item>
+        <item quantity="one">Rated by %d traveller</item>
+        <item quantity="other">Rated by %d traveller</item>
     </plurals>
     <string name="overall_rating">Overall Rating</string>
     <string name="category_ratings">Category Ratings</string>

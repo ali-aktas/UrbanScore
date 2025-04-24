@@ -273,9 +273,9 @@ class HomeFragment : Fragment() {
             // Verileri yeniden yükle
             viewModel.refreshOnReturn()
 
-            // 4 saniye sonra gerçek içeriği göster
+            // 2 saniye sonra gerçek içeriği göster
             lifecycleScope.launch {
-                delay(4000)
+                delay(2500)
                 hideSkeleton()
             }
         }

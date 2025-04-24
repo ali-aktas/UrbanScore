@@ -126,21 +126,21 @@ class ProSubscriptionViewModel @Inject constructor(
         val currentState = uiState.value
         if (currentState !is SubscriptionUIState.ReadyForPurchase) {
             Log.e(TAG, "Satın alma yapılamaz, durum uygun değil: ${currentState.javaClass.simpleName}")
-            emitUserMessage("Satın alma işlemi şu anda başlatılamıyor. Lütfen tekrar deneyin.")
+            emitUserMessage("The purchase cannot be initiated at this time. Please try again.")
             return
         }
 
         // Aylık paket seçiliyse ama null ise, kullanıcıyı uyar
         if (packageId == RevenueCatManager.PLAN_MONTHLY && currentState.monthlyPackage == null) {
             Log.e(TAG, "Aylık paket seçili ama bulunamadı")
-            emitUserMessage("Aylık abonelik şu anda kullanılamıyor. Lütfen yıllık aboneliği deneyin veya daha sonra tekrar kontrol edin.")
+            emitUserMessage("The monthly subscription is currently unavailable. Please try the annual subscription or check back later.")
             return
         }
 
         // Yıllık paket seçiliyse ama null ise, kullanıcıyı uyar
         if (packageId == RevenueCatManager.PLAN_YEARLY && currentState.yearlyPackage == null) {
             Log.e(TAG, "Yıllık paket seçili ama bulunamadı")
-            emitUserMessage("Yıllık abonelik şu anda kullanılamıyor. Lütfen aylık aboneliği deneyin veya daha sonra tekrar kontrol edin.")
+            emitUserMessage("The annual subscription is currently unavailable. Please try the monthly subscription or check back later.")
             return
         }
 
@@ -150,7 +150,7 @@ class ProSubscriptionViewModel @Inject constructor(
             planId = packageId,
             onSuccess = {
                 Log.d(TAG, "Satın alma başarılı")
-                emitUserMessage("Tebrikler! Pro aboneliğiniz aktif.")
+                emitUserMessage("Congratulations! Your Pro subscription is active.")
             },
             onError = { errorMsg ->
                 Log.e(TAG, "Satın alma hatası: $errorMsg")
@@ -167,7 +167,7 @@ class ProSubscriptionViewModel @Inject constructor(
 
         if (isLoading.value) {
             Log.d(TAG, "Yükleme devam ediyor, işlem ertelendi")
-            emitUserMessage("Lütfen bekleyin...")
+            emitUserMessage("Please wait...")
             return
         }
 
@@ -175,9 +175,9 @@ class ProSubscriptionViewModel @Inject constructor(
             onSuccess = {
                 Log.d(TAG, "Geri yükleme başarılı")
                 if (isPremium.value) {
-                    emitUserMessage("Aboneliğiniz başarıyla geri yüklendi!")
+                    emitUserMessage("Your subscription has been successfully restored!")
                 } else {
-                    emitUserMessage("Geri yükleme tamamlandı, ancak aktif abonelik bulunamadı.")
+                    emitUserMessage("Restore completed, but no active subscription found.")
                 }
             },
             onError = { errorMsg ->

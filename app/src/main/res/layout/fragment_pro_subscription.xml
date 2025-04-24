@@ -31,12 +31,9 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_close"
-            android:contentDescription="Close"
-            app:tint="@color/white"/>
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/close_btn"/>
     </LinearLayout>
 
     <!-- Premium Content Container - Tüm premium bilgilerini içeren tek container -->
@@ -44,7 +41,7 @@
         android:id="@+id/premiumContentContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="180dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -78,191 +75,233 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Free vs Pro Labels in Table Layout -->
-        <LinearLayout
+        <!-- Column Headers Container -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/headerLabels"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginHorizontal="34dp"
-            android:orientation="horizontal"
+            android:layout_marginTop="46dp"
+            android:layout_marginHorizontal="32dp"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvProDescription">
 
+            <!-- Feature Label Space (Empty for alignment) -->
+            <Space
+                android:id="@+id/featureLabelSpace"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tvFreeText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_weight="2" />
+
+            <!-- Free Column Header -->
             <TextView
                 android:id="@+id/tvFreeText"
-                android:layout_width="42dp"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="Free"
                 android:gravity="center"
-                android:layout_marginEnd="8dp"
                 android:textColor="@color/white"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins_medium" />
+                android:textSize="18sp"
+                android:layout_marginEnd="8dp"
+                android:fontFamily="@font/montserrat_alternates_black"
+                app:layout_constraintEnd_toStartOf="@id/tvProText"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <!-- PRO Column Header -->
             <TextView
                 android:id="@+id/tvProText"
-                android:layout_width="42dp"
+                android:layout_width="48dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="PRO"
                 android:gravity="center"
-                android:textColor="@color/primary_purple"
-                android:textSize="16sp"
-                android:fontFamily="@font/poppins_bold" />
-        </LinearLayout>
+                android:textColor="#765AE6"
+                android:textSize="18sp"
+                android:fontFamily="@font/montserrat_alternates_black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Feature comparison table -->
-        <TableLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/featureTable"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:paddingVertical="4dp"
             android:layout_marginHorizontal="32dp"
             app:layout_constraintTop_toBottomOf="@id/headerLabels"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <!-- No Ads Feature -->
-            <TableRow
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvNoAds"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:text="No ADS"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="start"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/ivNoAdsFree" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="No ADS"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/montserrat_medium"
-                    android:gravity="start"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
+            <ImageView
+                android:id="@+id/ivNoAdsFree"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guideFree"
+                app:layout_constraintTop_toTopOf="@id/tvNoAds"
+                app:layout_constraintBottom_toBottomOf="@id/tvNoAds" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_close"
-                    android:layout_marginEnd="18dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_light"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_check"
-                    android:layout_marginEnd="6dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_purple"/>
-            </TableRow>
+            <ImageView
+                android:id="@+id/ivNoAdsPro"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guidePro"
+                app:layout_constraintTop_toTopOf="@id/tvNoAds"
+                app:layout_constraintBottom_toBottomOf="@id/tvNoAds" />
 
             <!-- Priority access feature -->
-            <TableRow
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvPriority"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:text="Add a city per week to show up on explore screen"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="start"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvNoAds"
+                app:layout_constraintEnd_toStartOf="@id/ivPriorityFree" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Priority access to features"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/montserrat_medium"
-                    android:gravity="start"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
+            <ImageView
+                android:id="@+id/ivPriorityFree"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guideFree"
+                app:layout_constraintTop_toTopOf="@id/tvPriority"
+                app:layout_constraintBottom_toBottomOf="@id/tvPriority" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_close"
-                    android:layout_marginEnd="18dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_light"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_check"
-                    android:layout_gravity="center"
-                    android:layout_marginEnd="6dp"
-                    app:tint="@color/primary_purple"/>
-            </TableRow>
+            <ImageView
+                android:id="@+id/ivPriorityPro"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guidePro"
+                app:layout_constraintTop_toTopOf="@id/tvPriority"
+                app:layout_constraintBottom_toBottomOf="@id/tvPriority" />
 
             <!-- City presentation feature -->
-            <TableRow
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvCity"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:text="Priority access to new features"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="start"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvPriority"
+                app:layout_constraintEnd_toStartOf="@id/ivCityFree" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="City presentation in explore"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/montserrat_medium"
-                    android:gravity="start"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
+            <ImageView
+                android:id="@+id/ivCityFree"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guideFree"
+                app:layout_constraintTop_toTopOf="@id/tvCity"
+                app:layout_constraintBottom_toBottomOf="@id/tvCity" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_close"
-                    android:layout_marginEnd="18dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_light"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_check"
-                    android:layout_marginEnd="6dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_purple"/>
-            </TableRow>
+            <ImageView
+                android:id="@+id/ivCityPro"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guidePro"
+                app:layout_constraintTop_toTopOf="@id/tvCity"
+                app:layout_constraintBottom_toBottomOf="@id/tvCity" />
 
             <!-- Premium comments feature -->
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/tvComment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Premium comment features"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:fontFamily="@font/montserrat_medium"
+                android:gravity="start"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvCity"
+                app:layout_constraintEnd_toStartOf="@id/ivCommentFree"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:text="Premium comment features"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/montserrat_medium"
-                    android:gravity="start"
-                    android:maxLines="2"
-                    android:ellipsize="end"/>
+            <ImageView
+                android:id="@+id/ivCommentFree"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_close"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guideFree"
+                app:layout_constraintTop_toTopOf="@id/tvComment"
+                app:layout_constraintBottom_toBottomOf="@id/tvComment" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_close"
-                    android:layout_marginEnd="18dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_light"/>
+            <ImageView
+                android:id="@+id/ivCommentPro"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check"
+                android:layout_gravity="center"
+                app:layout_constraintEnd_toEndOf="@id/guidePro"
+                app:layout_constraintTop_toTopOf="@id/tvComment"
+                app:layout_constraintBottom_toBottomOf="@id/tvComment" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_check"
-                    android:layout_marginEnd="6dp"
-                    android:layout_gravity="center"
-                    app:tint="@color/primary_purple"/>
-            </TableRow>
-        </TableLayout>
+            <!-- Guidelines for alignment -->
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideFree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="68dp" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guidePro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_end="12dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Progress Bar -->
@@ -283,7 +322,7 @@
         android:id="@+id/subscriptionOptionsScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="52dp"
         android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/premiumContentContainer"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -293,7 +332,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="32dp"
+            android:paddingHorizontal="22dp"
             android:paddingBottom="16dp"
             android:visibility="gone"
             tools:visibility="visible">
@@ -341,7 +380,7 @@
                             android:text="@string/monthly_plan"
                             android:textSize="16sp"
                             android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/primary_gray" />
 
                         <TextView
                             android:id="@+id/tvMonthlyPrice"
@@ -351,7 +390,7 @@
                             android:textSize="22sp"
                             android:fontFamily="@font/poppins_bold"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/white" />
+                            android:textColor="#673AB7" />
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -399,7 +438,7 @@
                             android:text="@string/yearly_plan"
                             android:textSize="16sp"
                             android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/primary_gray" />
 
                         <TextView
                             android:id="@+id/tvYearlyPrice"
@@ -409,7 +448,7 @@
                             android:textSize="22sp"
                             android:fontFamily="@font/poppins_bold"
                             android:layout_marginTop="8dp"
-                            android:textColor="@color/white" />
+                            android:textColor="#673AB7" />
 
                         <LinearLayout
                             android:layout_width="wrap_content"

@@ -33,7 +33,7 @@
                 android:layout_height="100dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
-                android:src="@drawable/loginicon2"/>
+                android:src="@drawable/ic_avatar"/>
 
             <!-- Avatar Çerçeve -->
             <ImageView
@@ -50,7 +50,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:fontFamily="@font/montserrat_alternates_bold"
-            android:text="The traveler"
+            android:text="The traveller"
             android:textColor="@color/white"
             android:textSize="24sp"
             android:layout_gravity="center_horizontal" />
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:fontFamily="@font/montserrat_alternates_light"
-            android:text="Tough traveler"
+            android:text="Traveller"
             android:textColor="@color/primary_purple"
             android:textSize="16sp"
             android:layout_gravity="center_horizontal" />
@@ -72,6 +72,7 @@
             android:id="@+id/statsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
             android:layout_marginBottom="12dp"
             android:layout_marginTop="12dp">
 
@@ -226,6 +227,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:padding="8dp"
+                    android:background="@drawable/mainlistbg"
                     android:visibility="gone"
                     tools:listitem="@layout/item_wishlist_city" />
 

@@ -1,6 +1,7 @@
 package com.aliaktas.urbanscore.ui.detail.controllers
 
 import android.view.View
+import com.aliaktas.urbanscore.R
 import com.aliaktas.urbanscore.databinding.FragmentCityDetailBinding
 import com.aliaktas.urbanscore.ui.detail.CityDetailFormatter
 import com.aliaktas.urbanscore.ui.detail.CityDetailState
@@ -40,7 +41,7 @@ class BasicInfoController(
             // Şehir detayları
             txtCountry.text = city.country
             txtRegion.text = city.region
-            txtPopulation.text = formatter.formatPopulation(city.population)
+            txtPopulation.text = root.context.getString(R.string.population_format, formatter.formatPopulation(city.population))
 
             // Ortalama puan
             txtAverageRating.text = formatter.formatRating(city.averageRating)
