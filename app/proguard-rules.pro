@@ -21,25 +21,35 @@
 #-renamesourcefileattribute SourceFile
 
 # Firestore
--keep class com.aliaktas.urbanscore.data.model.CityModel { *; }
--keep class com.aliaktas.urbanscore.data.model.CategoryRatings { *; }
--keep class com.aliaktas.urbanscore.data.model.UserModel { *; }
--keep class com.aliaktas.urbanscore.data.model.UserRatingModel { *; }
--keep class com.github.mikephil.charting.** { *; }
+-keep class com.aliaktas.urbanscore.data.model.** { *; }
+-keepclassmembers class com.aliaktas.urbanscore.data.model.** { *; }
 
-# RevenueCat
--keep class com.revenuecat.** { *; }
+# ÖNEMLİ: Firebase deserilaştırma için gerekli
+-keepattributes Signature
+-keepattributes *Annotation*
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+
+# Spesifik olarak CuratedCityItem için (ekstra güvenlik)
+-keep class com.aliaktas.urbanscore.data.model.CuratedCityItem { *; }
+-keepclassmembers class com.aliaktas.urbanscore.data.model.CuratedCityItem { *; }
 
 # Firebase
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
 
+# RevenueCat
+-keep class com.revenuecat.** { *; }
+
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep class * extends com.bumptech.glide.module.AppGlideModule
 
-# AdMob ve UMP (User Messaging Platform)
+# AdMob ve UMP
 -keep class com.google.android.gms.ads.** { *; }
 -dontwarn com.google.android.gms.ads.**
 -keep class com.google.android.ump.** { *; }
 -dontwarn com.google.android.ump.**
+
+# Chart kütüphanesi
+-keep class com.github.mikephil.charting.** { *; }

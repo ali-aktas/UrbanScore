@@ -31,9 +31,10 @@ import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.Dispatchers
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Locale
 
 class SearchBottomSheetFragment : BottomSheetDialogFragment() {
@@ -47,16 +48,21 @@ class SearchBottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var btnBack: ImageView
     private lateinit var contentContainer: ConstraintLayout
 
+    // Firebase
+    private val firestore = FirebaseFirestore.getInstance()
+
     // Data and Adapters
     private val searchAdapter = SearchResultsAdapter()
-    private var allCities = mutableListOf<CityModel>()
     private var onCitySelectedListener: ((String) -> Unit)? = null
 
+    // Debounce için job
+    private var searchJob: Job? = null
+
     companion object {
-        fun newInstance(cities: List<CityModel>, onCitySelected: (String) -> Unit): SearchBottomSheetFragment {
+        private const val TAG = "SearchBottomSheet"
+
+        fun newInstance(onCitySelected: (String) -> Unit): SearchBottomSheetFragment {
             return SearchBottomSheetFragment().apply {
-                this.allCities.clear()
-                this.allCities.addAll(cities)
                 this.onCitySelectedListener = onCitySelected
             }
         }
@@ -194,12 +200,18 @@ class SearchBottomSheetFragment : BottomSheetDialogFragment() {
                 // Show/hide clear button
                 btnClearSearch.visibility = if (query.isNotEmpty()) View.VISIBLE else View.GONE
 
-                // Perform search if 2+ characters
-                if (query.length >= 2) {
-                    performSearch(query)
-                } else {
-                    searchAdapter.submitList(emptyList())
-                    tvNoResults.visibility = View.GONE
+                // Cancel previous search
+                searchJob?.cancel()
+
+                // Start new search after 300ms delay
+                searchJob = lifecycleScope.launch {
+                    delay(300) // 300ms bekle
+                    if (query.length >= 2) {
+                        performSearch(query)
+                    } else {
+                        searchAdapter.submitList(emptyList())
+                        tvNoResults.visibility = View.GONE
+                    }
                 }
             }
         })
@@ -209,6 +221,8 @@ class SearchBottomSheetFragment : BottomSheetDialogFragment() {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 val query = editTextSearch.text.toString().trim()
                 if (query.length >= 2) {
+                    // Cancel any pending search
+                    searchJob?.cancel()
                     performSearch(query)
                     hideKeyboard()
                 }
@@ -219,26 +233,60 @@ class SearchBottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun performSearch(query: String) {
+        Log.d(TAG, "Performing search for query: $query")
         progressBarSearch.visibility = View.VISIBLE
         recyclerViewResults.visibility = View.GONE
         tvNoResults.visibility = View.GONE
 
-        // Use coroutines for background filtering
-        viewLifecycleOwner.lifecycleScope.launch {
-            // Do filtering in background thread
-            val results = withContext(Dispatchers.Default) {
-                allCities.filter { city ->
-                    city.cityName.lowercase(Locale.getDefault()).contains(query) ||
-                            city.country.lowercase(Locale.getDefault()).contains(query)
+        try {
+            // Capitalize first letter for better results
+            val capitalizedQuery = query.capitalize(Locale.getDefault())
+
+            // Firestore sorgusu - sadece aranan ile başlayan şehirleri getir
+            firestore.collection("cities")
+                .orderBy("cityName")
+                .whereGreaterThanOrEqualTo("cityName", capitalizedQuery)
+                .whereLessThan("cityName", capitalizedQuery + "\uf8ff") // Unicode üst sınır
+                .limit(20) // Makul bir sonuç sayısı
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    Log.d(TAG, "Firestore search returned ${snapshot.size()} results")
+
+                    val cities = snapshot.documents.mapNotNull { doc ->
+                        try {
+                            val model = doc.toObject(CityModel::class.java)
+                            model?.copy(id = doc.id)
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error converting document: ${e.message}")
+                            null
+                        }
+                    }
+
+                    // Hem şehir adı hem ülke adıyla filtrele
+                    val results = cities.filter { city ->
+                        city.cityName.lowercase(Locale.getDefault()).contains(query) ||
+                                city.country.lowercase(Locale.getDefault()).contains(query)
+                    }
+
+                    // UI görünürlüğünü güncelle
+                    progressBarSearch.visibility = View.GONE
+                    recyclerViewResults.visibility = View.VISIBLE
+                    tvNoResults.visibility = if (results.isEmpty()) View.VISIBLE else View.GONE
+
+                    searchAdapter.submitList(results)
                 }
-            }
-
-            // Update UI in main thread
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Search failed: ${e.message}")
+                    progressBarSearch.visibility = View.GONE
+                    tvNoResults.visibility = View.VISIBLE
+                    recyclerViewResults.visibility = View.GONE
+                    searchAdapter.submitList(emptyList())
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "Exception during search: ${e.message}")
             progressBarSearch.visibility = View.GONE
-            recyclerViewResults.visibility = View.VISIBLE
-            tvNoResults.visibility = if (results.isEmpty()) View.VISIBLE else View.GONE
-
-            searchAdapter.submitList(results)
+            tvNoResults.visibility = View.VISIBLE
+            recyclerViewResults.visibility = View.GONE
         }
     }
 
@@ -256,6 +304,7 @@ class SearchBottomSheetFragment : BottomSheetDialogFragment() {
     // Clean up resources when fragment is destroyed
     override fun onDestroyView() {
         hideKeyboard()
+        searchJob?.cancel()
         recyclerViewResults.adapter = null
         super.onDestroyView()
     }

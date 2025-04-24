@@ -29,6 +29,7 @@ android {
                 "proguard-rules.pro"
             )
             buildConfigField("boolean", "ENABLE_LOGS", "false")
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         debug {

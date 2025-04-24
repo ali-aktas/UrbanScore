@@ -36,7 +36,6 @@ class ExploreFragment : Fragment() {
 
     private val viewModel: ExploreViewModel by viewModels()
     private lateinit var cityAdapter: FeaturedCityAdapter
-    private val allCities = mutableListOf<CityModel>()
 
     private var nativeAd: NativeAd? = null
 
@@ -73,7 +72,6 @@ class ExploreFragment : Fragment() {
 
         // İlk açılışta internet kontrolü yap
         checkInternetConnection()
-
     }
 
     private fun setupAnimations() {
@@ -206,13 +204,6 @@ class ExploreFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.allCities.collect { cities ->
-                        allCities.clear()
-                        allCities.addAll(cities)
-                    }
-                }
-
-                launch {
                     viewModel.usersCities.collect { cities ->
                         if (cities.isNotEmpty()) {
                             updateCities(cities)
@@ -260,30 +251,18 @@ class ExploreFragment : Fragment() {
         }
     }
 
+    // YENİ: Gerçek zamanlı arama yapan SearchBottomSheet
     private fun showSearchBottomSheet() {
-        if (allCities.isEmpty()) {
-            binding.progressBar.visibility = View.VISIBLE
-
-            viewModel.loadAllCities()
-            lifecycleScope.launch {
-                kotlinx.coroutines.delay(2000) // 2 saniye bekleyelim
-                if (allCities.isNotEmpty()) {
-                    showBottomSheetWithCities()
+        if (checkInternetConnection()) {
+            val searchBottomSheet = SearchBottomSheetFragment.newInstance(
+                onCitySelected = { cityId ->
+                    navigateToCityDetail(cityId)
                 }
-            }
+            )
+            searchBottomSheet.show(childFragmentManager, "SearchBottomSheet")
         } else {
-            showBottomSheetWithCities()
+            Toast.makeText(context, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun showBottomSheetWithCities() {
-        val searchBottomSheet = SearchBottomSheetFragment.newInstance(
-            cities = allCities,
-            onCitySelected = { cityId ->
-                navigateToCityDetail(cityId)
-            }
-        )
-        searchBottomSheet.show(childFragmentManager, "SearchBottomSheet")
     }
 
     private fun updateCities(cities: List<CuratedCityItem>) {
@@ -343,7 +322,6 @@ class ExploreFragment : Fragment() {
         }
 
         binding.nativeAdContainer.removeAllViews()
-        // binding.adContainerView referansını kaldırdık
         super.onDestroyView()
         _binding = null
     }

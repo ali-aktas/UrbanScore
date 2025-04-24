@@ -10,6 +10,7 @@ import com.aliaktas.urbanscore.data.repository.CityRecommendationRepositoryImpl
 import com.aliaktas.urbanscore.data.repository.CityRepository
 import com.aliaktas.urbanscore.data.repository.UserRepository
 import com.aliaktas.urbanscore.util.AppPreferences
+import com.aliaktas.urbanscore.util.CityCache
 import com.aliaktas.urbanscore.util.PreferenceManager
 import com.aliaktas.urbanscore.util.RevenueCatManager
 import com.google.firebase.auth.FirebaseAuth
@@ -36,6 +37,12 @@ object AppModule {
     @Singleton
     fun provideResourceProvider(context: Context): ResourceProvider {
         return ResourceProvider(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCityCache(@ApplicationContext context: Context): CityCache {
+        return CityCache(context)
     }
 
     @Provides
