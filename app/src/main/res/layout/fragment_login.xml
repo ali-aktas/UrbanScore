@@ -16,7 +16,7 @@
         android:layout_height="70dp"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
-        android:src="@drawable/roamly_icon"/>
+        android:src="@drawable/app_logo"/>
 
     <LinearLayout
         android:id="@+id/txtAppName"
@@ -30,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Roamly"
-            android:fontFamily="@font/montserrat_alternates_regular"
+            android:fontFamily="@font/montserrat_alternates_bold"
             android:textColor="@color/primary_purple"
             android:textSize="32sp" />
     </LinearLayout>

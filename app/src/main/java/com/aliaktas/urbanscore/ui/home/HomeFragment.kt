@@ -24,6 +24,7 @@ import com.aliaktas.urbanscore.ui.home.controllers.TopCitiesController
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -264,6 +265,8 @@ class HomeFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume")
+
+        //FirebaseCrashlytics.getInstance().recordException(Exception("Test Exception"))
 
         // Controller'lar başlatılmışsa sıfırla ve yeniden skeletonu göster
         if (controllersInitialized) {

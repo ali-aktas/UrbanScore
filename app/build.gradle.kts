@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -15,8 +16,8 @@ android {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
         targetSdk = 34
-        versionCode = 15
-        versionName = "1.15"
+        versionCode = 16
+        versionName = "1.16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -99,8 +100,9 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.functions)
-    //implementation(libs.firebase.analytics)
     //implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics) // Bu satırı ekleyin
+    implementation(libs.firebase.crashlytics) // Bu satırı ekleyin
 
     //Auth
     implementation(libs.google.auth)
