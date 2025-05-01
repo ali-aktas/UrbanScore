@@ -15,18 +15,18 @@ data class CategoryModel(
         // Yeni kategorilere göre listeyi güncelle
         fun getDefaultCategories(): List<CategoryModel> = listOf(
             CategoryModel(
-                id = "gastronomy",
-                title = "Gastronomy & Diversity",
-                description = "Quality and diversity of local cuisine, street food, restaurants, cafes, and dining options. Representation of both authentic local dishes and international options.",
-                imageUrl = "https://example.com/gastronomy.jpg",
-                ratingType = "gastronomy"
-            ),
-            CategoryModel(
                 id = "aesthetics",
                 title = "City Aesthetics",
                 description = "Cityscape beauty, architectural design, scenic viewpoints, photogenic locations, and overall visual appeal of the urban environment.",
                 imageUrl = "https://example.com/aesthetics.jpg",
                 ratingType = "aesthetics"
+            ),
+            CategoryModel(
+                id = "gastronomy",
+                title = "Gastronomy & Diversity",
+                description = "Quality and diversity of local cuisine, street food, restaurants, cafes, and dining options. Representation of both authentic local dishes and international options.",
+                imageUrl = "https://example.com/gastronomy.jpg",
+                ratingType = "gastronomy"
             ),
             CategoryModel(
                 id = "safety",
@@ -51,14 +51,14 @@ data class CategoryModel(
             ),
             CategoryModel(
                 id = "social",
-                title = "Social Life & Affordability",
+                title = "Social Life & Vibrancy",
                 description = "Entertainment options, festivals, events, bars/clubs, social gathering places, and the value-for-money of these activities compared to other cities.",
                 imageUrl = "https://example.com/social.jpg",
                 ratingType = "social"
             ),
             CategoryModel(
                 id = "hospitality",
-                title = "Local Hospitality",
+                title = "Local People",
                 description = "Friendliness of locals toward visitors, language accessibility, helpfulness, opportunities for meaningful social interactions, and the overall welcoming atmosphere.",
                 imageUrl = "https://example.com/hospitality.jpg",
                 ratingType = "hospitality"

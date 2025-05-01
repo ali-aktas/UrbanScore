@@ -43,12 +43,14 @@
         app:boxBackgroundColor="@color/primary_gray"
         app:boxStrokeColor="@color/primary_purple"
         app:hintTextColor="@color/white"
-        app:startIconDrawable="@drawable/ic_search"
+        app:startIconDrawable="@drawable/ic_search_basic"
         app:startIconTint="@color/white"
         app:endIconMode="clear_text"
         app:endIconTint="@color/white"
         app:boxCornerRadiusBottomEnd="18dp"
         app:boxCornerRadiusTopStart="18dp"
+        app:boxCornerRadiusTopEnd="18dp"
+        app:boxCornerRadiusBottomStart="18dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
         app:layout_constraintStart_toStartOf="parent"
@@ -113,15 +115,17 @@
         app:layout_constraintStart_toStartOf="@id/btnContinue"
         app:layout_constraintTop_toTopOf="@id/btnContinue" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnContinue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Continue"
         android:padding="12dp"
-        android:textSize="16sp"
-        android:fontFamily="@font/montserrat_alternates_bold"
-        android:background="@drawable/btn_gradient_third"
+        android:textSize="14sp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/white"
+        android:fontFamily="@font/montserrat_alternates_regular"
+        app:backgroundTint="#0060519B"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

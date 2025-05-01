@@ -18,14 +18,6 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
 
     var onItemClick: ((CategoryModel) -> Unit)? = null
 
-    // Kıtalar için farklı arka plan drawable listesi
-    private val backgroundDrawables = listOf(
-        R.drawable.category_safety_bg,
-        R.drawable.category_safety_bg,
-        R.drawable.category_safety_bg,
-        R.drawable.category_safety_bg,
-        R.drawable.category_safety_bg
-    )
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val binding = ItemCategoryBinding.inflate(
@@ -56,15 +48,6 @@ class CategoriesAdapter : ListAdapter<CategoryModel, CategoriesAdapter.CategoryV
         fun bind(category: CategoryModel, position: Int) {
             with(binding) {
                 txtContinentName.text = category.title
-
-                // Pozisyona göre farklı arka plan uygula
-                val backgroundDrawablePosition = position % backgroundDrawables.size
-
-                // MaterialCardView'in arka planını değiştir
-                root.background = ContextCompat.getDrawable(
-                    root.context,
-                    backgroundDrawables[backgroundDrawablePosition]
-                )
 
                 // Load category background image
                 // Glide.with(root.context)

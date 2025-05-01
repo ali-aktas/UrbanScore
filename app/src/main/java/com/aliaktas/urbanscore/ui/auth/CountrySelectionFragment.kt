@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -35,6 +36,8 @@ class CountrySelectionFragment : Fragment() {
     private lateinit var countriesAdapter: CountriesAdapter
     private var fastScroller: FastScroller? = null
 
+    private var backPressedCallback: OnBackPressedCallback? = null
+
     // Arama gecikmesi için handler
     private val searchHandler = Handler(Looper.getMainLooper())
     private var searchRunnable: Runnable? = null
@@ -55,6 +58,23 @@ class CountrySelectionFragment : Fragment() {
         setupSearchView()
         setupButtons()
         observeViewModel()
+        setupBackNavigation()
+    }
+
+    private fun setupBackNavigation() {
+        // Önceki callback'i temizle
+        backPressedCallback?.remove()
+
+        // Yeni callback oluştur
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Geri tuşu işlemini engelleyin
+                // İsteğe bağlı olarak kullanıcıya bir mesaj gösterebilirsiniz
+                Snackbar.make(binding.root, "Please select a country to continue", Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback!!)
     }
 
     private fun setupRecyclerView() {
@@ -178,11 +198,21 @@ class CountrySelectionFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // Fragment görünür olduğunda callback'i yeniden ayarla
+        setupBackNavigation()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
 
         // Handler'ı temizle
         searchRunnable?.let { searchHandler.removeCallbacks(it) }
+
+        backPressedCallback?.remove()
+        backPressedCallback = null
 
         // Binding'i temizle
         _binding = null
