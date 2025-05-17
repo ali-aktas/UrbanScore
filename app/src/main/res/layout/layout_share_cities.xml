@@ -4,59 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="1080px"
     android:layout_height="1920px"
-    android:background="@drawable/appmainbg">
-
-    <LinearLayout
-        android:id="@+id/titleLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- Logo ve Başlık -->
-        <ImageView
-            android:id="@+id/ivAppLogo"
-            android:layout_width="32dp"
-            android:layout_height="28dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:src="@drawable/app_logo"/>
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_marginStart="2dp"
-            android:fontFamily="@font/montserrat_alternates_bold"
-            android:text="Roamly App"
-            android:textColor="@color/primary_purple"
-            android:textSize="18sp"/>
-
-    </LinearLayout>
+    android:background="@drawable/share_bg">
 
     <TextView
         android:id="@+id/tvShareTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="132dp"
         android:fontFamily="@font/montserrat_black"
         android:text="My Top 10 Cities"
         android:textColor="@color/primary_light"
-        android:textSize="16sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleLayout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvVisitCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:fontFamily="@font/montserrat_alternates_light"
+        android:fontFamily="@font/montserrat_alternates_regular"
         android:text="I've visited 42 cities around the world"
         android:textColor="@color/white"
         android:textSize="12sp"
@@ -74,7 +42,7 @@
         android:layout_marginEnd="36dp"
         app:cardCornerRadius="24dp"
         app:cardElevation="18dp"
-        android:background="@drawable/profilelistbg"
+        android:background="@drawable/sharelist_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.46"
@@ -95,46 +63,4 @@
             tools:listitem="@layout/item_share_city" />
     </FrameLayout>
 
-
-    <!-- Alt Promo Metin -->
-    <TextView
-        android:id="@+id/tvPromoText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/montserrat_alternates_regular"
-        android:text="Wanna rate your cities in 7 categories? → Get the app."
-        android:textColor="@color/primary_light"
-        android:textSize="8sp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/appStoreLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
-    <!-- App Store ve Google Play Logoları -->
-    <LinearLayout
-        android:id="@+id/appStoreLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        android:layout_marginBottom="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <ImageView
-            android:id="@+id/ivGooglePlay"
-            android:layout_width="70dp"
-            android:layout_height="28dp"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/google_play_badge" />
-
-        <ImageView
-            android:id="@+id/ivAppStore"
-            android:layout_width="70dp"
-            android:layout_height="28dp"
-            android:layout_marginStart="12dp"
-            android:src="@drawable/app_store_badge" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

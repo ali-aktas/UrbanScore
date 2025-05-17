@@ -33,7 +33,7 @@
             android:id="@+id/btnBack"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:background="@drawable/close_btn"/>
+            android:background="@drawable/ic_close"/>
     </LinearLayout>
 
     <!-- Premium Content Container - Tüm premium bilgilerini içeren tek container -->

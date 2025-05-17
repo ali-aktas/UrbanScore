@@ -45,6 +45,8 @@ class HomeViewModel @Inject constructor(
     private var networkObserver: Job? = null
     private var wasInErrorState = false
 
+    var isFirstLoad = true
+
     fun loadTopCitiesByStats() {
         viewModelScope.launch {
             val result = cityStatsRepository.getTopCitiesByCategory()
@@ -92,7 +94,10 @@ class HomeViewModel @Inject constructor(
     // app/src/main/java/com/aliaktas/urbanscore/ui/home/HomeViewModel.kt
 
     fun loadTopRatedCities(forceRefresh: Boolean = false) {
-        // Always use "averageRating" for HomeFragment
+
+        if (!isFirstLoad && !forceRefresh) return
+        isFirstLoad = false
+
         val categoryToUse = "averageRating"
 
         // Use cache if available and not forcing refresh

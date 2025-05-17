@@ -9,7 +9,7 @@
     app:cardCornerRadius="12dp"
     android:padding="4dp"
     android:elevation="22dp"
-    android:backgroundTint="@color/primary"
+    android:backgroundTint="#7A6D49C3"
     android:layout_marginTop="6dp"
     app:rippleColor="#6440F4"
     android:gravity="center"

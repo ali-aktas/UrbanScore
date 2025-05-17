@@ -123,7 +123,7 @@ class CategoryListFragment : Fragment() {
             "safety" -> "Best Cities for Safety & Peace"
             "culture" -> "Best Cities for Cultural Heritage"
             "livability" -> "Best Cities for Livability & Nature"
-            "social" -> "Best Cities for Social Life & Affordability"
+            "social" -> "Best Cities for Social Life & Vibrancy"
             "hospitality" -> "Best Cities for Local Hospitality"
             else -> "Top Rated Cities Overall"
         }

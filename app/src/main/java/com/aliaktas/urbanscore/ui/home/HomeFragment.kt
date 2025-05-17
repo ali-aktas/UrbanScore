@@ -38,9 +38,6 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    // Skeleton View referansı
-    private var skeletonView: View? = null
-
     @Inject
     lateinit var adManager: AdManager
 
@@ -54,6 +51,8 @@ class HomeFragment : Fragment() {
     // Tüm controller'ları tutan liste
     private lateinit var controllers: List<HomeController>
 
+    private var isFirstLoad = true
+
     // Controller'ların başlatılıp başlatılmadığını takip etmek için flag
     private var controllersInitialized = false
 
@@ -64,57 +63,37 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        // Skeleton view'ı inflate et
-        skeletonView = inflater.inflate(R.layout.layout_home_skeleton, container, false)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
 
-        // Önce skeleton göster ve içeriği gizle
-        showSkeleton()
+        showSkeleton() // İlk açıldığında göster
 
-        // ViewModel'i gözlemle
         observeViewModel()
-
-        // Controller'ları oluştur
         createControllers()
-
-        // Verileri hemen yükle (arka planda)
         viewModel.loadTopRatedCities(false)
 
-        // 3 saniye sonra gerçek içeriği göster
         lifecycleScope.launch {
-            delay(2500)
-            hideSkeleton()
+            delay(2500) // 2.5 saniye bekleyip
+            hideSkeleton() // Skeleton'u kapat
         }
 
         loadNativeAd()
     }
 
     private fun showSkeleton() {
-        // Ana içeriği gizle
+        binding.skeletonContainer.visibility = View.VISIBLE
         binding.swipeRefreshLayout.visibility = View.INVISIBLE
         binding.loadingContainer.visibility = View.GONE
         binding.errorContainer.visibility = View.GONE
-
-        // Skeleton'ı göster
-        (binding.root as ViewGroup).addView(skeletonView)
     }
 
     private fun hideSkeleton() {
-        // Skeleton'ı kaldır
-        skeletonView?.let {
-            (binding.root as ViewGroup).removeView(it)
-        }
-
-        // Ana içeriği göster
+        binding.skeletonContainer.visibility = View.GONE
         binding.swipeRefreshLayout.visibility = View.VISIBLE
 
-        // Skeleton kaldırıldıktan sonra controller'ları başlat
         if (!controllersInitialized) {
             initializeControllers()
         }
@@ -266,23 +245,12 @@ class HomeFragment : Fragment() {
         super.onResume()
         Log.d(TAG, "onResume")
 
-        //FirebaseCrashlytics.getInstance().recordException(Exception("Test Exception"))
-
-        // Controller'lar başlatılmışsa sıfırla ve yeniden skeletonu göster
+        // Sadece veriyi güncelle ama skeleton gösterme
         if (controllersInitialized) {
-            controllersInitialized = false
-            showSkeleton()
-
-            // Verileri yeniden yükle
             viewModel.refreshOnReturn()
-
-            // 2 saniye sonra gerçek içeriği göster
-            lifecycleScope.launch {
-                delay(2500)
-                hideSkeleton()
-            }
         }
     }
+
 
     private fun loadNativeAd() {
         try {
@@ -358,7 +326,6 @@ class HomeFragment : Fragment() {
         // Mevcut kodlar...
         super.onDestroyView()
         Log.d(TAG, "onDestroyView")
-        skeletonView = null
         _binding = null
     }
 

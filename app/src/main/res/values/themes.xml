@@ -11,12 +11,14 @@
 
     <style name="Theme.UrbanScore" parent="Base.Theme.UrbanScore" />
 
-    <style name="BottomNavigationStyle">
-        <item name="android:background">@android:color/transparent</item>
+    <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="android:textSize">6sp</item>
+        <item name="itemIconSize">24dp</item>
         <item name="itemIconTint">@color/primary_light</item>
         <item name="itemTextColor">@color/primary_light</item>
-        <item name="labelVisibilityMode">labeled</item>
+        <item name="labelVisibilityMode">unlabeled</item>
     </style>
+
 
     <style name="circleImageView" parent="">
         <item name="cornerSize">50%</item>
