@@ -191,6 +191,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- Onboarding Ekranları İçin Stringler -->
+    <string name="onboarding_skip">Skıp</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_image_content_description">Onboarding Screen Image</string>
 
     <!-- User Messages -->
     <string name="msg_no_internet">No internet connection. Please check your network.</string>

@@ -15,9 +15,9 @@ android {
     defaultConfig {
         applicationId = "com.aliaktas.urbanscore"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 19
-        versionName = "1.19"
+        targetSdk = 35
+        versionCode = 21
+        versionName = "1.21"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -101,8 +101,8 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.functions)
     //implementation(libs.firebase.messaging)
-    implementation(libs.firebase.analytics) // Bu satırı ekleyin
-    implementation(libs.firebase.crashlytics) // Bu satırı ekleyin
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     //Auth
     implementation(libs.google.auth)
@@ -125,6 +125,9 @@ dependencies {
     //RevenueCat
     implementation(libs.revenuecat)
     //implementation(libs.revenuecat.purchases.ui)
+
+    // Recaptcha
+    implementation(libs.recaptcha)
 
     // Hızlı kaydırma için
     implementation(libs.fastscroller)

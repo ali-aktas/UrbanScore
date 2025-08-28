@@ -6,9 +6,26 @@
     android:layout_height="match_parent"
     android:paddingEnd="8dp"
     android:paddingStart="8dp"
-    android:background="@drawable/appmainbg"
     tools:context=".ui.home.HomeFragment">
 
+    <LinearLayout
+        android:id="@+id/txtAppName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Roamly"
+            android:fontFamily="@font/montserrat_alternates_bold"
+            android:textColor="@color/white"
+            android:textSize="32sp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/mainHeader"
@@ -17,10 +34,10 @@
         android:orientation="vertical"
         android:gravity="bottom"
         android:background="#00FFFFFF"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtAppName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="4dp">
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/mainAnim"

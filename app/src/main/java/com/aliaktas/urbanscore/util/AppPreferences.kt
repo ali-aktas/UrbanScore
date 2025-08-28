@@ -14,6 +14,7 @@ class AppPreferences @Inject constructor(context: Context) {
     companion object {
         private const val KEY_FIRST_LAUNCH = "first_launch"
         private const val KEY_LAST_VERSION = "last_version_code"
+        private const val KEY_ONBOARDING_SEEN = "onboarding_seen" // Yeni eklenen
     }
 
     val isFirstLaunch: Boolean
@@ -29,5 +30,14 @@ class AppPreferences @Inject constructor(context: Context) {
 
     fun updateVersionCode(versionCode: Int) {
         prefs.edit().putInt(KEY_LAST_VERSION, versionCode).apply()
+    }
+
+    // Onboarding için yeni metodlar
+    fun setOnboardingSeen(seen: Boolean) {
+        prefs.edit().putBoolean(KEY_ONBOARDING_SEEN, seen).apply()
+    }
+
+    fun isOnboardingSeen(): Boolean {
+        return prefs.getBoolean(KEY_ONBOARDING_SEEN, false)
     }
 }

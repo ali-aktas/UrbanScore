@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -61,10 +62,18 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set window insets
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+        // MainActivity'de
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+
+            // Bottom navigation'ı sistem navigasyon çubuğunun üstüne yerleştir
+            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.bottomMargin = systemBars.bottom
+            view.layoutParams = layoutParams
+
+            // Padding'i orijinal değerine geri getir
+            view.setPadding(8, 8, 8, 8)
+
             insets
         }
 

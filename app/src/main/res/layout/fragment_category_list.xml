@@ -8,7 +8,6 @@
     android:paddingEnd="8dp"
     android:paddingStart="8dp"
     android:id="@+id/categoryListContainer"
-    android:background="@drawable/appmainbg"
     android:transitionName="cities_list_transition">
 
     <ImageButton

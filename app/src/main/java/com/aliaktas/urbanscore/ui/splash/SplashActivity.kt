@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.aliaktas.urbanscore.MainActivity
 import com.aliaktas.urbanscore.ads.AdManager
 import com.aliaktas.urbanscore.databinding.ActivitySplashBinding
+import com.aliaktas.urbanscore.ui.onboarding.OnboardingActivity
 import com.aliaktas.urbanscore.util.AppPreferences
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -95,6 +96,17 @@ class SplashActivity : AppCompatActivity() {
     }
 
     private fun navigateToMainActivity() {
+        // Onboarding kontrolü ekle
+        if (!appPreferences.isOnboardingSeen()) {
+            // İlk kez açılıyor, onboarding göster
+            val intent = Intent(this, OnboardingActivity::class.java)
+            startActivity(intent)
+            finish()
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            return
+        }
+
+        // Onboarding görülmüş, normal akışa devam et
         val intent = Intent(this, MainActivity::class.java)
         // Kullanıcı giriş durumunu intent'e ekle
         intent.putExtra("isLoggedIn", auth.currentUser != null)
